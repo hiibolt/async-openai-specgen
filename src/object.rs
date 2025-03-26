@@ -1,21 +1,21 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 #[derive(Debug)]
 pub enum FieldValue {
-    Object(String),
-    Enum(String),
+    ExternalType(String),
     Array(String),
     String,
     Integer,
+    Boolean
 }
 impl std::fmt::Display for FieldValue {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            FieldValue::Object(value) => write!(f, "{}", value),
-            FieldValue::Enum(value) => write!(f, "{}", value),
+            FieldValue::ExternalType(value) => write!(f, "{}", value),
             FieldValue::Array(value) => write!(f, "Vec<{}>", value),
             FieldValue::String => write!(f, "String"),
             FieldValue::Integer => write!(f, "i64"),
+            FieldValue::Boolean => write!(f, "bool"),
         }
     }
 }
@@ -35,7 +35,7 @@ pub struct Object {
     /// The description of the object
     pub description: Option<String>,
     /// The properties of the object
-    pub properties: HashMap<String, Field>,
+    pub properties: BTreeMap<String, Field>,
 }
 impl std::fmt::Display for Object {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {

@@ -1,4 +1,112 @@
 {
+    "ModelIdsResponses": Enum(
+        Enum {
+            name: "ModelIdsResponses",
+            description: None,
+            values: [
+                "String(String)",
+                "o3-mini",
+                "o3-mini-2025-01-31",
+                "o1",
+                "o1-2024-12-17",
+                "o1-preview",
+                "o1-preview-2024-09-12",
+                "o1-mini",
+                "o1-mini-2024-09-12",
+                "gpt-4o",
+                "gpt-4o-2024-11-20",
+                "gpt-4o-2024-08-06",
+                "gpt-4o-2024-05-13",
+                "gpt-4o-audio-preview",
+                "gpt-4o-audio-preview-2024-10-01",
+                "gpt-4o-audio-preview-2024-12-17",
+                "gpt-4o-mini-audio-preview",
+                "gpt-4o-mini-audio-preview-2024-12-17",
+                "gpt-4o-search-preview",
+                "gpt-4o-mini-search-preview",
+                "gpt-4o-search-preview-2025-03-11",
+                "gpt-4o-mini-search-preview-2025-03-11",
+                "chatgpt-4o-latest",
+                "gpt-4o-mini",
+                "gpt-4o-mini-2024-07-18",
+                "gpt-4-turbo",
+                "gpt-4-turbo-2024-04-09",
+                "gpt-4-0125-preview",
+                "gpt-4-turbo-preview",
+                "gpt-4-1106-preview",
+                "gpt-4-vision-preview",
+                "gpt-4",
+                "gpt-4-0314",
+                "gpt-4-0613",
+                "gpt-4-32k",
+                "gpt-4-32k-0314",
+                "gpt-4-32k-0613",
+                "gpt-3.5-turbo",
+                "gpt-3.5-turbo-16k",
+                "gpt-3.5-turbo-0301",
+                "gpt-3.5-turbo-0613",
+                "gpt-3.5-turbo-1106",
+                "gpt-3.5-turbo-0125",
+                "gpt-3.5-turbo-16k-0613",
+                "o1-pro",
+                "o1-pro-2025-03-19",
+                "computer-use-preview",
+                "computer-use-preview-2025-03-11",
+            ],
+        },
+    ),
+    "ModelIdsShared": Enum(
+        Enum {
+            name: "ModelIdsShared",
+            description: None,
+            values: [
+                "String(String)",
+                "o3-mini",
+                "o3-mini-2025-01-31",
+                "o1",
+                "o1-2024-12-17",
+                "o1-preview",
+                "o1-preview-2024-09-12",
+                "o1-mini",
+                "o1-mini-2024-09-12",
+                "gpt-4o",
+                "gpt-4o-2024-11-20",
+                "gpt-4o-2024-08-06",
+                "gpt-4o-2024-05-13",
+                "gpt-4o-audio-preview",
+                "gpt-4o-audio-preview-2024-10-01",
+                "gpt-4o-audio-preview-2024-12-17",
+                "gpt-4o-mini-audio-preview",
+                "gpt-4o-mini-audio-preview-2024-12-17",
+                "gpt-4o-search-preview",
+                "gpt-4o-mini-search-preview",
+                "gpt-4o-search-preview-2025-03-11",
+                "gpt-4o-mini-search-preview-2025-03-11",
+                "chatgpt-4o-latest",
+                "gpt-4o-mini",
+                "gpt-4o-mini-2024-07-18",
+                "gpt-4-turbo",
+                "gpt-4-turbo-2024-04-09",
+                "gpt-4-0125-preview",
+                "gpt-4-turbo-preview",
+                "gpt-4-1106-preview",
+                "gpt-4-vision-preview",
+                "gpt-4",
+                "gpt-4-0314",
+                "gpt-4-0613",
+                "gpt-4-32k",
+                "gpt-4-32k-0314",
+                "gpt-4-32k-0613",
+                "gpt-3.5-turbo",
+                "gpt-3.5-turbo-16k",
+                "gpt-3.5-turbo-0301",
+                "gpt-3.5-turbo-0613",
+                "gpt-3.5-turbo-1106",
+                "gpt-3.5-turbo-0125",
+                "gpt-3.5-turbo-16k-0613",
+            ],
+        },
+    ),
     "Reasoning": Object(
         Object {
             name: "Reasoning",
@@ -6,136 +114,35 @@
                 "**o-series models only**\n\nConfiguration options for \n[reasoning models](https://platform.openai.com/docs/guides/reasoning).\n",
             ),
             properties: {
-                "generate_summary": Field {
-                    description: Some(
-                        "**computer_use_preview only**\n\nA summary of the reasoning performed by the model. This can be\nuseful for debugging and understanding the model's reasoning process.\nOne of `concise` or `detailed`.\n",
-                    ),
-                    value: Enum(
-                        "ReasoningGenerateSummary",
-                    ),
-                    required: false,
-                },
                 "effort": Field {
                     description: None,
-                    value: Object(
+                    value: ExternalType(
                         "ReasoningEffort",
                     ),
                     required: false,
                 },
+                "generate_summary": Field {
+                    description: Some(
+                        "**computer_use_preview only**\n\nA summary of the reasoning performed by the model. This can be\nuseful for debugging and understanding the model's reasoning process.\nOne of `concise` or `detailed`.\n",
+                    ),
+                    value: ExternalType(
+                        "ReasoningGenerateSummary",
+                    ),
+                    required: false,
+                },
             },
         },
     ),
-    "InputTextType": Enum(
+    "ReasoningEffort": Enum(
         Enum {
-            name: "InputTextType",
+            name: "ReasoningEffort",
             description: Some(
-                "The type of the input item. Always `input_text`.\n",
+                "**o-series models only** \n\nConstrains effort on reasoning for \n[reasoning models](https://platform.openai.com/docs/guides/reasoning).\nCurrently supported values are `low`, `medium`, and `high`. Reducing\nreasoning effort can result in faster responses and fewer tokens used\non reasoning in a response.\n",
             ),
             values: [
-                "input_text",
-            ],
-        },
-    ),
-    "InputImageDetail": Enum(
-        Enum {
-            name: "InputImageDetail",
-            description: Some(
-                "The detail level of the image to be sent to the model. One of `high`,\n`low`, or `auto`. Defaults to `auto`.\n",
-            ),
-            values: [
-                "high",
                 "low",
-                "auto",
-            ],
-        },
-    ),
-    "InputImageType": Enum(
-        Enum {
-            name: "InputImageType",
-            description: Some(
-                "The type of the input item. Always `input_image`.\n",
-            ),
-            values: [
-                "input_image",
-            ],
-        },
-    ),
-    "InputImage": Object(
-        Object {
-            name: "InputImage",
-            description: Some(
-                "An image input to the model. Learn about [image inputs](/docs/guides/vision).\n",
-            ),
-            properties: {
-                "file_id": Field {
-                    description: Some(
-                        "The ID of the file to be sent to the model.\n",
-                    ),
-                    value: String,
-                    required: false,
-                },
-                "image_url": Field {
-                    description: Some(
-                        "The URL of the image to be sent to the model. A fully qualified URL or\nbase64 encoded image in a data URL.\n",
-                    ),
-                    value: String,
-                    required: false,
-                },
-                "detail": Field {
-                    description: Some(
-                        "The detail level of the image to be sent to the model. One of `high`,\n`low`, or `auto`. Defaults to `auto`.\n",
-                    ),
-                    value: Enum(
-                        "InputImageDetail",
-                    ),
-                    required: true,
-                },
-                "type": Field {
-                    description: Some(
-                        "The type of the input item. Always `input_image`.\n",
-                    ),
-                    value: Enum(
-                        "InputImageType",
-                    ),
-                    required: true,
-                },
-            },
-        },
-    ),
-    "InputText": Object(
-        Object {
-            name: "InputText",
-            description: Some(
-                "A text input to the model.\n",
-            ),
-            properties: {
-                "type": Field {
-                    description: Some(
-                        "The type of the input item. Always `input_text`.\n",
-                    ),
-                    value: Enum(
-                        "InputTextType",
-                    ),
-                    required: true,
-                },
-                "text": Field {
-                    description: Some(
-                        "The text input to the model.\n",
-                    ),
-                    value: String,
-                    required: true,
-                },
-            },
-        },
-    ),
-    "InputFileType": Enum(
-        Enum {
-            name: "InputFileType",
-            description: Some(
-                "The type of the input item. Always `input_file`.\n",
-            ),
-            values: [
-                "input_file",
+                "medium",
+                "high",
             ],
         },
     ),
@@ -151,44 +158,341 @@
             ],
         },
     ),
-    "InputFile": Object(
+    "ResponseFormatJsonObject": Object(
         Object {
-            name: "InputFile",
+            name: "ResponseFormatJsonObject",
             description: Some(
-                "A file input to the model.\n",
+                "JSON object response format. An older method of generating JSON responses.\nUsing `json_schema` is recommended for models that support it. Note that the\nmodel will not generate JSON without a system or user message instructing it\nto do so.\n",
             ),
             properties: {
                 "type": Field {
                     description: Some(
-                        "The type of the input item. Always `input_file`.\n",
+                        "The type of response format being defined. Always `json_object`.",
                     ),
-                    value: Enum(
-                        "InputFileType",
+                    value: ExternalType(
+                        "ResponseFormatJsonObjectType",
                     ),
                     required: true,
                 },
-                "filename": Field {
+            },
+        },
+    ),
+    "ResponseFormatJsonObjectType": Enum(
+        Enum {
+            name: "ResponseFormatJsonObjectType",
+            description: Some(
+                "The type of response format being defined. Always `json_object`.",
+            ),
+            values: [
+                "json_object",
+            ],
+        },
+    ),
+    "ResponseFormatText": Object(
+        Object {
+            name: "ResponseFormatText",
+            description: Some(
+                "Default response format. Used to generate text responses.\n",
+            ),
+            properties: {
+                "type": Field {
                     description: Some(
-                        "The name of the file to be sent to the model.\n",
+                        "The type of response format being defined. Always `text`.",
+                    ),
+                    value: ExternalType(
+                        "ResponseFormatTextType",
+                    ),
+                    required: true,
+                },
+            },
+        },
+    ),
+    "ResponseFormatTextType": Enum(
+        Enum {
+            name: "ResponseFormatTextType",
+            description: Some(
+                "The type of response format being defined. Always `text`.",
+            ),
+            values: [
+                "text",
+            ],
+        },
+    ),
+    "ResponseProperties": Object(
+        Object {
+            name: "ResponseProperties",
+            description: None,
+            properties: {
+                "instructions": Field {
+                    description: Some(
+                        "Inserts a system (or developer) message as the first item in the model's context.\n\nWhen using along with `previous_response_id`, the instructions from a previous\nresponse will be not be carried over to the next response. This makes it simple\nto swap out system (or developer) messages in new responses.\n",
                     ),
                     value: String,
                     required: false,
                 },
-                "file_data": Field {
+                "max_output_tokens": Field {
                     description: Some(
-                        "The content of the file to be sent to the model.\n",
+                        "An upper bound for the number of tokens that can be generated for a response, including visible output tokens and [reasoning tokens](/docs/guides/reasoning).\n",
+                    ),
+                    value: Integer,
+                    required: false,
+                },
+                "model": Field {
+                    description: Some(
+                        "Model ID used to generate the response, like `gpt-4o` or `o1`. OpenAI\noffers a wide range of models with different capabilities, performance\ncharacteristics, and price points. Refer to the [model guide](/docs/models)\nto browse and compare available models.\n",
+                    ),
+                    value: ExternalType(
+                        "ModelIdsResponses",
+                    ),
+                    required: false,
+                },
+                "previous_response_id": Field {
+                    description: Some(
+                        "The unique ID of the previous response to the model. Use this to\ncreate multi-turn conversations. Learn more about \n[conversation state](/docs/guides/conversation-state).\n",
                     ),
                     value: String,
                     required: false,
                 },
-                "file_id": Field {
-                    description: Some(
-                        "The ID of the file to be sent to the model.\n",
+                "reasoning": Field {
+                    description: None,
+                    value: ExternalType(
+                        "Reasoning",
                     ),
-                    value: String,
+                    required: false,
+                },
+                "text": Field {
+                    description: Some(
+                        "Configuration options for a text response from the model. Can be plain\ntext or structured JSON data. Learn more:\n- [Text inputs and outputs](/docs/guides/text)\n- [Structured Outputs](/docs/guides/structured-outputs)\n",
+                    ),
+                    value: ExternalType(
+                        "ResponsePropertiesText",
+                    ),
+                    required: false,
+                },
+                "tool_choice": Field {
+                    description: Some(
+                        "How the model should select which tool (or tools) to use when generating\na response. See the `tools` parameter to see how to specify which tools\nthe model can call.\n",
+                    ),
+                    value: ExternalType(
+                        "ResponsePropertiesToolChoice",
+                    ),
+                    required: false,
+                },
+                "tools": Field {
+                    description: Some(
+                        "An array of tools the model may call while generating a response. You \ncan specify which tool to use by setting the `tool_choice` parameter.\n\nThe two categories of tools you can provide the model are:\n\n- **Built-in tools**: Tools that are provided by OpenAI that extend the\n  model's capabilities, like [web search](/docs/guides/tools-web-search)\n  or [file search](/docs/guides/tools-file-search). Learn more about\n  [built-in tools](/docs/guides/tools).\n- **Function calls (custom tools)**: Functions that are defined by you,\n  enabling the model to call your own code. Learn more about\n  [function calling](/docs/guides/function-calling).\n",
+                    ),
+                    value: Array(
+                        "array",
+                    ),
+                    required: false,
+                },
+                "truncation": Field {
+                    description: Some(
+                        "The truncation strategy to use for the model response.\n- `auto`: If the context of this response and previous ones exceeds\n  the model's context window size, the model will truncate the \n  response to fit the context window by dropping input items in the\n  middle of the conversation. \n- `disabled` (default): If a model response will exceed the context window \n  size for a model, the request will fail with a 400 error.\n",
+                    ),
+                    value: ExternalType(
+                        "ResponsePropertiesTruncation",
+                    ),
                     required: false,
                 },
             },
+        },
+    ),
+    "ResponsePropertiesText": Object(
+        Object {
+            name: "ResponsePropertiesText",
+            description: Some(
+                "Configuration options for a text response from the model. Can be plain\ntext or structured JSON data. Learn more:\n- [Text inputs and outputs](/docs/guides/text)\n- [Structured Outputs](/docs/guides/structured-outputs)\n",
+            ),
+            properties: {
+                "format": Field {
+                    description: None,
+                    value: ExternalType(
+                        "TextResponseFormatConfiguration",
+                    ),
+                    required: false,
+                },
+            },
+        },
+    ),
+    "ResponsePropertiesToolChoice": Enum(
+        Enum {
+            name: "ResponsePropertiesToolChoice",
+            description: Some(
+                "How the model should select which tool (or tools) to use when generating\na response. See the `tools` parameter to see how to specify which tools\nthe model can call.\n",
+            ),
+            values: [
+                "ToolChoiceOptions(ToolChoiceOptions)",
+                "ToolChoiceTypes(ToolChoiceTypes)",
+                "ToolChoiceFunction(ToolChoiceFunction)",
+            ],
+        },
+    ),
+    "ResponsePropertiesTruncation": Enum(
+        Enum {
+            name: "ResponsePropertiesTruncation",
+            description: Some(
+                "The truncation strategy to use for the model response.\n- `auto`: If the context of this response and previous ones exceeds\n  the model's context window size, the model will truncate the \n  response to fit the context window by dropping input items in the\n  middle of the conversation. \n- `disabled` (default): If a model response will exceed the context window \n  size for a model, the request will fail with a 400 error.\n",
+            ),
+            values: [
+                "auto",
+                "disabled",
+            ],
+        },
+    ),
+    "TextResponseFormatConfiguration": Enum(
+        Enum {
+            name: "TextResponseFormatConfiguration",
+            description: Some(
+                "An object specifying the format that the model must output.\n\nConfiguring `{ \"type\": \"json_schema\" }` enables Structured Outputs, \nwhich ensures the model will match your supplied JSON schema. Learn more in the \n[Structured Outputs guide](/docs/guides/structured-outputs).\n\nThe default format is `{ \"type\": \"text\" }` with no additional options.\n\n**Not recommended for gpt-4o and newer models:**\n\nSetting to `{ \"type\": \"json_object\" }` enables the older JSON mode, which\nensures the message the model generates is valid JSON. Using `json_schema`\nis preferred for models that support it.\n",
+            ),
+            values: [
+                "ResponseFormatText(ResponseFormatText)",
+                "TextResponseFormatJsonSchema(TextResponseFormatJsonSchema)",
+                "ResponseFormatJsonObject(ResponseFormatJsonObject)",
+            ],
+        },
+    ),
+    "TextResponseFormatJsonSchema": Object(
+        Object {
+            name: "TextResponseFormatJsonSchema",
+            description: Some(
+                "JSON Schema response format. Used to generate structured JSON responses.\nLearn more about [Structured Outputs](/docs/guides/structured-outputs).\n",
+            ),
+            properties: {
+                "description": Field {
+                    description: Some(
+                        "A description of what the response format is for, used by the model to\ndetermine how to respond in the format.\n",
+                    ),
+                    value: String,
+                    required: false,
+                },
+                "name": Field {
+                    description: Some(
+                        "The name of the response format. Must be a-z, A-Z, 0-9, or contain\nunderscores and dashes, with a maximum length of 64.\n",
+                    ),
+                    value: String,
+                    required: false,
+                },
+                "schema": Field {
+                    description: None,
+                    value: ExternalType(
+                        "serde_json::Value",
+                    ),
+                    required: true,
+                },
+                "strict": Field {
+                    description: Some(
+                        "Whether to enable strict schema adherence when generating the output.\nIf set to true, the model will always follow the exact schema defined\nin the `schema` field. Only a subset of JSON Schema is supported when\n`strict` is `true`. To learn more, read the [Structured Outputs\nguide](/docs/guides/structured-outputs).\n",
+                    ),
+                    value: Boolean,
+                    required: false,
+                },
+                "type": Field {
+                    description: Some(
+                        "The type of response format being defined. Always `json_schema`.",
+                    ),
+                    value: ExternalType(
+                        "TextResponseFormatJsonSchemaType",
+                    ),
+                    required: true,
+                },
+            },
+        },
+    ),
+    "TextResponseFormatJsonSchemaType": Enum(
+        Enum {
+            name: "TextResponseFormatJsonSchemaType",
+            description: Some(
+                "The type of response format being defined. Always `json_schema`.",
+            ),
+            values: [
+                "json_schema",
+            ],
+        },
+    ),
+    "ToolChoiceFunction": Object(
+        Object {
+            name: "ToolChoiceFunction",
+            description: Some(
+                "Use this option to force the model to call a specific function.\n",
+            ),
+            properties: {
+                "name": Field {
+                    description: Some(
+                        "The name of the function to call.",
+                    ),
+                    value: String,
+                    required: true,
+                },
+                "type": Field {
+                    description: Some(
+                        "For function calling, the type is always `function`.",
+                    ),
+                    value: ExternalType(
+                        "ToolChoiceFunctionType",
+                    ),
+                    required: true,
+                },
+            },
+        },
+    ),
+    "ToolChoiceFunctionType": Enum(
+        Enum {
+            name: "ToolChoiceFunctionType",
+            description: Some(
+                "For function calling, the type is always `function`.",
+            ),
+            values: [
+                "function",
+            ],
+        },
+    ),
+    "ToolChoiceOptions": Enum(
+        Enum {
+            name: "ToolChoiceOptions",
+            description: Some(
+                "Controls which (if any) tool is called by the model.\n\n`none` means the model will not call any tool and instead generates a message.\n\n`auto` means the model can pick between generating a message or calling one or\nmore tools.\n\n`required` means the model must call one or more tools.\n",
+            ),
+            values: [
+                "none",
+                "auto",
+                "required",
+            ],
+        },
+    ),
+    "ToolChoiceTypes": Object(
+        Object {
+            name: "ToolChoiceTypes",
+            description: Some(
+                "Indicates that the model should use a built-in tool to generate a response.\n[Learn more about built-in tools](/docs/guides/tools).\n",
+            ),
+            properties: {
+                "type": Field {
+                    description: Some(
+                        "The type of hosted tool the model should to use. Learn more about\n[built-in tools](/docs/guides/tools).\n\nAllowed values are:\n- `file_search`\n- `web_search_preview`\n- `computer_use_preview`\n",
+                    ),
+                    value: ExternalType(
+                        "ToolChoiceTypesType",
+                    ),
+                    required: true,
+                },
+            },
+        },
+    ),
+    "ToolChoiceTypesType": Enum(
+        Enum {
+            name: "ToolChoiceTypesType",
+            description: Some(
+                "The type of hosted tool the model should to use. Learn more about\n[built-in tools](/docs/guides/tools).\n\nAllowed values are:\n- `file_search`\n- `web_search_preview`\n- `computer_use_preview`\n",
+            ),
+            values: [
+                "file_search",
+                "web_search_preview",
+                "computer_use_preview",
+                "web_search_preview_2025_03_11",
+            ],
         },
     ),
 }
