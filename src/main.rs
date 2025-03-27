@@ -546,6 +546,26 @@ fn parse_array (
     }
 
     let result = match property_value["items"]["type"].as_str() {
+        Some("object") => {
+            // Recursively add the object as `keyPropertyKey`
+            let field_type_key = format!(
+                "{}{}",
+                key,
+                property_key.to_case(Case::UpperCamel)
+            );
+
+            parse_object(
+                global_yaml,
+                schemas,
+                aliases,
+                field_type_key.as_str(),
+                &property_value["items"]
+            )
+                .with_context(|| format!("Couldn't parse the object {field_type_key}"))?;
+            println!("Finished recursively adding object field {field_type_key}, continuing object {key}");
+
+            FieldValue::Array(field_type_key)
+        },
         Some("string") => {
             FieldValue::Array("String".to_string())
         },
@@ -554,6 +574,9 @@ fn parse_array (
         },
         Some("boolean") => {
             FieldValue::Array("bool".to_string())
+        },
+        Some("number") => {
+            FieldValue::Array("f64".to_string())
         },
         Some("array") => {
             // Nested arrays
@@ -665,7 +688,7 @@ fn process_properties (
                     } else {
                         FieldValue::ExternalType("HashMap<String, String>".to_string())
                     }
-                } else if let Some(_) = property_value["x-oaiMeta"].as_hash() {
+                } else if property_value["x-oaiMeta"].as_hash().is_some() && property_value["properties"].as_hash().is_none() {
                     FieldValue::ExternalType("serde_json::Value".to_string())
                 } else {
                     // Recursively add the object as `keyPropertyKey`
@@ -998,7 +1021,7 @@ fn parse (
 
                     return Ok(())
                 }
-            } else if let Some(_) = value["x-oaiMeta"].as_hash() {
+            } else if value["x-oaiMeta"].as_hash().is_some() && value["properties"].as_hash().is_none() {
                 // If it's a `meta`, cast to a `serde_json::Value`
                 aliases.insert(key.to_string(), Alias {
                     name: key.to_string(),
