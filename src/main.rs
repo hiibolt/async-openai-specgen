@@ -58,6 +58,7 @@ fn parse_enum (
                     .context("Failed to parse the referred struct")?;
 
                 // Add the requested struct recursively
+                println!("Need to recurse for `anyOf` enum: {parsed_referred_struct}");
                 parse(
                     global_yaml,
                     schemas,
@@ -82,12 +83,19 @@ fn parse_enum (
                 }
                 
                 // If not, add the referred struct's enum values to this one
-                if let Some(Data::Enum(referred_enum)) = schemas.get(parsed_referred_struct) {
-                    for value in &referred_enum.values {
-                        enum_values.push(value.to_string());
+                match schemas.get(parsed_referred_struct) {
+                    Some(Data::Enum(referred_enum)) => {
+                        for value in &referred_enum.values {
+                            enum_values.push(value.to_string());
+                        }
+                    },
+                    Some(Data::Object(referred_obj)) => {
+                        // Add the referred struct as a variant
+                        enum_values.push(format!("{}({})", parsed_referred_struct, parsed_referred_struct));
                     }
-                } else {
-                    panic!("Referred struct is not an enum in an enum type");
+                    _ => {
+                        bail!("Referred struct is not an enum in an enum type");
+                    }
                 }
 
                 continue;
@@ -147,6 +155,7 @@ fn parse_enum (
                     .context("Failed to parse the referred struct")?;
 
                 // Add the requested struct recursively
+                println!("Need to recurse for `oneOf` enum: {parsed_referred_struct}");
                 parse(
                     global_yaml,
                     schemas,
@@ -158,14 +167,24 @@ fn parse_enum (
                 println!("Finished parsing {parsed_referred_struct}, continuing with enum {key}");
 
                 // Add the referred struct to the enum
-                match schemas.get(parsed_referred_struct)
-                    .with_context(|| format!("Couldn't get the referred struct: {}", parsed_referred_struct))?
-                {
-                    Data::Object(_) => {
+                match schemas.get(parsed_referred_struct) {
+                    Some(Data::Object(_)) => {
                         enum_values.push(format!("{}({})", parsed_referred_struct, parsed_referred_struct));
                     },
-                    Data::Enum(_) => {
+                    Some(Data::Enum(_)) => {
                         enum_values.push(format!("{}({})", parsed_referred_struct, parsed_referred_struct));
+                    },
+                    None => {
+                        // Check if it's an alias
+                        match aliases.get(parsed_referred_struct) {
+                            Some(alias) => {
+                                enum_values.push(format!("{}({})", parsed_referred_struct, alias.name));
+                            },
+                            None => {
+                                println!("Referred type doesn't exist: {parsed_referred_struct}");
+                                bail!("Referred type is not an object in an enum type");
+                            }
+                        }
                     }
                 }
 
@@ -176,7 +195,10 @@ fn parse_enum (
             if let Some(values) = enum_option["enum"].as_vec() {
                 for value in values {
                     if let Some(value) = value.as_str() {
-                        enum_values.push(value.to_string());
+                        // Fix the casing of `value`
+                        let value = value.to_case(Case::UpperCamel);
+
+                        enum_values.push(format!("{value}(String)"));
                     }
                 }
 
@@ -186,6 +208,33 @@ fn parse_enum (
             // Lastly, just convert `type` to `UpperCamel` case
             if let Some(enum_type) = enum_option["type"].as_str() {
                 let cased_enum_type = enum_type.to_case(Case::UpperCamel);
+                if enum_type == "array" {
+                    // Add the array as an alias
+                    let array_field_value = parse_array(
+                        global_yaml,
+                        schemas,
+                        aliases,
+                        key,
+                        key,
+                        &enum_option
+                    )
+                        .with_context(|| format!("Couldn't parse the array {key}"))?;
+
+                    let vector_alias_name = format!("{}Array", key);
+
+                    aliases.insert(vector_alias_name.clone(), Alias {
+                        name: vector_alias_name.clone(),
+                        r#type: format!("{}", array_field_value)
+                    });
+
+                    enum_values.push(format!("{}({})",
+                        cased_enum_type,
+                        vector_alias_name
+                    ));
+
+                    continue;
+                }
+
                 enum_values.push(format!("{}({})",
                     cased_enum_type,
                     match enum_type {
@@ -206,7 +255,7 @@ fn parse_enum (
                         },
                         _ => {
                             println!("Unknown type `{:#?}`!\nErroneous Value: {:#?}", enum_type, enum_option);
-                            panic!("Unsupported type found")
+                            bail!("Unsupported type found")
                         }
                     }
                 ));
@@ -300,9 +349,9 @@ fn parse_object (
                     .next()
                     .context("Failed to parse the referred type")?;
                 let referred_type_yaml = &global_yaml["components"]["schemas"][referred_type];
-                println!("Referred type: {} - {:#?}", referred_type, referred_type_yaml);
 
                 // Add the requested type recursively
+                println!("Need to recurse for `allOf` object: {referred_type}");
                 parse(
                     global_yaml,
                     schemas,
@@ -319,8 +368,18 @@ fn parse_object (
                             object.properties.insert(property_key.to_string(), field.clone());
                         }
                     },
+                    Some(Data::Enum(_)) => {
+                        // Add this struct as an alias instead
+                        aliases.insert(key.to_string(), Alias {
+                            name: key.to_string(),
+                            r#type: referred_type.to_string()
+                        });
+
+                        return Ok(());
+                    }
                     _ => {
-                        panic!("Referred type is not an object in an object type");
+                        println!("Referred type {} does not exist in an object type", referred_type);
+                        bail!("Referred type does not exist in an object type");
                     }
                 }
             } else if let Some(_) = sub_object["type"].as_str() {
@@ -332,7 +391,7 @@ fn parse_object (
                     key,
                     sub_object,
                     &mut required,
-                ).with_context(|| format!("Couldn't process properties for {}", key))?;
+                ).with_context(|| format!("Couldn't process properties for {} on sub_object {:#?}", key, sub_object))?;
             }
         }
     } else {
@@ -357,6 +416,167 @@ fn parse_object (
 
     Ok(())
 } 
+fn parse_array (
+    global_yaml: &Yaml,
+
+    schemas: &mut BTreeMap<String, Data>,
+    aliases: &mut BTreeMap<String, Alias>,
+
+    key: &str,
+    property_key: &str,
+    property_value: &Yaml
+) -> Result<FieldValue> {
+    // First, check if the array type is external
+    if let Some(referred_type) = property_value["items"]["$ref"].as_str() {
+        let parsed_referred_type = referred_type.split("/")
+            .skip(3)
+            .next()
+            .context("Failed to parse the referred type")?;
+        let referred_type_yaml = &global_yaml["components"]["schemas"][parsed_referred_type];
+        println!("Referred type: {} - {:#?}", parsed_referred_type, referred_type_yaml);
+        
+        // Add the requested type recursively
+        parse(
+            global_yaml,
+            schemas,
+            aliases,
+            parsed_referred_type,
+            &referred_type_yaml,
+        )
+            .with_context(|| format!("Couldn't parse the object {parsed_referred_type}"))?;
+        println!("Finished recusively adding external type {parsed_referred_type}, continuing object {key}");
+
+        match schemas.get(parsed_referred_type) {
+            Some(Data::Object(_)) | Some(Data::Enum(_)) => {
+                return Ok(FieldValue::Array(parsed_referred_type.to_string()));
+            },
+            None => {
+                match aliases.get(parsed_referred_type) {
+                    Some(alias) => {
+                        return Ok(FieldValue::Array(alias.name.clone()));
+                    },
+                    None => {
+                        bail!("Couldn't get the referred type: {}", parsed_referred_type);
+                    }
+                }
+            }
+        }
+    }
+
+    // Otherwise, check if it's an array of objects
+    if let Some(_) = property_value["items"]["properties"].as_hash() {
+        let field_type_key = format!(
+            "{}{}", 
+            key,
+            property_key.to_case(Case::UpperCamel)
+        );
+
+        // Recursively add the object as `keyPropertyKey`
+        parse_object(
+            global_yaml,
+            schemas,
+            aliases,
+            field_type_key.as_str(),
+            &property_value["items"]
+        )
+            .with_context(|| format!("Couldn't parse the object {field_type_key}"))?;
+        println!("Finished recursively adding object field {field_type_key}, continuing object {key}");
+
+        return Ok(FieldValue::Array(field_type_key))
+    }
+
+    // Otherwise, check if it's an array of enums
+    if let Some(_) = property_value["items"]["enum"].as_vec() {
+        let field_type_key = format!(
+            "{}{}",
+            key,
+            property_key.to_case(Case::UpperCamel)
+        );
+
+        // Parse the enum
+        parse_enum(
+            global_yaml,
+            schemas,
+            aliases,
+            field_type_key.as_str(),
+            &property_value["items"]
+        )
+            .with_context(|| format!("Couldn't parse the enum {field_type_key}"))?;
+        println!("Finished recursively adding enum {field_type_key}, continuing object {key}");
+
+        return Ok(FieldValue::Array(field_type_key));
+    } else if let Some(_) = property_value["items"]["oneOf"].as_vec() {
+        let field_type_key = format!(
+            "{}{}",
+            key,
+            property_key.to_case(Case::UpperCamel)
+        );
+
+        // Parse the enum
+        parse_enum(
+            global_yaml,
+            schemas,
+            aliases,
+            field_type_key.as_str(),
+            &property_value["items"]
+        )
+            .with_context(|| format!("Couldn't parse the enum {field_type_key}"))?;
+        println!("Finished recursively adding `oneOf` enum {field_type_key}, continuing object {key}");
+
+        return Ok(FieldValue::Array(field_type_key));
+    } else if let Some(_) = property_value["items"]["allOf"].as_vec() {
+        let field_type_key = format!(
+            "{}{}",
+            key,
+            property_key.to_case(Case::UpperCamel)
+        );
+
+        // Parse the object
+        parse_object(
+            global_yaml,
+            schemas,
+            aliases,
+            field_type_key.as_str(),
+            &property_value["items"]
+        )
+            .with_context(|| format!("Couldn't parse the object {field_type_key}"))?;
+        println!("Finished recursively adding `allOf` object {field_type_key}, continuing object {key}");
+
+        return Ok(FieldValue::Array(field_type_key));
+    }
+
+    let result = match property_value["items"]["type"].as_str() {
+        Some("string") => {
+            FieldValue::Array("String".to_string())
+        },
+        Some("integer") => {
+            FieldValue::Array("i64".to_string())
+        },
+        Some("boolean") => {
+            FieldValue::Array("bool".to_string())
+        },
+        Some("array") => {
+            // Nested arrays
+            let array_field_value = parse_array(
+                global_yaml,
+                schemas,
+                aliases,
+                key,
+                property_key,
+                &property_value["items"]
+            )
+                .with_context(|| format!("Couldn't parse the array {key}"))?;
+
+            FieldValue::Array(format!("Vec<{}>", array_field_value))
+        },
+        _ => {
+            println!("Unknown array type `{:#?}`!\nErroneous Value: {:#?}", property_value["items"]["type"], property_value["items"]);
+            bail!("Unsupported array type found");
+        }
+    };
+
+    Ok(result)
+}
 fn process_properties (
     global_yaml: &Yaml,
     schemas: &mut BTreeMap<String, Data>,
@@ -367,152 +587,120 @@ fn process_properties (
     value: &Yaml,
     required: &mut BTreeSet<&str>,
 ) -> Result<()> {
-    let properties = value["properties"].as_hash()
-        .context("Failed to get properties")?;
+    println!("About to process properties for {key}: {value:#?}");
+
+    // Intentionally empty objects
+    if let Some(additional_properties) = value["additionalProperties"].as_bool() {
+        if !additional_properties && value["properties"].as_hash().is_none() {
+            println!("Intentionally skipping object with no properties");
+
+            return Ok(())
+        }
+    }
+
+    // Check if it's a `oneOf` object
+    if let Some(_) = value["oneOf"].as_vec() {
+        let field_type_key = format!(
+            "{}{}", 
+            key,
+            key.to_case(Case::UpperCamel)
+        );
+
+        // Parse the enum
+        println!("Property is a `oneOf` object: {field_type_key}, parsing as enum");
+        parse_enum(
+            global_yaml,
+            schemas,
+            aliases,
+            field_type_key.as_str(),
+            value
+        )
+            .with_context(|| format!("Couldn't parse the enum {field_type_key}"))?;
+        println!("Finished recursively adding `oneOf` enum {field_type_key}, continuing object {key}");
+
+        object.properties.insert(key.to_string(), Field {
+            description: None,
+            value: FieldValue::ExternalType(field_type_key),
+            required: required.contains(&key)
+        });
+
+        return Ok(())
+    }
+
+    let properties = if let Some(properties) = value["properties"].as_hash() {
+        properties
+    } else {
+        // Add it as a `serde_json::Value` object
+        aliases.insert(key.to_string(), Alias {
+            name: key.to_string(),
+            r#type: "serde_json::Value".to_string()
+        });
+
+        return Ok(())
+    };
     for (property_key, property_value) in properties.iter() {
         let property_key = property_key.as_str().context("Failed to get key")?;
+
+        println!("Processing property on {key}: {property_key} - {property_value:#?}");
 
         let description = property_value["description"].as_str();
         let field_value = match property_value["type"].as_str() {
             Some("object") => {
-                // Recursively add the object as `keyPropertyKey`
-                let field_type_key = format!(
-                    "{}{}", 
-                    key,
-                    property_key.to_case(Case::UpperCamel)
-                );
+                // Make sure it's not secretly a JSON value or a HashMap
+                if let Some(additional_properties) = property_value["additionalProperties"].as_bool() {
+                    if additional_properties {
+                        FieldValue::ExternalType("serde_json::Value".to_string())
+                    } else {
+                        FieldValue::ExternalType("HashMap<String, String>".to_string())
+                    }
+                } else if let Some(r#type) = property_value["additionalProperties"]["type"].as_str() {
+                    if r#type == "string" {
+                        FieldValue::ExternalType("HashMap<String, String>".to_string())
+                    } else {
+                        FieldValue::ExternalType("serde_json::Value".to_string())
+                    }
+                } else if let Some(x_oai_type_label) = property_value["x-oaiTypeLabel"].as_str() {
+                    if x_oai_type_label == "map" {
+                        FieldValue::ExternalType("serde_json::Value".to_string())
+                    } else {
+                        FieldValue::ExternalType("HashMap<String, String>".to_string())
+                    }
+                } else if let Some(_) = property_value["x-oaiMeta"].as_hash() {
+                    FieldValue::ExternalType("serde_json::Value".to_string())
+                } else {
+                    // Recursively add the object as `keyPropertyKey`
+                    let field_type_key = format!(
+                        "{}{}", 
+                        key,
+                        property_key.to_case(Case::UpperCamel)
+                    );
 
-                parse_object(
-                    global_yaml,
-                    schemas,
-                    aliases,
-                    field_type_key.as_str(),
-                    property_value
-                )
-                    .with_context(|| format!("Couldn't parse the object {field_type_key}"))?;
-                println!("Finished recursively adding object field {field_type_key}, continuing object {key}");
+                    parse_object(
+                        global_yaml,
+                        schemas,
+                        aliases,
+                        field_type_key.as_str(),
+                        property_value
+                    )
+                        .with_context(|| format!("Couldn't parse the object {field_type_key}"))?;
+                    println!("Finished recursively adding object field {field_type_key}, continuing object {key}");
 
-                FieldValue::ExternalType(field_type_key)
+                    FieldValue::ExternalType(field_type_key)
+                }
             },
             Some("enum") => {
                 FieldValue::ExternalType(property_value["type"].as_str().unwrap().to_string())
             },
             Some("array") => {
-                // First, check if the array type is external
-                if let Some(referred_type) = property_value["items"]["$ref"].as_str() {
-                    let parsed_referred_type = referred_type.split("/")
-                        .skip(3)
-                        .next()
-                        .context("Failed to parse the referred type")?;
-                    let referred_type_yaml = &global_yaml["components"]["schemas"][parsed_referred_type];
-                    println!("Referred type: {} - {:#?}", parsed_referred_type, referred_type_yaml);
-                    
-                    // Add the requested type recursively
-                    parse(
-                        global_yaml,
-                        schemas,
-                        aliases,
-                        parsed_referred_type,
-                        &referred_type_yaml,
-                    )
-                        .with_context(|| format!("Couldn't parse the object {parsed_referred_type}"))?;
-                    println!("Finished recusively adding external type {parsed_referred_type}, continuing object {key}");
-
-                    match schemas.get(parsed_referred_type) {
-                        Some(Data::Object(_)) | Some(Data::Enum(_)) => {
-                            FieldValue::Array(parsed_referred_type.to_string())
-                        },
-                        None => {
-                            match aliases.get(parsed_referred_type) {
-                                Some(alias) => {
-                                    FieldValue::Array(alias.name.clone())
-                                },
-                                None => {
-                                    bail!("Couldn't get the referred type: {}", parsed_referred_type);
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    // Otherwise, check if it's an array of objects
-                    if let Some(_) = property_value["items"]["properties"].as_hash() {
-                        let field_type_key = format!(
-                            "{}{}", 
-                            key,
-                            property_key.to_case(Case::UpperCamel)
-                        );
-
-                        // Recursively add the object as `keyPropertyKey`
-                        parse_object(
-                            global_yaml,
-                            schemas,
-                            aliases,
-                            field_type_key.as_str(),
-                            &property_value["items"]
-                        )
-                            .with_context(|| format!("Couldn't parse the object {field_type_key}"))?;
-                        println!("Finished recursively adding object field {field_type_key}, continuing object {key}");
-
-                        FieldValue::Array(field_type_key)
-                    } else {
-                        // Otherwise, check if it's an array of enums
-                        if let Some(_) = property_value["items"]["enum"].as_vec() {
-                            let field_type_key = format!(
-                                "{}{}",
-                                key,
-                                property_key.to_case(Case::UpperCamel)
-                            );
-
-                            // Parse the enum
-                            parse_enum(
-                                global_yaml,
-                                schemas,
-                                aliases,
-                                field_type_key.as_str(),
-                                &property_value["items"]
-                            )
-                                .with_context(|| format!("Couldn't parse the enum {field_type_key}"))?;
-                            println!("Finished recursively adding enum {field_type_key}, continuing object {key}");
-
-                            FieldValue::Array(field_type_key)
-                        } else if let Some(_) = property_value["items"]["oneOf"].as_vec() {
-                            let field_type_key = format!(
-                                "{}{}",
-                                key,
-                                property_key.to_case(Case::UpperCamel)
-                            );
-
-                            // Parse the enum
-                            parse_enum(
-                                global_yaml,
-                                schemas,
-                                aliases,
-                                field_type_key.as_str(),
-                                &property_value["items"]
-                            )
-                                .with_context(|| format!("Couldn't parse the enum {field_type_key}"))?;
-                            println!("Finished recursively adding `oneOf` enum {field_type_key}, continuing object {key}");
-
-                            FieldValue::Array(field_type_key)
-                        } else {
-                            match property_value["items"]["type"].as_str() {
-                                Some("string") => {
-                                    FieldValue::Array("String".to_string())
-                                },
-                                Some("integer") => {
-                                    FieldValue::Array("i64".to_string())
-                                },
-                                Some("boolean") => {
-                                    FieldValue::Array("bool".to_string())
-                                },
-                                _ => {
-                                    println!("Unknown array type `{:#?}`!\nErroneous Value: {:#?}", property_value["items"]["type"], property_value["items"]);
-                                    panic!("Unsupported array type found");
-                                }
-                            }
-                        }
-                    }
-                }
+                parse_array(
+                    global_yaml,
+                    schemas,
+                    aliases,
+                    key,
+                    property_key,
+                    property_value
+                )
+                    .with_context(|| format!("Couldn't parse the array {key}"))?
             },
             Some("string") => {
                 if property_value["enum"].as_vec().is_some() {
@@ -626,8 +814,33 @@ fn process_properties (
                         }
                     }
                 } else {
-                    println!("Unknown type `{:#?}`!\nErroneous Value: {:#?}", property_value["type"], property_value);
-                    panic!("No type found");
+                    // If it has an `items` key, it's an array
+                    if let Some(_) = property_value["items"].as_hash() {
+                        println!("Assuming property is an array of objects: {key}{property_key}");
+
+                        let field_type_key = format!(
+                            "{}{}", 
+                            key,
+                            property_key.to_case(Case::UpperCamel)
+                        );
+
+                        // Recursively add the object as `keyPropertyKey`
+                        parse_object(
+                            global_yaml,
+                            schemas,
+                            aliases,
+                            field_type_key.as_str(),
+                            property_value
+                        )
+                            .with_context(|| format!("Couldn't parse the object {field_type_key}"))?;
+                        println!("Finished recursively adding object field {field_type_key}, continuing object {key}");
+
+                        FieldValue::Array(field_type_key)
+                    } else {
+                        println!("Unknown type `{:#?}`!\nErroneous Value: {:#?}", property_value["type"], property_value);
+                        bail!("No type found");
+                    }
+
                 }
             }
         };
@@ -650,6 +863,7 @@ fn parse (
     key: &str,
     value: &Yaml
 ) -> Result<()> {
+    /*
     let allowed = vec!(
         "Tool",
         "ResponseProperties",
@@ -674,16 +888,43 @@ fn parse (
         "WebSearchLocation",
         "WebSearchContextSize",
         "Metadata",
+        "ChatCompletionMessageToolCalls",
+        "ChatCompletionMessageToolCall",
+        "CreateRunRequest",
+        "AssistantsApiToolChoiceOption",
+        "AssistantsNamedToolChoice",
+        "AssistantSupportedModels",
+        "ReasoningEffort",
+        "CreateMessageRequest",
+        "MessageContentImageFileObject",
+        "MessageContentImageUrlObject",
+        "MessageRequestContentTextObject",
+        "AssistantToolsCode",
+        "AssistantToolsFileSearchTypeOnly",
+        "Metadata",
+        "AssistantToolsFileSearch",
+        "FileSearchRankingOptions",
+        "FileSearchRanker",
+        "AssistantToolsFunction",
+        "FunctionObject",
+        "FunctionParameters",
+        "TruncationObject",
+        "ParallelToolCalls",
+        "AssistantsApiResponseFormatOption",
+        "ResponseFormatText",
+        "ResponseFormatJsonObject",
+        "ResponseFormatJsonSchema",
+        "ResponseFormatJsonSchemaSchema"
     );
     if !allowed.contains(&key) {
         println!("Skipping {key}");
         return Ok(());
-    }
+    } */
 
     println!("Key: {}", key);
     println!("Value: {:#?}", value);
 
-    // Check if the schema is an enum with `anyOf` or `oneOf`
+    // Check if the schema is an enum with `anyOf`, `oneOf`
     if let Some(_) = value["anyOf"].as_vec() {
         parse_enum(
             global_yaml,
@@ -705,6 +946,21 @@ fn parse (
             value
         )
             .with_context(|| format!("Couldn't parse the enum {key}"))?;
+
+        return Ok(())
+    }
+
+    // Check if it's an `allOf` object
+    if let Some(_) = value["allOf"].as_vec() {
+        parse_object(
+            &global_yaml,
+            schemas,
+            aliases,
+            key,
+            value
+        )
+            .with_context(|| format!("Couldn't parse the object {key}"))?;
+        println!("Finished parsing {key} (allOf)");
 
         return Ok(())
     }
@@ -732,9 +988,25 @@ fn parse (
 
                     return Ok(())
                 }
+            } else if let Some(x_oai_type_label) = value["x-oaiTypeLabel"].as_str() {
+                // If it's a `map`, cast to a `serde_json::Value`
+                if x_oai_type_label == "map" {
+                    aliases.insert(key.to_string(), Alias {
+                        name: key.to_string(),
+                        r#type: "serde_json::Value".to_string()
+                    });
+
+                    return Ok(())
+                }
+            } else if let Some(_) = value["x-oaiMeta"].as_hash() {
+                // If it's a `meta`, cast to a `serde_json::Value`
+                aliases.insert(key.to_string(), Alias {
+                    name: key.to_string(),
+                    r#type: "serde_json::Value".to_string()
+                });
 
                 return Ok(())
-            }
+            } 
 
             parse_object(
                 &global_yaml,
@@ -758,14 +1030,94 @@ fn parse (
                     .with_context(|| format!("Couldn't parse the enum {key}"))?;
                 println!("Finished parsing {key} (enum)");
             } else {
-                panic!("Unsupported type found");
+                bail!("Unsupported type found");
             }
         },
-        Some(&_) => {
-            panic!("Unsupported type found");
+        Some("array") => {
+            // Create an alias for the array
+            let array_field_value = parse_array(
+                &global_yaml,
+                schemas,
+                aliases,
+                key,
+                key,
+                value
+            )
+                .with_context(|| format!("Couldn't parse the array {key}"))?;
+
+            aliases.insert(key.to_string(), Alias {
+                name: key.to_string(),
+                r#type: format!("{}", array_field_value)
+            });
+
+            println!("Finished parsing {key} (array)");
+        },
+        Some("boolean") => {
+            // Create an alias for the boolean
+            aliases.insert(key.to_string(), Alias {
+                name: key.to_string(),
+                r#type: "bool".to_string()
+            });
+
+            println!("Finished parsing {key} (boolean)");
+        }
+        Some(other) => {
+            println!("Unknown type `{:#?}`!\nErroneous Value: {:#?}", other, value);
+            bail!("Unsupported type found");
         },
         None => {
-            panic!("No type found");
+            let assured_objects = vec!(
+                "ImagesResponse",
+                "OpenAIFile",
+                "ListMessagesResponse",
+                "Model",
+                "ListRunStepsResponse",
+                "ListThreadsResponse",
+                "ListVectorStoreFilesResponse",
+                "ListVectorStoresResponse"
+            );
+
+            if assured_objects.contains(&key) {
+                println!("Bypassing struct `{key}`.");
+                parse_object(
+                    &global_yaml,
+                    schemas,
+                    aliases,
+                    key,
+                    value
+                )
+                    .with_context(|| format!("Couldn't parse the object {key}"))?;
+                println!("Finished parsing {key} (object)");
+
+                return Ok(())
+            }
+
+            // If we still aren't sure, but there's an `items` field, we 
+            //  can assume it's an array
+            if let Some(_) = value["items"].as_hash() {
+                // Create an alias for the array
+                let array_field_value = parse_array(
+                    &global_yaml,
+                    schemas,
+                    aliases,
+                    key,
+                    key,
+                    value
+                )
+                    .with_context(|| format!("Couldn't parse the array {key}"))?;
+
+                aliases.insert(key.to_string(), Alias {
+                    name: key.to_string(),
+                    r#type: format!("{}", array_field_value)
+                });
+
+                println!("Finished parsing {key} (array)");
+
+                return Ok(())
+            }
+
+            println!("No type!\nErroneous Value: {:#?}", value);
+            bail!("No type found");
         }
     }
 

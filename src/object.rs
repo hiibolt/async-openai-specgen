@@ -11,8 +11,8 @@ pub enum FieldValue {
 impl std::fmt::Display for FieldValue {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            FieldValue::ExternalType(value) => write!(f, "{}", value),
-            FieldValue::Array(value) => write!(f, "Vec<{}>", value),
+            FieldValue::ExternalType(value) => write!(f, "{}", value.replace("[]", "")),
+            FieldValue::Array(value) => write!(f, "Vec<{}>", value.replace("[]", "")),
             FieldValue::String => write!(f, "String"),
             FieldValue::Integer => write!(f, "i64"),
             FieldValue::Boolean => write!(f, "bool"),
@@ -65,9 +65,11 @@ impl std::fmt::Display for Object {
             // Fix the `type` key
             let key = if key == "type" {
                 "r#type"
+            } else if key == "static" {
+                "r#static"
             } else {
                 key
-            };
+            }.replace("[]", "");
 
             if !value.required {
                 body.push_str("\t#[serde(skip_serializing_if = \"Option::is_none\")]\n");

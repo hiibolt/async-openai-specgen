@@ -35,7 +35,7 @@ impl std::fmt::Display for Enum {
         body.push_str("#[serde(untagged)]\n");
 
         // Write the enum name
-        body.push_str(&format!("pub enum {} {{\n", self.name));
+        body.push_str(&format!("pub enum {} {{\n", self.name.replace("[]", "")));
 
         // Write the enum values
         for value in self.values.iter() {
@@ -48,13 +48,14 @@ impl std::fmt::Display for Enum {
             let fix_numbers = Regex::new(r"(\d)-(\d)").unwrap();
             let fixed_value = fix_numbers.replace_all(value, |caps: &Captures| {
                 format!("{}_{}", &caps[1], &caps[2])
-            });
+            }).replace(".", "_");
 
             // Convert the value to `UpperCamel` case
             let converted = fixed_value
                 .to_case(Case::UpperCamel)
                 .replace(".", "_");
 
+            
             let primitives = vec!(
                 "String(String)",
             );
@@ -62,6 +63,19 @@ impl std::fmt::Display for Enum {
                 body.push_str(&format!("\t{},\n", value));
                 continue;
             }
+
+            // Check if the field starts with a number (not valid in Rust)
+            if value.chars().next().expect("Can't have a zero-char enum variant, unreachable").is_numeric() {
+                body.push_str("\t#[serde(rename = \"");
+                body.push_str(&value);
+                body.push_str("\")]\n");
+
+                body.push_str(&format!("\tType{},\n", value));
+
+                continue;
+            }
+            
+            // Don't waste your breath on a value that doesn't need renaming
             if converted.to_lowercase() != *value {
                 body.push_str("\t#[serde(rename = \"");
                 body.push_str(&value);
