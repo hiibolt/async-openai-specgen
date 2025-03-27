@@ -10,6 +10,7 @@ use std::collections::{BTreeSet, BTreeMap};
 use convert_case::{Case, Casing};
 use saphyr::Yaml;
 use anyhow::{Context, Result, bail};
+use hashlink::LinkedHashMap;
 
 pub(super) fn parse_object (
     global_yaml: &Yaml,
@@ -36,6 +37,7 @@ pub(super) fn parse_object (
         }
     }
 
+    // Get the required fields
     let mut required = BTreeSet::new();
     if let Some(required_yaml_vec) = value["required"].as_vec() {
         for required_field_yaml in required_yaml_vec {
@@ -45,12 +47,14 @@ pub(super) fn parse_object (
         }
     }
 
+    // Create the object
     let mut object = Object {
         name: key.to_string(),
         description: description.map(|s| s.to_string()),
         properties: BTreeMap::new(),
     };
 
+    // Check if it's an `allOf` object
     if let Some(sub_objects) = value["allOf"].as_vec() {
         println!("Which is an `allOf` object");
         for sub_object in sub_objects {
@@ -189,6 +193,76 @@ fn process_properties (
 
         return Ok(())
     };
+
+    // Converts bad properties with format `property_key.subkey` 
+    //  to a new YAML object with `subkey` within `properties`,
+    //  and ignores valid properties
+    let mut fixed_bad_properties: LinkedHashMap<Yaml, Yaml> = LinkedHashMap::new();
+    let good_properties = properties.iter()
+        .filter(|(property_key, _)| {
+            if let Some(property_key) = property_key.as_str() {
+                return !property_key.contains('.');
+            }
+
+            panic!("Invalid property key: {:#?}", property_key);
+        })
+        .collect::<BTreeMap<&Yaml, &Yaml>>();
+    let bad_properties = properties.iter()
+        .filter(|(property_key, _)| {
+            if let Some(property_key) = property_key.as_str() {
+                return property_key.contains('.');
+            }
+
+            panic!("Invalid property key: {:#?}", property_key);
+        })
+        .collect::<BTreeMap<&Yaml, &Yaml>>();
+    for (bad_property_key, bad_property_value) in properties.iter()
+        .filter(|(property_key, _)| {
+            if let Some(property_key) = property_key.as_str() {
+                return property_key.contains('.');
+            }
+
+            panic!("Invalid property key: {:#?}", property_key);
+        })
+    {
+        let split_bad_property_key = bad_property_key
+            .as_str().context("Failed to get the bad property key")?
+            .split('.')
+            .collect::<Vec<&str>>();
+        let fixed_property_key = split_bad_property_key[0];
+        let fixed_property_key_yaml = Yaml::String(fixed_property_key.to_string());
+
+        let fixed_property_value = if let Some(existing_fixed_property_value) = fixed_bad_properties.get_mut(&fixed_property_key_yaml) {
+            existing_fixed_property_value
+        } else {
+            // Create the object
+            let mut fixed_property_value = LinkedHashMap::new();
+            fixed_property_value.insert(
+                Yaml::String("type".to_string()),
+                Yaml::String("object".to_string())
+            );
+            fixed_property_value.insert(
+                Yaml::String("properties".to_string()),
+                Yaml::Hash(LinkedHashMap::new())
+            );
+
+            fixed_bad_properties.insert(fixed_property_key_yaml.clone(), Yaml::Hash(fixed_property_value));
+
+            fixed_bad_properties.get_mut(&fixed_property_key_yaml).unwrap()
+        };
+        
+        let property_name = split_bad_property_key[1];
+        fixed_property_value["properties"].as_mut_hash().unwrap().insert(
+            Yaml::String(property_name.to_string()),
+            bad_property_value.clone()
+        );
+    }
+
+    // Zip the bad properties into the good properties
+    let properties = good_properties.into_iter()
+        .chain(bad_properties.into_iter())
+        .collect::<BTreeMap<&Yaml, &Yaml>>();
+
     for (property_key, property_value) in properties.iter() {
         let property_key = property_key.as_str().context("Failed to get key")?;
 
