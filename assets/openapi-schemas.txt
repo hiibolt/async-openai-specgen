@@ -1,110 +1,373 @@
 {
-    "ModelIdsResponses": Enum(
-        Enum {
-            name: "ModelIdsResponses",
-            description: None,
-            values: [
-                "String(String)",
-                "o3-mini",
-                "o3-mini-2025-01-31",
-                "o1",
-                "o1-2024-12-17",
-                "o1-preview",
-                "o1-preview-2024-09-12",
-                "o1-mini",
-                "o1-mini-2024-09-12",
-                "gpt-4o",
-                "gpt-4o-2024-11-20",
-                "gpt-4o-2024-08-06",
-                "gpt-4o-2024-05-13",
-                "gpt-4o-audio-preview",
-                "gpt-4o-audio-preview-2024-10-01",
-                "gpt-4o-audio-preview-2024-12-17",
-                "gpt-4o-mini-audio-preview",
-                "gpt-4o-mini-audio-preview-2024-12-17",
-                "gpt-4o-search-preview",
-                "gpt-4o-mini-search-preview",
-                "gpt-4o-search-preview-2025-03-11",
-                "gpt-4o-mini-search-preview-2025-03-11",
-                "chatgpt-4o-latest",
-                "gpt-4o-mini",
-                "gpt-4o-mini-2024-07-18",
-                "gpt-4-turbo",
-                "gpt-4-turbo-2024-04-09",
-                "gpt-4-0125-preview",
-                "gpt-4-turbo-preview",
-                "gpt-4-1106-preview",
-                "gpt-4-vision-preview",
-                "gpt-4",
-                "gpt-4-0314",
-                "gpt-4-0613",
-                "gpt-4-32k",
-                "gpt-4-32k-0314",
-                "gpt-4-32k-0613",
-                "gpt-3.5-turbo",
-                "gpt-3.5-turbo-16k",
-                "gpt-3.5-turbo-0301",
-                "gpt-3.5-turbo-0613",
-                "gpt-3.5-turbo-1106",
-                "gpt-3.5-turbo-0125",
-                "gpt-3.5-turbo-16k-0613",
-                "o1-pro",
-                "o1-pro-2025-03-19",
-                "computer-use-preview",
-                "computer-use-preview-2025-03-11",
-            ],
+    "ComparisonFilter": Object(
+        Object {
+            name: "ComparisonFilter",
+            description: Some(
+                "A filter used to compare a specified attribute key to a given value using a defined comparison operation.\n",
+            ),
+            properties: {
+                "key": Field {
+                    description: Some(
+                        "The key to compare against the value.",
+                    ),
+                    value: String,
+                    required: true,
+                },
+                "type": Field {
+                    description: Some(
+                        "Specifies the comparison operator: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`.\n- `eq`: equals\n- `ne`: not equal\n- `gt`: greater than\n- `gte`: greater than or equal\n- `lt`: less than\n- `lte`: less than or equal\n",
+                    ),
+                    value: ExternalType(
+                        "ComparisonFilterType",
+                    ),
+                    required: true,
+                },
+                "value": Field {
+                    description: Some(
+                        "The value to compare against the attribute key; supports string, number, or boolean types.",
+                    ),
+                    value: ExternalType(
+                        "ComparisonFilterValue",
+                    ),
+                    required: true,
+                },
+            },
         },
     ),
-    "ModelIdsShared": Enum(
+    "ComparisonFilterType": Enum(
         Enum {
-            name: "ModelIdsShared",
-            description: None,
+            name: "ComparisonFilterType",
+            description: Some(
+                "Specifies the comparison operator: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`.\n- `eq`: equals\n- `ne`: not equal\n- `gt`: greater than\n- `gte`: greater than or equal\n- `lt`: less than\n- `lte`: less than or equal\n",
+            ),
+            values: [
+                "eq",
+                "ne",
+                "gt",
+                "gte",
+                "lt",
+                "lte",
+            ],
+            enum_type: Standard,
+        },
+    ),
+    "ComparisonFilterValue": Enum(
+        Enum {
+            name: "ComparisonFilterValue",
+            description: Some(
+                "The value to compare against the attribute key; supports string, number, or boolean types.",
+            ),
             values: [
                 "String(String)",
-                "o3-mini",
-                "o3-mini-2025-01-31",
-                "o1",
-                "o1-2024-12-17",
-                "o1-preview",
-                "o1-preview-2024-09-12",
-                "o1-mini",
-                "o1-mini-2024-09-12",
-                "gpt-4o",
-                "gpt-4o-2024-11-20",
-                "gpt-4o-2024-08-06",
-                "gpt-4o-2024-05-13",
-                "gpt-4o-audio-preview",
-                "gpt-4o-audio-preview-2024-10-01",
-                "gpt-4o-audio-preview-2024-12-17",
-                "gpt-4o-mini-audio-preview",
-                "gpt-4o-mini-audio-preview-2024-12-17",
-                "gpt-4o-search-preview",
-                "gpt-4o-mini-search-preview",
-                "gpt-4o-search-preview-2025-03-11",
-                "gpt-4o-mini-search-preview-2025-03-11",
-                "chatgpt-4o-latest",
-                "gpt-4o-mini",
-                "gpt-4o-mini-2024-07-18",
-                "gpt-4-turbo",
-                "gpt-4-turbo-2024-04-09",
-                "gpt-4-0125-preview",
-                "gpt-4-turbo-preview",
-                "gpt-4-1106-preview",
-                "gpt-4-vision-preview",
-                "gpt-4",
-                "gpt-4-0314",
-                "gpt-4-0613",
-                "gpt-4-32k",
-                "gpt-4-32k-0314",
-                "gpt-4-32k-0613",
-                "gpt-3.5-turbo",
-                "gpt-3.5-turbo-16k",
-                "gpt-3.5-turbo-0301",
-                "gpt-3.5-turbo-0613",
-                "gpt-3.5-turbo-1106",
-                "gpt-3.5-turbo-0125",
-                "gpt-3.5-turbo-16k-0613",
+                "Number(f64)",
+                "Boolean(bool)",
             ],
+            enum_type: OneOf,
+        },
+    ),
+    "CompoundFilter": Object(
+        Object {
+            name: "CompoundFilter",
+            description: Some(
+                "Combine multiple filters using `and` or `or`.",
+            ),
+            properties: {
+                "filters": Field {
+                    description: Some(
+                        "Array of filters to combine. Items can be `ComparisonFilter` or `CompoundFilter`.",
+                    ),
+                    value: Array(
+                        "CompoundFilterFilters",
+                    ),
+                    required: true,
+                },
+                "type": Field {
+                    description: Some(
+                        "Type of operation: `and` or `or`.",
+                    ),
+                    value: ExternalType(
+                        "CompoundFilterType",
+                    ),
+                    required: true,
+                },
+            },
+        },
+    ),
+    "CompoundFilterFilters": Enum(
+        Enum {
+            name: "CompoundFilterFilters",
+            description: None,
+            values: [
+                "ComparisonFilter(ComparisonFilter)",
+                "Object(serde_json::Value)",
+            ],
+            enum_type: OneOf,
+        },
+    ),
+    "CompoundFilterType": Enum(
+        Enum {
+            name: "CompoundFilterType",
+            description: Some(
+                "Type of operation: `and` or `or`.",
+            ),
+            values: [
+                "and",
+                "or",
+            ],
+            enum_type: Standard,
+        },
+    ),
+    "ComputerTool": Object(
+        Object {
+            name: "ComputerTool",
+            description: Some(
+                "A tool that controls a virtual computer. Learn more about the \n[computer tool](/docs/guides/tools-computer-use).\n",
+            ),
+            properties: {
+                "display_height": Field {
+                    description: Some(
+                        "The height of the computer display.\n",
+                    ),
+                    value: ExternalType(
+                        "f64",
+                    ),
+                    required: true,
+                },
+                "display_width": Field {
+                    description: Some(
+                        "The width of the computer display.\n",
+                    ),
+                    value: ExternalType(
+                        "f64",
+                    ),
+                    required: true,
+                },
+                "environment": Field {
+                    description: Some(
+                        "The type of computer environment to control.\n",
+                    ),
+                    value: ExternalType(
+                        "ComputerToolEnvironment",
+                    ),
+                    required: true,
+                },
+                "type": Field {
+                    description: Some(
+                        "The type of the computer use tool. Always `computer_use_preview`.\n",
+                    ),
+                    value: ExternalType(
+                        "ComputerToolType",
+                    ),
+                    required: true,
+                },
+            },
+        },
+    ),
+    "ComputerToolEnvironment": Enum(
+        Enum {
+            name: "ComputerToolEnvironment",
+            description: Some(
+                "The type of computer environment to control.\n",
+            ),
+            values: [
+                "mac",
+                "windows",
+                "ubuntu",
+                "browser",
+            ],
+            enum_type: Standard,
+        },
+    ),
+    "ComputerToolType": Enum(
+        Enum {
+            name: "ComputerToolType",
+            description: Some(
+                "The type of the computer use tool. Always `computer_use_preview`.\n",
+            ),
+            values: [
+                "computer_use_preview",
+            ],
+            enum_type: Standard,
+        },
+    ),
+    "FileSearchTool": Object(
+        Object {
+            name: "FileSearchTool",
+            description: Some(
+                "A tool that searches for relevant content from uploaded files.\nLearn more about the [file search tool](/docs/guides/tools-file-search).\n",
+            ),
+            properties: {
+                "filters": Field {
+                    description: Some(
+                        "A filter to apply based on file attributes.",
+                    ),
+                    value: ExternalType(
+                        "FileSearchToolFilters",
+                    ),
+                    required: false,
+                },
+                "max_num_results": Field {
+                    description: Some(
+                        "The maximum number of results to return. This number should be between 1 \nand 50 inclusive.\n",
+                    ),
+                    value: Integer,
+                    required: false,
+                },
+                "ranking_options": Field {
+                    description: Some(
+                        "Ranking options for search.",
+                    ),
+                    value: ExternalType(
+                        "FileSearchToolRankingOptions",
+                    ),
+                    required: false,
+                },
+                "type": Field {
+                    description: Some(
+                        "The type of the file search tool. Always `file_search`.\n",
+                    ),
+                    value: ExternalType(
+                        "FileSearchToolType",
+                    ),
+                    required: true,
+                },
+                "vector_store_ids": Field {
+                    description: Some(
+                        "The IDs of the vector stores to search.\n",
+                    ),
+                    value: Array(
+                        "String",
+                    ),
+                    required: true,
+                },
+            },
+        },
+    ),
+    "FileSearchToolFilters": Enum(
+        Enum {
+            name: "FileSearchToolFilters",
+            description: Some(
+                "A filter to apply based on file attributes.",
+            ),
+            values: [
+                "ComparisonFilter(ComparisonFilter)",
+                "CompoundFilter(CompoundFilter)",
+            ],
+            enum_type: OneOf,
+        },
+    ),
+    "FileSearchToolRankingOptions": Object(
+        Object {
+            name: "FileSearchToolRankingOptions",
+            description: Some(
+                "Ranking options for search.",
+            ),
+            properties: {
+                "ranker": Field {
+                    description: Some(
+                        "The ranker to use for the file search.",
+                    ),
+                    value: ExternalType(
+                        "FileSearchToolRankingOptionsRanker",
+                    ),
+                    required: false,
+                },
+                "score_threshold": Field {
+                    description: Some(
+                        "The score threshold for the file search, a number between 0 and 1.\nNumbers closer to 1 will attempt to return only the most relevant\nresults, but may return fewer results.\n",
+                    ),
+                    value: ExternalType(
+                        "f64",
+                    ),
+                    required: false,
+                },
+            },
+        },
+    ),
+    "FileSearchToolRankingOptionsRanker": Enum(
+        Enum {
+            name: "FileSearchToolRankingOptionsRanker",
+            description: Some(
+                "The ranker to use for the file search.",
+            ),
+            values: [
+                "auto",
+                "default-2024-11-15",
+            ],
+            enum_type: Standard,
+        },
+    ),
+    "FileSearchToolType": Enum(
+        Enum {
+            name: "FileSearchToolType",
+            description: Some(
+                "The type of the file search tool. Always `file_search`.\n",
+            ),
+            values: [
+                "file_search",
+            ],
+            enum_type: Standard,
+        },
+    ),
+    "FunctionTool": Object(
+        Object {
+            name: "FunctionTool",
+            description: Some(
+                "Defines a function in your own code the model can choose to call. Learn more\nabout [function calling](/docs/guides/function-calling).\n",
+            ),
+            properties: {
+                "description": Field {
+                    description: Some(
+                        "A description of the function. Used by the model to determine whether\nor not to call the function.\n",
+                    ),
+                    value: String,
+                    required: false,
+                },
+                "name": Field {
+                    description: Some(
+                        "The name of the function to call.\n",
+                    ),
+                    value: String,
+                    required: true,
+                },
+                "parameters": Field {
+                    description: Some(
+                        "A JSON schema object describing the parameters of the function.\n",
+                    ),
+                    value: ExternalType(
+                        "FunctionToolParameters",
+                    ),
+                    required: true,
+                },
+                "strict": Field {
+                    description: Some(
+                        "Whether to enforce strict parameter validation. Default `true`.\n",
+                    ),
+                    value: Boolean,
+                    required: true,
+                },
+                "type": Field {
+                    description: Some(
+                        "The type of the function tool. Always `function`.\n",
+                    ),
+                    value: ExternalType(
+                        "FunctionToolType",
+                    ),
+                    required: true,
+                },
+            },
+        },
+    ),
+    "FunctionToolType": Enum(
+        Enum {
+            name: "FunctionToolType",
+            description: Some(
+                "The type of the function tool. Always `function`.\n",
+            ),
+            values: [
+                "function",
+            ],
+            enum_type: Standard,
         },
     ),
     "Reasoning": Object(
@@ -144,6 +407,7 @@
                 "medium",
                 "high",
             ],
+            enum_type: Standard,
         },
     ),
     "ReasoningGenerateSummary": Enum(
@@ -156,6 +420,7 @@
                 "concise",
                 "detailed",
             ],
+            enum_type: Standard,
         },
     ),
     "ResponseFormatJsonObject": Object(
@@ -186,6 +451,7 @@
             values: [
                 "json_object",
             ],
+            enum_type: Standard,
         },
     ),
     "ResponseFormatText": Object(
@@ -216,6 +482,7 @@
             values: [
                 "text",
             ],
+            enum_type: Standard,
         },
     ),
     "ResponseProperties": Object(
@@ -283,7 +550,7 @@
                         "An array of tools the model may call while generating a response. You \ncan specify which tool to use by setting the `tool_choice` parameter.\n\nThe two categories of tools you can provide the model are:\n\n- **Built-in tools**: Tools that are provided by OpenAI that extend the\n  model's capabilities, like [web search](/docs/guides/tools-web-search)\n  or [file search](/docs/guides/tools-file-search). Learn more about\n  [built-in tools](/docs/guides/tools).\n- **Function calls (custom tools)**: Functions that are defined by you,\n  enabling the model to call your own code. Learn more about\n  [function calling](/docs/guides/function-calling).\n",
                     ),
                     value: Array(
-                        "array",
+                        "Tool",
                     ),
                     required: false,
                 },
@@ -327,6 +594,7 @@
                 "ToolChoiceTypes(ToolChoiceTypes)",
                 "ToolChoiceFunction(ToolChoiceFunction)",
             ],
+            enum_type: OneOf,
         },
     ),
     "ResponsePropertiesTruncation": Enum(
@@ -339,6 +607,7 @@
                 "auto",
                 "disabled",
             ],
+            enum_type: Standard,
         },
     ),
     "TextResponseFormatConfiguration": Enum(
@@ -352,6 +621,7 @@
                 "TextResponseFormatJsonSchema(TextResponseFormatJsonSchema)",
                 "ResponseFormatJsonObject(ResponseFormatJsonObject)",
             ],
+            enum_type: OneOf,
         },
     ),
     "TextResponseFormatJsonSchema": Object(
@@ -378,7 +648,7 @@
                 "schema": Field {
                     description: None,
                     value: ExternalType(
-                        "serde_json::Value",
+                        "ResponseFormatJsonSchemaSchema",
                     ),
                     required: true,
                 },
@@ -410,6 +680,20 @@
             values: [
                 "json_schema",
             ],
+            enum_type: Standard,
+        },
+    ),
+    "Tool": Enum(
+        Enum {
+            name: "Tool",
+            description: None,
+            values: [
+                "FileSearchTool(FileSearchTool)",
+                "FunctionTool(FunctionTool)",
+                "ComputerTool(ComputerTool)",
+                "WebSearchTool(WebSearchTool)",
+            ],
+            enum_type: OneOf,
         },
     ),
     "ToolChoiceFunction": Object(
@@ -447,6 +731,7 @@
             values: [
                 "function",
             ],
+            enum_type: Standard,
         },
     ),
     "ToolChoiceOptions": Enum(
@@ -460,6 +745,7 @@
                 "auto",
                 "required",
             ],
+            enum_type: Standard,
         },
     ),
     "ToolChoiceTypes": Object(
@@ -493,6 +779,162 @@
                 "computer_use_preview",
                 "web_search_preview_2025_03_11",
             ],
+            enum_type: Standard,
+        },
+    ),
+    "WebSearchContextSize": Enum(
+        Enum {
+            name: "WebSearchContextSize",
+            description: Some(
+                "High level guidance for the amount of context window space to use for the \nsearch. One of `low`, `medium`, or `high`. `medium` is the default.\n",
+            ),
+            values: [
+                "low",
+                "medium",
+                "high",
+            ],
+            enum_type: Standard,
+        },
+    ),
+    "WebSearchLocation": Object(
+        Object {
+            name: "WebSearchLocation",
+            description: Some(
+                "Approximate location parameters for the search.",
+            ),
+            properties: {
+                "city": Field {
+                    description: Some(
+                        "Free text input for the city of the user, e.g. `San Francisco`.\n",
+                    ),
+                    value: String,
+                    required: false,
+                },
+                "country": Field {
+                    description: Some(
+                        "The two-letter \n[ISO country code](https://en.wikipedia.org/wiki/ISO_3166-1) of the user,\ne.g. `US`.\n",
+                    ),
+                    value: String,
+                    required: false,
+                },
+                "region": Field {
+                    description: Some(
+                        "Free text input for the region of the user, e.g. `California`.\n",
+                    ),
+                    value: String,
+                    required: false,
+                },
+                "timezone": Field {
+                    description: Some(
+                        "The [IANA timezone](https://timeapi.io/documentation/iana-timezones) \nof the user, e.g. `America/Los_Angeles`.\n",
+                    ),
+                    value: String,
+                    required: false,
+                },
+            },
+        },
+    ),
+    "WebSearchTool": Object(
+        Object {
+            name: "WebSearchTool",
+            description: Some(
+                "This tool searches the web for relevant results to use in a response.\nLearn more about the [web search tool](/docs/guides/tools-web-search).\n",
+            ),
+            properties: {
+                "search_context_size": Field {
+                    description: None,
+                    value: ExternalType(
+                        "WebSearchContextSize",
+                    ),
+                    required: false,
+                },
+                "type": Field {
+                    description: Some(
+                        "The type of the web search tool. One of:\n- `web_search_preview`\n- `web_search_preview_2025_03_11`\n",
+                    ),
+                    value: ExternalType(
+                        "WebSearchToolType",
+                    ),
+                    required: true,
+                },
+                "user_location": Field {
+                    description: None,
+                    value: ExternalType(
+                        "WebSearchToolUserLocation",
+                    ),
+                    required: false,
+                },
+            },
+        },
+    ),
+    "WebSearchToolType": Enum(
+        Enum {
+            name: "WebSearchToolType",
+            description: Some(
+                "The type of the web search tool. One of:\n- `web_search_preview`\n- `web_search_preview_2025_03_11`\n",
+            ),
+            values: [
+                "web_search_preview",
+                "web_search_preview_2025_03_11",
+            ],
+            enum_type: Standard,
+        },
+    ),
+    "WebSearchToolUserLocation": Object(
+        Object {
+            name: "WebSearchToolUserLocation",
+            description: None,
+            properties: {
+                "city": Field {
+                    description: Some(
+                        "Free text input for the city of the user, e.g. `San Francisco`.\n",
+                    ),
+                    value: String,
+                    required: false,
+                },
+                "country": Field {
+                    description: Some(
+                        "The two-letter \n[ISO country code](https://en.wikipedia.org/wiki/ISO_3166-1) of the user,\ne.g. `US`.\n",
+                    ),
+                    value: String,
+                    required: false,
+                },
+                "region": Field {
+                    description: Some(
+                        "Free text input for the region of the user, e.g. `California`.\n",
+                    ),
+                    value: String,
+                    required: false,
+                },
+                "timezone": Field {
+                    description: Some(
+                        "The [IANA timezone](https://timeapi.io/documentation/iana-timezones) \nof the user, e.g. `America/Los_Angeles`.\n",
+                    ),
+                    value: String,
+                    required: false,
+                },
+                "type": Field {
+                    description: Some(
+                        "The type of location approximation. Always `approximate`.\n",
+                    ),
+                    value: ExternalType(
+                        "WebSearchToolUserLocationType",
+                    ),
+                    required: false,
+                },
+            },
+        },
+    ),
+    "WebSearchToolUserLocationType": Enum(
+        Enum {
+            name: "WebSearchToolUserLocationType",
+            description: Some(
+                "The type of location approximation. Always `approximate`.\n",
+            ),
+            values: [
+                "approximate",
+            ],
+            enum_type: Standard,
         },
     ),
 }

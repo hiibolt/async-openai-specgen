@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum FieldValue {
     ExternalType(String),
     Array(String),
@@ -19,7 +19,7 @@ impl std::fmt::Display for FieldValue {
         }
     }
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Field {
     /// The description of the field
     pub description: Option<String>,

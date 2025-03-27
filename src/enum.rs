@@ -1,10 +1,10 @@
 use convert_case::{Case, Casing};
 use regex::{Captures, Regex};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum EnumType {
-    OneOf,
     Standard,
+    OneOf,
 }
 #[derive(Debug)]
 pub struct Enum {
@@ -39,6 +39,12 @@ impl std::fmt::Display for Enum {
 
         // Write the enum values
         for value in self.values.iter() {
+            // If it's a `oneOf` enum, don't adjust the value
+            if self.enum_type == EnumType::OneOf {
+                body.push_str(&format!("\t{},\n", value));
+                continue;
+            }
+
             let fix_numbers = Regex::new(r"(\d)-(\d)").unwrap();
             let fixed_value = fix_numbers.replace_all(value, |caps: &Captures| {
                 format!("{}_{}", &caps[1], &caps[2])
