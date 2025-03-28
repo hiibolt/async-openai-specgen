@@ -125,9 +125,8 @@ pub(super) fn parse_array (
         return Ok(FieldValue::Array(field_type_key))
     } else if property_value["items"]["enum"].as_vec().is_some() {
         let field_type_key = format!(
-            "{}{}",
-            key,
-            property_key.replace("/", "_").to_case(Case::UpperCamel)
+            "{}Item",
+            key
         );
 
         // Parse the enum

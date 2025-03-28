@@ -11,6 +11,66 @@ use convert_case::{Case, Casing};
 use saphyr::Yaml;
 use anyhow::{Context, Result, bail};
 
+fn reserialize_yaml (
+    indentation_level: usize,
+    yaml: &Yaml
+) -> Result<String> {
+    let mut yaml_string = String::new();
+    let indentation = "\t".repeat(indentation_level);
+
+    match yaml {
+        Yaml::Hash(hash) => {
+            // Recursively serialize the hash
+            yaml_string.push_str(&format!("{}{{\n", indentation));
+            for (key, value) in hash.iter() {
+                let key = key.as_str().unwrap_or("unknown");
+
+                if key == "$ref" {
+                    if let Some(referred_type) = value.as_str() {
+                        let referred_type = referred_type.split("/")
+                            .skip(3)
+                            .next()
+                            .context("Failed to parse the referred type")?;
+                        yaml_string.push_str(&format!("\t{},\n", referred_type));
+
+                        continue;
+                    }
+                }
+
+                yaml_string.push_str(&format!("\t{}{}:\n{},\n", indentation, key, reserialize_yaml(indentation_level + 1, value)?));
+            }
+            yaml_string.push_str(&format!("{}}}", indentation));
+        },
+        Yaml::Array(array) => {
+            // Recursively serialize the array
+            yaml_string.push_str(&format!("{}[\n", indentation));
+            for value in array.iter() {
+                yaml_string.push_str(&format!("\t{}{},\n", indentation, reserialize_yaml(indentation_level + 1, value)?));
+            }
+            yaml_string.push_str(&format!("{}]", indentation));
+        },
+        Yaml::Boolean(boolean) => {
+            yaml_string.push_str(&format!("{}{}", indentation, boolean));
+        },
+        Yaml::Integer(integer) => {
+            yaml_string.push_str(&format!("{}{}", indentation, integer));
+        },
+        Yaml::Real(real) => {
+            yaml_string.push_str(&format!("{}{}", indentation, real));
+        },
+        Yaml::String(string) => {
+            yaml_string.push_str(&format!("{}\"{}\"", indentation, string));
+        },
+        Yaml::Null => {
+            yaml_string.push_str(&format!("{}null", indentation));
+        },
+        _ => {
+            bail!("Unsupported YAML type: {yaml:#?}");
+        }
+    }
+
+    Ok(yaml_string)
+}
 pub(super) fn parse_enum (
     global_yaml: &Yaml,
 
@@ -55,9 +115,18 @@ pub(super) fn parse_enum (
                 if let Some(alias) = aliases.get(parsed_referred_struct) {
                     println!("Casting enum `{}` to `serde_json::Value` because of child enum `{}`", key, alias);
 
+                    let mut description = String::from("Any of:\n---------------\n");
+                    for enum_option in enum_options {
+                        description += reserialize_yaml(0, enum_option)
+                            .context("Failed to reserialize the YAML")?
+                            .as_str();
+                        description += "\n---------------\n";
+                    }
+
                     aliases.insert(key.to_string(), Alias {
                         name: key.to_string(),
-                        r#type: "serde_json::Value".to_string()
+                        r#type: "serde_json::Value".to_string(),
+                        description: Some(description)
                     });
 
                     return Ok(())
@@ -101,9 +170,18 @@ pub(super) fn parse_enum (
             if let Some(enum_type) = enum_option["type"].as_str() {
                 println!("Casting enum `{}` to `serde_json::Value` because of `{}`", key, enum_type);
 
+                let mut description = String::from("Any of:\n---------------\n");
+                for enum_option in enum_options {
+                    description += reserialize_yaml(0, enum_option)
+                        .context("Failed to reserialize the YAML")?
+                        .as_str();
+                    description += "\n---------------\n";
+                }
+
                 aliases.insert(key.to_string(), Alias {
                     name: key.to_string(),
-                    r#type: "serde_json::Value".to_string()
+                    r#type: "serde_json::Value".to_string(),
+                    description: Some(description)
                 });
 
                 return Ok(())
@@ -217,7 +295,7 @@ pub(super) fn parse_enum (
                             .to_case(Case::UpperCamel)
                     };
 
-                    let added_vector_alias_name = format!("{}Array{}", key, array_type);
+                    let added_vector_alias_name = format!("{}{}Array", key, array_type);
                     
                     let array_field_value = parse_array(
                         global_yaml,
@@ -228,10 +306,13 @@ pub(super) fn parse_enum (
                         enum_option
                     )
                         .with_context(|| format!("Couldn't parse the array {key}"))?;
+                    let description = enum_option["description"].as_str()
+                        .map(|s| s.to_string());
 
                     aliases.insert(added_vector_alias_name.clone(), Alias {
                         name: added_vector_alias_name.clone(),
-                        r#type: format!("{}", array_field_value)
+                        r#type: format!("{}", array_field_value),
+                        description,
                     });
 
                     enum_values.push(format!("{}({})",

@@ -1195,7 +1195,7 @@ pub enum ChatCompletionMessageToolCallType {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-pub enum ChatCompletionModalitiesChatCompletionModalities {
+pub enum ChatCompletionModalitiesItem {
 	Text,
 	Audio,
 }
@@ -1254,7 +1254,7 @@ pub struct ChatCompletionRequestAssistantMessageAudio {
 #[serde(untagged)]
 pub enum ChatCompletionRequestAssistantMessageContent {
 	String(String),
-	ChatCompletionRequestAssistantMessageContentArrayChatCompletionRequestAssistantMessageContentPart(ChatCompletionRequestAssistantMessageContentArrayChatCompletionRequestAssistantMessageContentPart),
+	ChatCompletionRequestAssistantMessageContentChatCompletionRequestAssistantMessageContentPartArray(ChatCompletionRequestAssistantMessageContentChatCompletionRequestAssistantMessageContentPartArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -1296,7 +1296,7 @@ pub struct ChatCompletionRequestDeveloperMessage {
 #[serde(untagged)]
 pub enum ChatCompletionRequestDeveloperMessageContent {
 	String(String),
-	ChatCompletionRequestDeveloperMessageContentArrayChatCompletionRequestMessageContentPartText(ChatCompletionRequestDeveloperMessageContentArrayChatCompletionRequestMessageContentPartText),
+	ChatCompletionRequestDeveloperMessageContentChatCompletionRequestMessageContentPartTextArray(ChatCompletionRequestDeveloperMessageContentChatCompletionRequestMessageContentPartTextArray),
 }
 /// The role of the messages author, in this case `developer`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -1461,7 +1461,7 @@ pub struct ChatCompletionRequestSystemMessage {
 #[serde(untagged)]
 pub enum ChatCompletionRequestSystemMessageContent {
 	String(String),
-	ChatCompletionRequestSystemMessageContentArrayChatCompletionRequestSystemMessageContentPart(ChatCompletionRequestSystemMessageContentArrayChatCompletionRequestSystemMessageContentPart),
+	ChatCompletionRequestSystemMessageContentChatCompletionRequestSystemMessageContentPartArray(ChatCompletionRequestSystemMessageContentChatCompletionRequestSystemMessageContentPartArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -1490,7 +1490,7 @@ pub struct ChatCompletionRequestToolMessage {
 #[serde(untagged)]
 pub enum ChatCompletionRequestToolMessageContent {
 	String(String),
-	ChatCompletionRequestToolMessageContentArrayChatCompletionRequestToolMessageContentPart(ChatCompletionRequestToolMessageContentArrayChatCompletionRequestToolMessageContentPart),
+	ChatCompletionRequestToolMessageContentChatCompletionRequestToolMessageContentPartArray(ChatCompletionRequestToolMessageContentChatCompletionRequestToolMessageContentPartArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -1522,7 +1522,7 @@ pub struct ChatCompletionRequestUserMessage {
 #[serde(untagged)]
 pub enum ChatCompletionRequestUserMessageContent {
 	String(String),
-	ChatCompletionRequestUserMessageContentArrayChatCompletionRequestUserMessageContentPart(ChatCompletionRequestUserMessageContentArrayChatCompletionRequestUserMessageContentPart),
+	ChatCompletionRequestUserMessageContentChatCompletionRequestUserMessageContentPartArray(ChatCompletionRequestUserMessageContentChatCompletionRequestUserMessageContentPartArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -2817,8 +2817,8 @@ pub struct CreateCompletionRequest {
 #[serde(untagged)]
 pub enum CreateCompletionRequestPrompt {
 	String(String),
-	CreateCompletionRequestPromptArrayString(CreateCompletionRequestPromptArrayString),
-	CreateCompletionRequestPromptArrayInteger(CreateCompletionRequestPromptArrayInteger),
+	CreateCompletionRequestPromptStringArray(CreateCompletionRequestPromptStringArray),
+	CreateCompletionRequestPromptIntegerArray(CreateCompletionRequestPromptIntegerArray),
 	CreateCompletionRequestPromptArrayArray(CreateCompletionRequestPromptArrayArray),
 }
 /// Represents a completion response from the API. Note: both the streamed and non-streamed response objects share the same shape (unlike the chat endpoint).
@@ -2910,8 +2910,8 @@ pub enum CreateEmbeddingRequestEncodingFormat {
 #[serde(untagged)]
 pub enum CreateEmbeddingRequestInput {
 	String(String),
-	CreateEmbeddingRequestInputArrayString(CreateEmbeddingRequestInputArrayString),
-	CreateEmbeddingRequestInputArrayInteger(CreateEmbeddingRequestInputArrayInteger),
+	CreateEmbeddingRequestInputStringArray(CreateEmbeddingRequestInputStringArray),
+	CreateEmbeddingRequestInputIntegerArray(CreateEmbeddingRequestInputIntegerArray),
 	CreateEmbeddingRequestInputArrayArray(CreateEmbeddingRequestInputArrayArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -3271,7 +3271,7 @@ pub enum CreateMessageRequestAttachmentsItemItems {
 #[serde(untagged)]
 pub enum CreateMessageRequestContent {
 	String(String),
-	CreateMessageRequestContentArrayVaried(CreateMessageRequestContentArrayVaried),
+	CreateMessageRequestContentVariedArray(CreateMessageRequestContentVariedArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -3328,8 +3328,8 @@ pub struct CreateModerationRequest {
 #[serde(untagged)]
 pub enum CreateModerationRequestInput {
 	String(String),
-	CreateModerationRequestInputArrayString(CreateModerationRequestInputArrayString),
-	CreateModerationRequestInputArrayVaried(CreateModerationRequestInputArrayVaried),
+	CreateModerationRequestInputStringArray(CreateModerationRequestInputStringArray),
+	CreateModerationRequestInputVariedArray(CreateModerationRequestInputVariedArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -3400,108 +3400,43 @@ pub struct CreateModerationResponseResultsItemCategories {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct CreateModerationResponseResultsItemCategoryAppliedInputTypes {
 	/// The applied input type(s) for the category 'harassment'.
-	pub harassment: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesHarassment>,
+	pub harassment: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'harassment/threatening'.
 	#[serde(rename = "harassment/threatening")]
-	pub harassment_threatening: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesHarassmentThreatening>,
+	pub harassment_threatening: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'hate'.
-	pub hate: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesHate>,
+	pub hate: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'hate/threatening'.
 	#[serde(rename = "hate/threatening")]
-	pub hate_threatening: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesHateThreatening>,
+	pub hate_threatening: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'illicit'.
-	pub illicit: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesIllicit>,
+	pub illicit: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'illicit/violent'.
 	#[serde(rename = "illicit/violent")]
-	pub illicit_violent: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesIllicitViolent>,
+	pub illicit_violent: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'self-harm'.
 	#[serde(rename = "self-harm")]
-	pub self_harm: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesSelfHarm>,
+	pub self_harm: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'self-harm/instructions'.
 	#[serde(rename = "self-harm/instructions")]
-	pub self_harm_instructions: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesSelfHarmInstructions>,
+	pub self_harm_instructions: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'self-harm/intent'.
 	#[serde(rename = "self-harm/intent")]
-	pub self_harm_intent: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesSelfHarmIntent>,
+	pub self_harm_intent: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'sexual'.
-	pub sexual: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesSexual>,
+	pub sexual: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'sexual/minors'.
 	#[serde(rename = "sexual/minors")]
-	pub sexual_minors: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesSexualMinors>,
+	pub sexual_minors: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'violence'.
-	pub violence: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesViolence>,
+	pub violence: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'violence/graphic'.
 	#[serde(rename = "violence/graphic")]
-	pub violence_graphic: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesViolenceGraphic>,
+	pub violence_graphic: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-pub enum CreateModerationResponseResultsItemCategoryAppliedInputTypesHarassment {
-	Text,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum CreateModerationResponseResultsItemCategoryAppliedInputTypesHarassmentThreatening {
-	Text,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum CreateModerationResponseResultsItemCategoryAppliedInputTypesHate {
-	Text,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum CreateModerationResponseResultsItemCategoryAppliedInputTypesHateThreatening {
-	Text,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum CreateModerationResponseResultsItemCategoryAppliedInputTypesIllicit {
-	Text,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum CreateModerationResponseResultsItemCategoryAppliedInputTypesIllicitViolent {
-	Text,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum CreateModerationResponseResultsItemCategoryAppliedInputTypesSelfHarm {
-	Text,
-	Image,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum CreateModerationResponseResultsItemCategoryAppliedInputTypesSelfHarmInstructions {
-	Text,
-	Image,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum CreateModerationResponseResultsItemCategoryAppliedInputTypesSelfHarmIntent {
-	Text,
-	Image,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum CreateModerationResponseResultsItemCategoryAppliedInputTypesSexual {
-	Text,
-	Image,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum CreateModerationResponseResultsItemCategoryAppliedInputTypesSexualMinors {
-	Text,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum CreateModerationResponseResultsItemCategoryAppliedInputTypesViolence {
-	Text,
-	Image,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum CreateModerationResponseResultsItemCategoryAppliedInputTypesViolenceGraphic {
+pub enum CreateModerationResponseResultsItemCategoryAppliedInputTypesItem {
 	Text,
 	Image,
 }
@@ -3664,7 +3599,7 @@ pub struct CreateResponse {
 #[serde(untagged)]
 pub enum CreateResponseInput {
 	String(String),
-	CreateResponseInputArrayInputItem(CreateResponseInputArrayInputItem),
+	CreateResponseInputInputItemArray(CreateResponseInputInputItemArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct CreateRunRequest {
@@ -3908,11 +3843,11 @@ pub struct CreateTranscriptionRequest {
 	pub temperature: Option<f64>,
 	/// The timestamp granularities to populate for this transcription. `response_format` must be set `verbose_json` to use timestamp granularities. Either or both of these options are supported: `word`, or `segment`. Note: There is no additional latency for segment timestamps, but generating word timestamps incurs additional latency.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub timestamp_granularities: Option<Vec<CreateTranscriptionRequestTimestampGranularities>>,
+	pub timestamp_granularities: Option<Vec<CreateTranscriptionRequestItem>>,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-pub enum CreateTranscriptionRequestTimestampGranularities {
+pub enum CreateTranscriptionRequestItem {
 	Word,
 	Segment,
 }
@@ -6436,7 +6371,7 @@ pub struct PredictionContent {
 #[serde(untagged)]
 pub enum PredictionContentContent {
 	String(String),
-	PredictionContentContentArrayChatCompletionRequestMessageContentPartText(PredictionContentContentArrayChatCompletionRequestMessageContentPartText),
+	PredictionContentContentChatCompletionRequestMessageContentPartTextArray(PredictionContentContentChatCompletionRequestMessageContentPartTextArray),
 }
 /// The type of the predicted content you want to provide. This type is
 /// currently always `content`.
@@ -7348,7 +7283,7 @@ pub struct RealtimeResponse {
 	/// the model will pick one, for example if `modalities` is `["text", "audio"]`, the model
 	/// could be responding in either text or audio.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub modalities: Option<Vec<RealtimeResponseModalities>>,
+	pub modalities: Option<Vec<RealtimeResponseItem>>,
 	/// The object type, must be `realtime.response`.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub object: Option<RealtimeResponseObject>,
@@ -7421,7 +7356,7 @@ pub struct RealtimeResponseCreateParams {
 	/// The set of modalities the model can respond with. To disable audio,
 	/// set this to ["text"].
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub modalities: Option<Vec<RealtimeResponseCreateParamsModalities>>,
+	pub modalities: Option<Vec<RealtimeResponseCreateParamsItem>>,
 	/// The format of output audio. Options are `pcm16`, `g711_ulaw`, or `g711_alaw`.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub output_audio_format: Option<RealtimeResponseCreateParamsOutputAudioFormat>,
@@ -7455,6 +7390,12 @@ pub enum RealtimeResponseCreateParamsConversation {
 	Auto(String),
 	None(String),
 }
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum RealtimeResponseCreateParamsItem {
+	Text,
+	Audio,
+}
 /// Maximum number of output tokens for a single assistant response,
 /// inclusive of tool calls. Provide an integer between 1 and 4096 to
 /// limit output tokens, or `inf` for the maximum available tokens for a
@@ -7464,12 +7405,6 @@ pub enum RealtimeResponseCreateParamsConversation {
 #[serde(untagged)]
 pub enum RealtimeResponseCreateParamsMaxResponseOutputTokens {
 	Integer(i64),
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum RealtimeResponseCreateParamsModalities {
-	Text,
-	Audio,
 }
 /// The format of output audio. Options are `pcm16`, `g711_ulaw`, or `g711_alaw`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -7504,6 +7439,12 @@ pub struct RealtimeResponseCreateParamsToolsItem {
 pub enum RealtimeResponseCreateParamsToolsItemType {
 	Function,
 }
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum RealtimeResponseItem {
+	Text,
+	Audio,
+}
 /// Maximum number of output tokens for a single assistant response,
 /// inclusive of tool calls, that was used in this response.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -7511,12 +7452,6 @@ pub enum RealtimeResponseCreateParamsToolsItemType {
 #[serde(untagged)]
 pub enum RealtimeResponseMaxOutputTokens {
 	Integer(i64),
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum RealtimeResponseModalities {
-	Text,
-	Audio,
 }
 /// The object type, must be `realtime.response`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -8537,7 +8472,7 @@ pub struct RealtimeSession {
 	/// The set of modalities the model can respond with. To disable audio,
 	/// set this to ["text"].
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub modalities: Option<Vec<RealtimeSessionModalities>>,
+	pub modalities: Option<Vec<RealtimeSessionItem>>,
 	/// The Realtime model used for this session.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub model: Option<RealtimeSessionModel>,
@@ -8597,7 +8532,7 @@ pub struct RealtimeSessionCreateRequest {
 	/// The set of modalities the model can respond with. To disable audio,
 	/// set this to ["text"].
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub modalities: Option<Vec<RealtimeSessionCreateRequestModalities>>,
+	pub modalities: Option<Vec<RealtimeSessionCreateRequestItem>>,
 	/// The Realtime model used for this session.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub model: Option<RealtimeSessionCreateRequestModel>,
@@ -8675,6 +8610,12 @@ pub struct RealtimeSessionCreateRequestInputAudioTranscription {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub prompt: Option<String>,
 }
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum RealtimeSessionCreateRequestItem {
+	Text,
+	Audio,
+}
 /// Maximum number of output tokens for a single assistant response,
 /// inclusive of tool calls. Provide an integer between 1 and 4096 to
 /// limit output tokens, or `inf` for the maximum available tokens for a
@@ -8684,12 +8625,6 @@ pub struct RealtimeSessionCreateRequestInputAudioTranscription {
 #[serde(untagged)]
 pub enum RealtimeSessionCreateRequestMaxResponseOutputTokens {
 	Integer(i64),
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum RealtimeSessionCreateRequestModalities {
-	Text,
-	Audio,
 }
 /// The Realtime model used for this session.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -8830,7 +8765,7 @@ pub struct RealtimeSessionCreateResponse {
 	/// The set of modalities the model can respond with. To disable audio,
 	/// set this to ["text"].
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub modalities: Option<Vec<RealtimeSessionCreateResponseModalities>>,
+	pub modalities: Option<Vec<RealtimeSessionCreateResponseItem>>,
 	/// The format of output audio. Options are `pcm16`, `g711_ulaw`, or `g711_alaw`.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub output_audio_format: Option<String>,
@@ -8879,6 +8814,12 @@ pub struct RealtimeSessionCreateResponseInputAudioTranscription {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub model: Option<String>,
 }
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum RealtimeSessionCreateResponseItem {
+	Text,
+	Audio,
+}
 /// Maximum number of output tokens for a single assistant response,
 /// inclusive of tool calls. Provide an integer between 1 and 4096 to
 /// limit output tokens, or `inf` for the maximum available tokens for a
@@ -8888,12 +8829,6 @@ pub struct RealtimeSessionCreateResponseInputAudioTranscription {
 #[serde(untagged)]
 pub enum RealtimeSessionCreateResponseMaxResponseOutputTokens {
 	Integer(i64),
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum RealtimeSessionCreateResponseModalities {
-	Text,
-	Audio,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionCreateResponseToolsItem {
@@ -8989,6 +8924,12 @@ pub struct RealtimeSessionInputAudioTranscription {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub prompt: Option<String>,
 }
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum RealtimeSessionItem {
+	Text,
+	Audio,
+}
 /// Maximum number of output tokens for a single assistant response,
 /// inclusive of tool calls. Provide an integer between 1 and 4096 to
 /// limit output tokens, or `inf` for the maximum available tokens for a
@@ -8998,12 +8939,6 @@ pub struct RealtimeSessionInputAudioTranscription {
 #[serde(untagged)]
 pub enum RealtimeSessionMaxResponseOutputTokens {
 	Integer(i64),
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum RealtimeSessionModalities {
-	Text,
-	Audio,
 }
 /// The Realtime model used for this session.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -9128,7 +9063,7 @@ pub struct RealtimeTranscriptionSessionCreateRequest {
 	/// The set of modalities the model can respond with. To disable audio,
 	/// set this to ["text"].
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub modalities: Option<Vec<RealtimeTranscriptionSessionCreateRequestModalities>>,
+	pub modalities: Option<Vec<RealtimeTranscriptionSessionCreateRequestItem>>,
 	/// Configuration for turn detection, ether Server VAD or Semantic VAD. This can be set to `null` to turn off, in which case the client must manually trigger model response.
 	/// Server VAD means that the model will detect the start and end of speech based on audio volume and respond at the end of user speech.
 	/// Semantic VAD is more advanced and uses a turn detection model (in conjuction with VAD) to semantically estimate whether the user has finished speaking, then dynamically sets a timeout based on this probability. For example, if user audio trails off with "uhhm", the model will score a low probability of turn end and wait longer for the user to continue speaking. This can be useful for more natural conversations, but may have a higher latency.
@@ -9196,7 +9131,7 @@ pub enum RealtimeTranscriptionSessionCreateRequestInputAudioTranscriptionModel {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-pub enum RealtimeTranscriptionSessionCreateRequestModalities {
+pub enum RealtimeTranscriptionSessionCreateRequestItem {
 	Text,
 	Audio,
 }
@@ -9270,7 +9205,7 @@ pub struct RealtimeTranscriptionSessionCreateResponse {
 	/// The set of modalities the model can respond with. To disable audio,
 	/// set this to ["text"].
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub modalities: Option<Vec<RealtimeTranscriptionSessionCreateResponseModalities>>,
+	pub modalities: Option<Vec<RealtimeTranscriptionSessionCreateResponseItem>>,
 	/// Configuration for turn detection. Can be set to `null` to turn off. Server 
 	/// VAD means that the model will detect the start and end of speech based on 
 	/// audio volume and respond at the end of user speech.
@@ -9319,7 +9254,7 @@ pub enum RealtimeTranscriptionSessionCreateResponseInputAudioTranscriptionModel 
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-pub enum RealtimeTranscriptionSessionCreateResponseModalities {
+pub enum RealtimeTranscriptionSessionCreateResponseItem {
 	Text,
 	Audio,
 }
@@ -10072,13 +10007,13 @@ pub enum ResponseItemListObject {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-pub enum ResponseModalitiesResponseModalities {
+pub enum ResponseModalitiesItem {
 	Text,
 	Audio,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-pub enum ResponseModalitiesTextOnlyResponseModalitiesTextOnly {
+pub enum ResponseModalitiesTextOnlyItem {
 	Text,
 }
 /// The object type of this resource - always set to `response`.
@@ -10925,6 +10860,34 @@ pub struct RunStepDetailsToolCallsFileSearchRankingOptionsObject {
 	/// The score threshold for the file search. All values must be a floating point number between 0 and 1.
 	pub score_threshold: f64,
 }
+/// A result instance of the file search.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct RunStepDetailsToolCallsFileSearchResultObject {
+	/// The content of the result that was found. The content is only included if requested via the include query parameter.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub content: Option<Vec<RunStepDetailsToolCallsFileSearchResultObjectContentItem>>,
+	/// The ID of the file that result was found in.
+	pub file_id: String,
+	/// The name of the file that result was found in.
+	pub file_name: String,
+	/// The score of the result. All values must be a floating point number between 0 and 1.
+	pub score: f64,
+}
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct RunStepDetailsToolCallsFileSearchResultObjectContentItem {
+	/// The text content of the file.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub text: Option<String>,
+	/// The type of the content.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub r#type: Option<RunStepDetailsToolCallsFileSearchResultObjectContentItemType>,
+}
+/// The type of the content.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum RunStepDetailsToolCallsFileSearchResultObjectContentItemType {
+	Text,
+}
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct RunStepDetailsToolCallsFunctionObject {
 	/// The definition of the function that was called.
@@ -11172,7 +11135,7 @@ pub enum StaticChunkingStrategyResponseParamType {
 #[serde(untagged)]
 pub enum StopConfiguration {
 	String(String),
-	StopConfigurationArrayString(StopConfigurationArrayString),
+	StopConfigurationStringArray(StopConfigurationStringArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct SubmitToolOutputsRunRequest {
@@ -12145,7 +12108,7 @@ pub enum VectorStoreSearchRequestFilters {
 #[serde(untagged)]
 pub enum VectorStoreSearchRequestQuery {
 	String(String),
-	VectorStoreSearchRequestQueryArrayString(VectorStoreSearchRequestQueryArrayString),
+	VectorStoreSearchRequestQueryStringArray(VectorStoreSearchRequestQueryStringArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct VectorStoreSearchResultContentObject {
@@ -12312,55 +12275,538 @@ pub struct WebSearchToolUserLocation {
 pub enum WebSearchToolUserLocationType {
 	Approximate,
 }
+
+
+/// The tool calls generated by the model, such as function calls.
 pub type ChatCompletionMessageToolCalls = Vec<ChatCompletionMessageToolCall>;
-pub type ChatCompletionModalities = Vec<ChatCompletionModalitiesChatCompletionModalities>;
-pub type ChatCompletionRequestAssistantMessageContentArrayChatCompletionRequestAssistantMessageContentPart = Vec<ChatCompletionRequestAssistantMessageContentPart>;
-pub type ChatCompletionRequestDeveloperMessageContentArrayChatCompletionRequestMessageContentPartText = Vec<ChatCompletionRequestMessageContentPartText>;
-pub type ChatCompletionRequestSystemMessageContentArrayChatCompletionRequestSystemMessageContentPart = Vec<ChatCompletionRequestSystemMessageContentPart>;
-pub type ChatCompletionRequestToolMessageContentArrayChatCompletionRequestToolMessageContentPart = Vec<ChatCompletionRequestToolMessageContentPart>;
-pub type ChatCompletionRequestUserMessageContentArrayChatCompletionRequestUserMessageContentPart = Vec<ChatCompletionRequestUserMessageContentPart>;
+
+/// Output types that you would like the model to generate for this request.
+/// Most models are capable of generating text, which is the default:
+/// 
+/// `["text"]`
+/// 
+/// The `gpt-4o-audio-preview` model can also be used to [generate audio](/docs/guides/audio). To
+/// request that this model generate both text and audio responses, you can
+/// use:
+/// 
+/// `["text", "audio"]`
+pub type ChatCompletionModalities = Vec<ChatCompletionModalitiesItem>;
+
+/// An array of content parts with a defined type. Can be one or more of type `text`, or exactly one of type `refusal`.
+pub type ChatCompletionRequestAssistantMessageContentChatCompletionRequestAssistantMessageContentPartArray = Vec<ChatCompletionRequestAssistantMessageContentPart>;
+
+/// An array of content parts with a defined type. For developer messages, only type `text` is supported.
+pub type ChatCompletionRequestDeveloperMessageContentChatCompletionRequestMessageContentPartTextArray = Vec<ChatCompletionRequestMessageContentPartText>;
+
+/// An array of content parts with a defined type. For system messages, only type `text` is supported.
+pub type ChatCompletionRequestSystemMessageContentChatCompletionRequestSystemMessageContentPartArray = Vec<ChatCompletionRequestSystemMessageContentPart>;
+
+/// An array of content parts with a defined type. For tool messages, only type `text` is supported.
+pub type ChatCompletionRequestToolMessageContentChatCompletionRequestToolMessageContentPartArray = Vec<ChatCompletionRequestToolMessageContentPart>;
+
+/// An array of content parts with a defined type. Supported options differ based on the [model](/docs/models) being used to generate the response. Can contain text, image, or audio inputs.
+pub type ChatCompletionRequestUserMessageContentChatCompletionRequestUserMessageContentPartArray = Vec<ChatCompletionRequestUserMessageContentPart>;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	AssistantSupportedModels,
+/// }
+/// ---------------
 pub type CreateAssistantRequestModel = serde_json::Value;
+
+/// Represents a streamed chunk of a chat completion response returned by model, based on the provided input. [Learn more](/docs/guides/streaming-responses).
 pub type CreateChatCompletionImageResponse = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"gpt-3.5-turbo-instruct",
+/// 				"davinci-002",
+/// 				"babbage-002",
+/// 	],
+/// }
+/// ---------------
 pub type CreateCompletionRequestModel = serde_json::Value;
+
 pub type CreateCompletionRequestPromptArrayArray = Vec<Vec<Vec<i64>>>;
-pub type CreateCompletionRequestPromptArrayInteger = Vec<i64>;
-pub type CreateCompletionRequestPromptArrayString = Vec<String>;
+
+pub type CreateCompletionRequestPromptIntegerArray = Vec<i64>;
+
+pub type CreateCompletionRequestPromptStringArray = Vec<String>;
+
+/// JSON Schema
 pub type CreateCompletionResponseChoicesItemLogprobsTopLogprobs = HashMap<String, f64>;
+
+/// The array of arrays containing integers that will be turned into an embedding.
 pub type CreateEmbeddingRequestInputArrayArray = Vec<Vec<Vec<i64>>>;
-pub type CreateEmbeddingRequestInputArrayInteger = Vec<i64>;
-pub type CreateEmbeddingRequestInputArrayString = Vec<String>;
+
+/// The array of integers that will be turned into an embedding.
+pub type CreateEmbeddingRequestInputIntegerArray = Vec<i64>;
+
+/// The array of strings that will be turned into an embedding.
+pub type CreateEmbeddingRequestInputStringArray = Vec<String>;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"text-embedding-ada-002",
+/// 				"text-embedding-3-small",
+/// 				"text-embedding-3-large",
+/// 	],
+/// }
+/// ---------------
 pub type CreateEmbeddingRequestModel = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"babbage-002",
+/// 				"davinci-002",
+/// 				"gpt-3.5-turbo",
+/// 				"gpt-4o-mini",
+/// 	],
+/// }
+/// ---------------
 pub type CreateFineTuningJobRequestModel = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"dall-e-2",
+/// 	],
+/// 	x-stainless-const:
+/// 	true,
+/// }
+/// ---------------
 pub type CreateImageEditRequestModel = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"dall-e-2",
+/// 				"dall-e-3",
+/// 	],
+/// }
+/// ---------------
 pub type CreateImageRequestModel = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"dall-e-2",
+/// 	],
+/// 	x-stainless-const:
+/// 	true,
+/// }
+/// ---------------
 pub type CreateImageVariationRequestModel = serde_json::Value;
-pub type CreateMessageRequestContentArrayVaried = Vec<CreateMessageRequestContentItems>;
-pub type CreateModerationRequestInputArrayString = Vec<String>;
-pub type CreateModerationRequestInputArrayVaried = Vec<CreateModerationRequestInputItems>;
+
+/// An array of content parts with a defined type, each can be of type `text` or images can be passed with `image_url` or `image_file`. Image types are only supported on [Vision-compatible models](/docs/models).
+pub type CreateMessageRequestContentVariedArray = Vec<CreateMessageRequestContentItems>;
+
+/// An array of strings to classify for moderation.
+pub type CreateModerationRequestInputStringArray = Vec<String>;
+
+/// An array of multi-modal inputs to the moderation model.
+pub type CreateModerationRequestInputVariedArray = Vec<CreateModerationRequestInputItems>;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"omni-moderation-latest",
+/// 				"omni-moderation-2024-09-26",
+/// 				"text-moderation-latest",
+/// 				"text-moderation-stable",
+/// 	],
+/// }
+/// ---------------
 pub type CreateModerationRequestModel = serde_json::Value;
-pub type CreateResponseInputArrayInputItem = Vec<InputItem>;
+
+/// A list of one or many input items to the model, containing 
+/// different content types.
+pub type CreateResponseInputInputItemArray = Vec<InputItem>;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	AssistantSupportedModels,
+/// }
+/// ---------------
 pub type CreateRunRequestModel = serde_json::Value;
+
 pub type CreateRunRequestToolChoice = AssistantsApiToolChoiceOption;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"tts-1",
+/// 				"tts-1-hd",
+/// 				"gpt-4o-mini-tts",
+/// 	],
+/// }
+/// ---------------
 pub type CreateSpeechRequestModel = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"gpt-4o",
+/// 				"gpt-4o-2024-11-20",
+/// 				"gpt-4o-2024-08-06",
+/// 				"gpt-4o-2024-05-13",
+/// 				"gpt-4o-mini",
+/// 				"gpt-4o-mini-2024-07-18",
+/// 				"gpt-4.5-preview",
+/// 				"gpt-4.5-preview-2025-02-27",
+/// 				"gpt-4-turbo",
+/// 				"gpt-4-turbo-2024-04-09",
+/// 				"gpt-4-0125-preview",
+/// 				"gpt-4-turbo-preview",
+/// 				"gpt-4-1106-preview",
+/// 				"gpt-4-vision-preview",
+/// 				"gpt-4",
+/// 				"gpt-4-0314",
+/// 				"gpt-4-0613",
+/// 				"gpt-4-32k",
+/// 				"gpt-4-32k-0314",
+/// 				"gpt-4-32k-0613",
+/// 				"gpt-3.5-turbo",
+/// 				"gpt-3.5-turbo-16k",
+/// 				"gpt-3.5-turbo-0613",
+/// 				"gpt-3.5-turbo-1106",
+/// 				"gpt-3.5-turbo-0125",
+/// 				"gpt-3.5-turbo-16k-0613",
+/// 	],
+/// }
+/// ---------------
 pub type CreateThreadAndRunRequestModel = serde_json::Value;
+
 pub type CreateThreadAndRunRequestToolChoice = AssistantsApiToolChoiceOption;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"whisper-1",
+/// 				"gpt-4o-transcribe",
+/// 				"gpt-4o-mini-transcribe",
+/// 	],
+/// 	x-stainless-const:
+/// 	true,
+/// }
+/// ---------------
 pub type CreateTranscriptionRequestModel = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"whisper-1",
+/// 	],
+/// 	x-stainless-const:
+/// 	true,
+/// }
+/// ---------------
 pub type CreateTranslationRequestModel = serde_json::Value;
+
+/// The parameters the functions accepts, described as a JSON Schema object. See the [guide](/docs/guides/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format. 
+/// 
+/// Omitting `parameters` defines a function with an empty parameter list.
 pub type FunctionParameters = serde_json::Value;
+
+/// A list of one or many input items to the model, containing different content 
+/// types.
 pub type InputMessageContentList = Vec<InputContent>;
+
+/// Set of 16 key-value pairs that can be attached to an object. This can be
+/// useful for storing additional information about the object in a structured
+/// format, and querying for objects via API or the dashboard. 
+/// 
+/// Keys are strings with a maximum length of 64 characters. Values are strings
+/// with a maximum length of 512 characters.
 pub type Metadata = HashMap<String, String>;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	ModelIdsShared,
+/// }
+/// ---------------
+/// {
+/// 	ModelIdsResponses,
+/// }
+/// ---------------
 pub type ModelIds = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	ModelIdsShared,
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"o1-pro",
+/// 				"o1-pro-2025-03-19",
+/// 				"computer-use-preview",
+/// 				"computer-use-preview-2025-03-11",
+/// 	],
+/// }
+/// ---------------
 pub type ModelIdsResponses = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"o3-mini",
+/// 				"o3-mini-2025-01-31",
+/// 				"o1",
+/// 				"o1-2024-12-17",
+/// 				"o1-preview",
+/// 				"o1-preview-2024-09-12",
+/// 				"o1-mini",
+/// 				"o1-mini-2024-09-12",
+/// 				"gpt-4o",
+/// 				"gpt-4o-2024-11-20",
+/// 				"gpt-4o-2024-08-06",
+/// 				"gpt-4o-2024-05-13",
+/// 				"gpt-4o-audio-preview",
+/// 				"gpt-4o-audio-preview-2024-10-01",
+/// 				"gpt-4o-audio-preview-2024-12-17",
+/// 				"gpt-4o-mini-audio-preview",
+/// 				"gpt-4o-mini-audio-preview-2024-12-17",
+/// 				"gpt-4o-search-preview",
+/// 				"gpt-4o-mini-search-preview",
+/// 				"gpt-4o-search-preview-2025-03-11",
+/// 				"gpt-4o-mini-search-preview-2025-03-11",
+/// 				"chatgpt-4o-latest",
+/// 				"gpt-4o-mini",
+/// 				"gpt-4o-mini-2024-07-18",
+/// 				"gpt-4-turbo",
+/// 				"gpt-4-turbo-2024-04-09",
+/// 				"gpt-4-0125-preview",
+/// 				"gpt-4-turbo-preview",
+/// 				"gpt-4-1106-preview",
+/// 				"gpt-4-vision-preview",
+/// 				"gpt-4",
+/// 				"gpt-4-0314",
+/// 				"gpt-4-0613",
+/// 				"gpt-4-32k",
+/// 				"gpt-4-32k-0314",
+/// 				"gpt-4-32k-0613",
+/// 				"gpt-3.5-turbo",
+/// 				"gpt-3.5-turbo-16k",
+/// 				"gpt-3.5-turbo-0301",
+/// 				"gpt-3.5-turbo-0613",
+/// 				"gpt-3.5-turbo-1106",
+/// 				"gpt-3.5-turbo-0125",
+/// 				"gpt-3.5-turbo-16k-0613",
+/// 	],
+/// }
+/// ---------------
 pub type ModelIdsShared = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	AssistantSupportedModels,
+/// }
+/// ---------------
 pub type ModifyAssistantRequestModel = serde_json::Value;
+
+/// Whether to enable [parallel function calling](/docs/guides/function-calling#configuring-parallel-function-calling) during tool use.
 pub type ParallelToolCalls = bool;
-pub type PredictionContentContentArrayChatCompletionRequestMessageContentPartText = Vec<ChatCompletionRequestMessageContentPartText>;
+
+/// An array of content parts with a defined type. Supported options differ based on the [model](/docs/models) being used to generate the response. Can contain text inputs.
+pub type PredictionContentContentChatCompletionRequestMessageContentPartTextArray = Vec<ChatCompletionRequestMessageContentPartText>;
+
+/// The schema for the response format, described as a JSON Schema object.
+/// Learn how to build JSON schemas [here](https://json-schema.org/).
 pub type ResponseFormatJsonSchemaSchema = serde_json::Value;
-pub type ResponseModalities = Vec<ResponseModalitiesResponseModalities>;
-pub type ResponseModalitiesTextOnly = Vec<ResponseModalitiesTextOnlyResponseModalitiesTextOnly>;
+
+/// Output types that you would like the model to generate.
+/// Most models are capable of generating text, which is the default:
+/// 
+/// `["text"]`
+/// 
+/// The `gpt-4o-audio-preview` model can also be used to 
+/// [generate audio](/docs/guides/audio). To request that this model generate 
+/// both text and audio responses, you can use:
+/// 
+/// `["text", "audio"]`
+pub type ResponseModalities = Vec<ResponseModalitiesItem>;
+
+/// Output types that you would like the model to generate.
+/// Most models are capable of generating text, which is the default:
+/// 
+/// `["text"]`
+/// 
+/// This API will soon support other output modalities, including audio and images.
+pub type ResponseModalitiesTextOnly = Vec<ResponseModalitiesTextOnlyItem>;
+
 pub type RunObjectToolChoice = AssistantsApiToolChoiceOption;
-pub type RunStepDetailsToolCallsFileSearchResultObject = serde_json::Value;
-pub type StopConfigurationArrayString = Vec<String>;
+
+pub type StopConfigurationStringArray = Vec<String>;
+
+/// Set of 16 key-value pairs that can be attached to an object. This can be 
+/// useful for storing additional information about the object in a structured 
+/// format, and querying for objects via API or the dashboard. Keys are strings 
+/// with a maximum length of 64 characters. Values are strings with a maximum 
+/// length of 512 characters, booleans, or numbers.
 pub type VectorStoreFileAttributes = serde_json::Value;
-pub type VectorStoreSearchRequestQueryArrayString = Vec<String>;
+
+pub type VectorStoreSearchRequestQueryStringArray = Vec<String>;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"alloy",
+/// 				"ash",
+/// 				"ballad",
+/// 				"coral",
+/// 				"echo",
+/// 				"fable",
+/// 				"onyx",
+/// 				"nova",
+/// 				"sage",
+/// 				"shimmer",
+/// 				"verse",
+/// 	],
+/// }
+/// ---------------
 pub type VoiceIdsShared = serde_json::Value;
+

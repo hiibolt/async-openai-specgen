@@ -28,9 +28,14 @@ pub(super) fn parse_object (
     // Before anything, check if it's secretly a JSON value
     if let Some(additional_properties) = value["additionalProperties"].as_bool() {
         if additional_properties {
+            let description = value["additionalProperties"]["description"].as_str()
+                .and_then(|st| Some(st.to_string()))
+                .or(Some("JSON Schema".to_string()));
+
             aliases.insert(key.to_string(), Alias {
                 name: key.to_string(),
-                r#type: "serde_json::Value".to_string()
+                r#type: "serde_json::Value".to_string(),
+                description,
             });
 
             return Ok(())
@@ -48,10 +53,14 @@ pub(super) fn parse_object (
                 bail!("No type found");
             }
         };
+        let description = value["additionalProperties"]["description"].as_str()
+            .and_then(|st| Some(st.to_string()))
+            .or(Some("JSON Schema".to_string()));
 
         aliases.insert(key.to_string(), Alias {
             name: key.to_string(),
-            r#type: format!("HashMap<String, {expected_json_type}>")
+            r#type: format!("HashMap<String, {expected_json_type}>"),
+            description,
         });
 
         return Ok(())
@@ -106,9 +115,13 @@ pub(super) fn parse_object (
                     },
                     Some(Data::Enum(_)) => {
                         // Add this struct as an alias instead
+                        let description = sub_object["description"].as_str()
+                            .and_then(|st| Some(st.to_string()));
+
                         aliases.insert(key.to_string(), Alias {
                             name: key.to_string(),
-                            r#type: referred_type.to_string()
+                            r#type: referred_type.to_string(),
+                            description,
                         });
 
                         return Ok(());
@@ -176,10 +189,14 @@ fn process_properties (
     let properties = if let Some(properties) = value["properties"].as_hash() {
         properties
     } else {
+        let description = value["description"].as_str()
+            .and_then(|st| Some(st.to_string()));
+
         // Add it as a `serde_json::Value` object
         aliases.insert(key.to_string(), Alias {
             name: key.to_string(),
-            r#type: "serde_json::Value".to_string()
+            r#type: "serde_json::Value".to_string(),
+            description,
         });
 
         return Ok(())

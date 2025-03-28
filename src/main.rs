@@ -53,11 +53,14 @@ fn main() -> Result<()>{
             .replace("(/docs", "(https://platform.openai.com/docs");
         rust_schema_body += "\n";
     }
+
+    rust_schema_body += "\n\n";
+
     let mut aliases = aliases.into_iter().collect::<Vec<_>>();
     aliases.sort();
     aliases.dedup();
     for ( _key, value ) in aliases.iter() {
-        let stringfied = format!("{value}");
+        let stringfied = format!("{value}\n");
         //println!("{stringfied}");
         rust_schema_body += &stringfied;
     }

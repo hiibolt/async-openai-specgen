@@ -24,10 +24,24 @@ pub struct Alias {
     pub name: String,
     /// The type of the alias
     pub r#type: String,
+    /// The description of the alias
+    pub description: Option<String>
 }
 impl std::fmt::Display for Alias {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", &format!("pub type {} = {};\n", self.name, self.r#type))
+        let mut body = String::new();
+
+        // Write the alias description
+        if let Some(ref description) = self.description {
+            for line in description.lines() {
+                body.push_str(&format!("/// {}\n", line));
+            }
+        }
+
+        // Write the alias name
+        body += &format!("pub type {} = {};\n", self.name, self.r#type);
+
+        write!(f, "{}", &body)
     }
 }
 
@@ -136,9 +150,13 @@ pub fn parse (
             // Check that it's not secretly a JSON value or a HashMap
             if let Some(additional_properties) = value["additionalProperties"].as_bool() {
                 if additional_properties {
+                    let description = value["description"].as_str()
+                        .and_then(|st| Some(st.to_string()));
+
                     aliases.insert(key.to_string(), Alias {
                         name: key.to_string(),
-                        r#type: "serde_json::Value".to_string()
+                        r#type: "serde_json::Value".to_string(),
+                        description,
                     });
 
                     return Ok(())
@@ -146,28 +164,40 @@ pub fn parse (
             } else if let Some(r#type) = value["additionalProperties"]["type"].as_str() {
                 // If it's a `string`, cast to a `HashMap<String, String>`
                 if r#type == "string" {
+                    let description = value["description"].as_str()
+                        .and_then(|st| Some(st.to_string()));
+
                     aliases.insert(key.to_string(), Alias {
                         name: key.to_string(),
-                        r#type: "HashMap<String, String>".to_string()
+                        r#type: "HashMap<String, String>".to_string(),
+                        description,
                     });
 
                     return Ok(())
                 }
             } else if let Some(x_oai_type_label) = value["x-oaiTypeLabel"].as_str() {
                 // If it's a `map`, cast to a `serde_json::Value`
-                if x_oai_type_label == "map" {
+                if x_oai_type_label == "map" && value["properties"].as_hash().is_none() {
+                    let description = value["description"].as_str()
+                        .and_then(|st| Some(st.to_string()));
+
                     aliases.insert(key.to_string(), Alias {
                         name: key.to_string(),
-                        r#type: "serde_json::Value".to_string()
+                        r#type: "serde_json::Value".to_string(),
+                        description,
                     });
 
                     return Ok(())
                 }
             } else if value["x-oaiMeta"].as_hash().is_some() && value["properties"].as_hash().is_none() {
+                let description = value["description"].as_str()
+                    .and_then(|st| Some(st.to_string()));
+
                 // If it's a `meta`, cast to a `serde_json::Value`
                 aliases.insert(key.to_string(), Alias {
                     name: key.to_string(),
-                    r#type: "serde_json::Value".to_string()
+                    r#type: "serde_json::Value".to_string(),
+                    description,
                 });
 
                 return Ok(())
@@ -209,19 +239,26 @@ pub fn parse (
                 value
             )
                 .with_context(|| format!("Couldn't parse the array {key}"))?;
+            let description = value["description"].as_str()
+                .and_then(|st| Some(st.to_string()));
 
             aliases.insert(key.to_string(), Alias {
                 name: key.to_string(),
-                r#type: format!("{}", array_field_value)
+                r#type: format!("{}", array_field_value),
+                description,
             });
 
             println!("Finished parsing {key} (array)");
         },
         Some("boolean") => {
             // Create an alias for the boolean
+            let description = value["description"].as_str()
+                .and_then(|st| Some(st.to_string()));
+
             aliases.insert(key.to_string(), Alias {
                 name: key.to_string(),
-                r#type: "bool".to_string()
+                r#type: "bool".to_string(),
+                description,
             });
 
             println!("Finished parsing {key} (boolean)");
@@ -270,10 +307,13 @@ pub fn parse (
                     value
                 )
                     .with_context(|| format!("Couldn't parse the array {key}"))?;
+                let description = value["description"].as_str()
+                    .and_then(|st| Some(st.to_string()));
 
                 aliases.insert(key.to_string(), Alias {
                     name: key.to_string(),
-                    r#type: format!("{}", array_field_value)
+                    r#type: format!("{}", array_field_value),
+                    description,
                 });
 
                 println!("Finished parsing {key} (array)");
