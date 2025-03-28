@@ -72,6 +72,7 @@ fn main() -> Result<()>{
         rust_schema_body
     ))
         .context("Failed to write OpenAPI Rust schemas to file")?;
+    println!("Successfully parsed OpenAI OpenAPI spec:\n - {} schemas\n - {} aliases\n\n", schemas.len(), aliases.len());
 
 
     let create_response = CreateResponse {
@@ -112,7 +113,7 @@ fn main() -> Result<()>{
                     for output_content in output.content {
                         match output_content {
                             OutputContent::OutputText(output_text) => {
-                                outputs_string += &format!("{}\n", output_text.text);
+                                outputs_string += &format!("\"{}\"\n", output_text.text);
                             },
                             _ => {}
                         }

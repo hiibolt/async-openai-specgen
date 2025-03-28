@@ -49,7 +49,11 @@ impl std::fmt::Display for Object {
         }
 
         // Write derives
-        body.push_str("#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]\n");
+        if self.properties.iter().all(|(_key, value)| !value.required) {
+            body.push_str("#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]\n");
+        } else {
+            body.push_str("#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]\n");
+        }
 
         // Write the object name
         body.push_str(&format!("pub struct {} {{\n", self.name));

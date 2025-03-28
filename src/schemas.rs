@@ -6,7 +6,7 @@ pub struct AddUploadPartRequest {
 	/// The chunk of bytes for this Part.
 	pub data: String,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AdminApiKey {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub created_at: Option<i64>,
@@ -23,7 +23,7 @@ pub struct AdminApiKey {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub value: Option<String>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AdminApiKeyOwner {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub created_at: Option<i64>,
@@ -44,7 +44,7 @@ pub enum Annotation {
 	UrlCitation(UrlCitation),
 	FilePath(FilePath),
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ApiKeyList {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub data: Option<Vec<AdminApiKey>>,
@@ -106,20 +106,20 @@ pub enum AssistantObjectObject {
 	Assistant,
 }
 /// A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AssistantObjectToolResources {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub code_interpreter: Option<AssistantObjectToolResourcesCodeInterpreter>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_search: Option<AssistantObjectToolResourcesFileSearch>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AssistantObjectToolResourcesCodeInterpreter {
 	/// A list of [file](https://platform.openai.com/docs/api-reference/files) IDs made available to the `code_interpreter`` tool. There can be a maximum of 20 files associated with the tool.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_ids: Option<Vec<String>>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AssistantObjectToolResourcesFileSearch {
 	/// The ID of the [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object) attached to this assistant. There can be a maximum of 1 vector store attached to the assistant.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -239,7 +239,7 @@ pub struct AssistantToolsFileSearch {
 	pub r#type: AssistantToolsFileSearchType,
 }
 /// Overrides for the file search tool.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AssistantToolsFileSearchFileSearch {
 	/// The maximum number of results the file search tool should output. The default is 20 for `gpt-4*` models and 5 for `gpt-3.5-turbo`. This number should be between 1 and 50 inclusive.
 	/// 
@@ -373,7 +373,7 @@ pub struct AuditLog {
 	pub user: Option<AuditLogUser>,
 }
 /// The actor who performed the audit logged action.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogActor {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub api_key: Option<AuditLogActorApiKey>,
@@ -384,7 +384,7 @@ pub struct AuditLogActor {
 	pub r#type: Option<AuditLogActorType>,
 }
 /// The API Key used to perform the audit logged action.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogActorApiKey {
 	/// The tracking id of the API key.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -406,14 +406,14 @@ pub enum AuditLogActorApiKeyType {
 	ServiceAccount,
 }
 /// The service account that performed the audit logged action.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogActorServiceAccount {
 	/// The service account id.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The session in which the audit logged action was performed.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogActorSession {
 	/// The IP address from which the action was performed.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -430,7 +430,7 @@ pub enum AuditLogActorType {
 	ApiKey,
 }
 /// The user who performed the audit logged action.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogActorUser {
 	/// The user email.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -439,7 +439,7 @@ pub struct AuditLogActorUser {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogApiKey {
 	/// The details for events with this `type`.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -452,7 +452,7 @@ pub struct AuditLogApiKey {
 	pub updated: Option<AuditLogApiKeyUpdated>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogApiKeyCreated {
 	/// The payload used to create the API key.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -462,21 +462,21 @@ pub struct AuditLogApiKeyCreated {
 	pub id: Option<String>,
 }
 /// The payload used to create the API key.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogApiKeyCreatedData {
 	/// A list of scopes allowed for the API key, e.g. `["api.model.request"]`
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub scopes: Option<Vec<String>>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogApiKeyDeleted {
 	/// The tracking ID of the API key.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogApiKeyUpdated {
 	/// The payload used to update the API key.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -486,7 +486,7 @@ pub struct AuditLogApiKeyUpdated {
 	pub id: Option<String>,
 }
 /// The payload used to update the API key.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogApiKeyUpdatedChangesRequested {
 	/// A list of scopes allowed for the API key, e.g. `["api.model.request"]`
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -541,7 +541,7 @@ pub enum AuditLogEventType {
 	#[serde(rename = "user.deleted")]
 	UserDeleted,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogInvite {
 	/// The details for events with this `type`.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -554,21 +554,21 @@ pub struct AuditLogInvite {
 	pub sent: Option<AuditLogInviteSent>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogInviteAccepted {
 	/// The ID of the invite.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogInviteDeleted {
 	/// The ID of the invite.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogInviteSent {
 	/// The payload used to create the invite.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -578,7 +578,7 @@ pub struct AuditLogInviteSent {
 	pub id: Option<String>,
 }
 /// The payload used to create the invite.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogInviteSentData {
 	/// The email invited to the organization.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -587,14 +587,14 @@ pub struct AuditLogInviteSentData {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub role: Option<String>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogLogin {
 	/// The details for events with this `type`.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub failed: Option<AuditLogLoginFailed>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogLoginFailed {
 	/// The error code of the failure.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -603,14 +603,14 @@ pub struct AuditLogLoginFailed {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub error_message: Option<String>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogLogout {
 	/// The details for events with this `type`.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub failed: Option<AuditLogLogoutFailed>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogLogoutFailed {
 	/// The error code of the failure.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -619,14 +619,14 @@ pub struct AuditLogLogoutFailed {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub error_message: Option<String>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogOrganization {
 	/// The details for events with this `type`.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub updated: Option<AuditLogOrganizationUpdated>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogOrganizationUpdated {
 	/// The payload used to update the organization settings.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -636,7 +636,7 @@ pub struct AuditLogOrganizationUpdated {
 	pub id: Option<String>,
 }
 /// The payload used to update the organization settings.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogOrganizationUpdatedChangesRequested {
 	/// The organization description.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -650,7 +650,7 @@ pub struct AuditLogOrganizationUpdatedChangesRequested {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub title: Option<String>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogOrganizationUpdatedChangesRequestedSettings {
 	/// Visibility of the threads page which shows messages created with the Assistants API and Playground. One of `ANY_ROLE`, `OWNERS`, or `NONE`.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -659,7 +659,7 @@ pub struct AuditLogOrganizationUpdatedChangesRequestedSettings {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub usage_dashboard_visibility: Option<String>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogProject {
 	/// The details for events with this `type`.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -672,14 +672,14 @@ pub struct AuditLogProject {
 	pub updated: Option<AuditLogProjectUpdated>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogProjectArchived {
 	/// The project ID.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogProjectCreated {
 	/// The payload used to create the project.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -689,7 +689,7 @@ pub struct AuditLogProjectCreated {
 	pub id: Option<String>,
 }
 /// The payload used to create the project.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogProjectCreatedData {
 	/// The project name.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -699,7 +699,7 @@ pub struct AuditLogProjectCreatedData {
 	pub title: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogProjectUpdated {
 	/// The payload used to update the project.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -709,13 +709,13 @@ pub struct AuditLogProjectUpdated {
 	pub id: Option<String>,
 }
 /// The payload used to update the project.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogProjectUpdatedChangesRequested {
 	/// The title of the project as seen on the dashboard.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub title: Option<String>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogRateLimit {
 	/// The details for events with this `type`.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -725,14 +725,14 @@ pub struct AuditLogRateLimit {
 	pub updated: Option<AuditLogRateLimitUpdated>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogRateLimitDeleted {
 	/// The rate limit ID
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogRateLimitUpdated {
 	/// The payload used to update the rate limits.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -742,7 +742,7 @@ pub struct AuditLogRateLimitUpdated {
 	pub id: Option<String>,
 }
 /// The payload used to update the rate limits.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogRateLimitUpdatedChangesRequested {
 	/// The maximum batch input tokens per day. Only relevant for certain models.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -763,7 +763,7 @@ pub struct AuditLogRateLimitUpdatedChangesRequested {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub max_tokens_per_1_minute: Option<i64>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogServiceAccount {
 	/// The details for events with this `type`.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -776,7 +776,7 @@ pub struct AuditLogServiceAccount {
 	pub updated: Option<AuditLogServiceAccountUpdated>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogServiceAccountCreated {
 	/// The payload used to create the service account.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -786,21 +786,21 @@ pub struct AuditLogServiceAccountCreated {
 	pub id: Option<String>,
 }
 /// The payload used to create the service account.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogServiceAccountCreatedData {
 	/// The role of the service account. Is either `owner` or `member`.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub role: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogServiceAccountDeleted {
 	/// The service account ID.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogServiceAccountUpdated {
 	/// The payload used to updated the service account.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -810,13 +810,13 @@ pub struct AuditLogServiceAccountUpdated {
 	pub id: Option<String>,
 }
 /// The payload used to updated the service account.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogServiceAccountUpdatedChangesRequested {
 	/// The role of the service account. Is either `owner` or `member`.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub role: Option<String>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogUser {
 	/// The details for events with this `type`.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -829,7 +829,7 @@ pub struct AuditLogUser {
 	pub updated: Option<AuditLogUserUpdated>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogUserAdded {
 	/// The payload used to add the user to the project.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -839,21 +839,21 @@ pub struct AuditLogUserAdded {
 	pub id: Option<String>,
 }
 /// The payload used to add the user to the project.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogUserAddedData {
 	/// The role of the user. Is either `owner` or `member`.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub role: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogUserDeleted {
 	/// The user ID.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogUserUpdated {
 	/// The payload used to update the user.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -863,7 +863,7 @@ pub struct AuditLogUserUpdated {
 	pub id: Option<String>,
 }
 /// The payload used to update the user.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogUserUpdatedChangesRequested {
 	/// The role of the user. Is either `owner` or `member`.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -934,7 +934,7 @@ pub struct Batch {
 	/// The current status of the batch.
 	pub status: BatchStatus,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct BatchErrors {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub data: Option<Vec<BatchErrorsDataItem>>,
@@ -942,7 +942,7 @@ pub struct BatchErrors {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub object: Option<String>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct BatchErrorsDataItem {
 	/// An error code identifying the error type.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -974,7 +974,7 @@ pub struct BatchRequestCounts {
 	pub total: i64,
 }
 /// The per-line object of the batch input file
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct BatchRequestInput {
 	/// A developer-provided per-request id that will be used to match outputs to inputs. Must be unique for each request in a batch.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -994,7 +994,7 @@ pub enum BatchRequestInputMethod {
 	Post,
 }
 /// The per-line object of the batch output and error files
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct BatchRequestOutput {
 	/// A developer-provided per-request id that will be used to match outputs to inputs.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -1008,7 +1008,7 @@ pub struct BatchRequestOutput {
 	pub response: Option<BatchRequestOutputResponse>,
 }
 /// For requests that failed with a non-HTTP error, this will contain more information on the cause of the failure.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct BatchRequestOutputError {
 	/// A machine-readable error code.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -1017,7 +1017,7 @@ pub struct BatchRequestOutputError {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub message: Option<String>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct BatchRequestOutputResponse {
 	/// The JSON body of the response
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -1043,7 +1043,7 @@ pub enum BatchStatus {
 	Cancelling,
 	Cancelled,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CancelUploadRequest {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -1164,7 +1164,7 @@ pub struct ChatCompletionMessageToolCallChunk {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub r#type: Option<ChatCompletionMessageToolCallChunkType>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ChatCompletionMessageToolCallChunkFunction {
 	/// The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -1365,7 +1365,7 @@ pub struct ChatCompletionRequestMessageContentPartFile {
 	/// The type of the content part. Always `file`.
 	pub r#type: ChatCompletionRequestMessageContentPartFileType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ChatCompletionRequestMessageContentPartFileFile {
 	/// The base64 encoded file data, used when passing the file to the model 
 	/// as a string.
@@ -1631,7 +1631,7 @@ pub enum ChatCompletionRole {
 	Function,
 }
 /// Options for streaming response. Only set this when you set `stream: true`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ChatCompletionStreamOptions {
 	/// If set, an additional chunk will be streamed before the `data: [DONE]`
 	/// message. The `usage` field on this chunk shows the token usage statistics
@@ -1645,7 +1645,7 @@ pub struct ChatCompletionStreamOptions {
 	pub include_usage: Option<bool>,
 }
 /// A chat completion delta generated by streamed model responses.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ChatCompletionStreamResponseDelta {
 	/// The contents of the chunk message.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -1663,7 +1663,7 @@ pub struct ChatCompletionStreamResponseDelta {
 	pub tool_calls: Option<Vec<ChatCompletionMessageToolCallChunk>>,
 }
 /// Deprecated and replaced by `tool_calls`. The name and arguments of a function that should be called, as generated by the model.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ChatCompletionStreamResponseDeltaFunctionCall {
 	/// The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -1921,7 +1921,7 @@ pub struct CompletionUsage {
 	pub total_tokens: i64,
 }
 /// Breakdown of tokens used in a completion.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CompletionUsageCompletionTokensDetails {
 	/// When using Predicted Outputs, the number of tokens in the
 	/// prediction that appeared in the completion.
@@ -1942,7 +1942,7 @@ pub struct CompletionUsageCompletionTokensDetails {
 	pub rejected_prediction_tokens: Option<i64>,
 }
 /// Breakdown of tokens used in the prompt.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CompletionUsagePromptTokensDetails {
 	/// Audio input tokens present in the prompt.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -2168,7 +2168,7 @@ pub struct CostsResult {
 	pub project_id: Option<String>,
 }
 /// The monetary value in its associated currency.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CostsResultAmount {
 	/// Lowercase ISO-4217 currency e.g. "usd"
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -2226,14 +2226,14 @@ pub enum CreateAssistantRequestItems {
 	AssistantToolsFunction(AssistantToolsFunction),
 }
 /// A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateAssistantRequestToolResources {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub code_interpreter: Option<CreateAssistantRequestToolResourcesCodeInterpreter>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_search: Option<CreateAssistantRequestToolResourcesFileSearch>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateAssistantRequestToolResourcesCodeInterpreter {
 	/// A list of [file](https://platform.openai.com/docs/api-reference/files) IDs made available to the `code_interpreter` tool. There can be a maximum of 20 files associated with the tool.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -2291,7 +2291,7 @@ pub enum CreateChatCompletionFunctionResponseObject {
 	#[serde(rename = "chat.completion")]
 	ChatCompletion,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateChatCompletionRequest {
 	/// Parameters for audio output. Required when audio output is requested with
 	/// `modalities: ["audio"]`. [Learn more](https://platform.openai.com/docs/guides/audio).
@@ -2546,7 +2546,7 @@ pub enum CreateChatCompletionRequestServiceTier {
 }
 /// This tool searches the web for relevant results to use in a response.
 /// Learn more about the [web search tool](https://platform.openai.com/docs/guides/tools-web-search?api-mode=chat).
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateChatCompletionRequestWebSearchOptions {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub search_context_size: Option<WebSearchContextSize>,
@@ -2863,7 +2863,7 @@ pub enum CreateCompletionResponseChoicesItemFinishReason {
 	#[serde(rename = "content_filter")]
 	ContentFilter,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateCompletionResponseChoicesItemLogprobs {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub text_offset: Option<Vec<i64>>,
@@ -3014,7 +3014,7 @@ pub struct CreateFineTuningJobRequest {
 }
 /// The hyperparameters used for the fine-tuning job.
 /// This value is now deprecated in favor of `method`, and should be passed in under the `method` parameter.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateFineTuningJobRequestHyperparameters {
 	/// Number of examples in each batch. A larger batch size means that model parameters
 	/// are updated less frequently, but with lower variance.
@@ -3250,7 +3250,7 @@ pub struct CreateMessageRequest {
 	/// - `assistant`: Indicates the message is generated by the assistant. Use this value to insert messages from the assistant into the conversation.
 	pub role: CreateMessageRequestRole,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateMessageRequestAttachmentsItem {
 	/// The ID of the file to attach to the message.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -3290,7 +3290,7 @@ pub enum CreateMessageRequestRole {
 	User,
 	Assistant,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateModelResponseProperties {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub metadata: Option<Metadata>,
@@ -3543,7 +3543,7 @@ pub struct CreateModerationResponseResultsItemCategoryScores {
 	#[serde(rename = "violence/graphic")]
 	pub violence_graphic: f64,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateResponse {
 	/// Specify additional output data to include in the model response. Currently
 	/// supported values are:
@@ -3815,20 +3815,20 @@ pub enum CreateThreadAndRunRequestItems {
 	AssistantToolsFunction(AssistantToolsFunction),
 }
 /// A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateThreadAndRunRequestToolResources {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub code_interpreter: Option<CreateThreadAndRunRequestToolResourcesCodeInterpreter>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_search: Option<CreateThreadAndRunRequestToolResourcesFileSearch>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateThreadAndRunRequestToolResourcesCodeInterpreter {
 	/// A list of [file](https://platform.openai.com/docs/api-reference/files) IDs made available to the `code_interpreter` tool. There can be a maximum of 20 files associated with the tool.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_ids: Option<Vec<String>>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateThreadAndRunRequestToolResourcesFileSearch {
 	/// The ID of the [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object) attached to this assistant. There can be a maximum of 1 vector store attached to the assistant.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -3844,7 +3844,7 @@ pub struct CreateThreadAndRunRequestTruncationStrategy {
 }
 /// Options to create a new thread. If no thread is provided when running a 
 /// request, an empty thread will be created.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateThreadRequest {
 	/// A list of [messages](https://platform.openai.com/docs/api-reference/messages) to start the thread with.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -3856,14 +3856,14 @@ pub struct CreateThreadRequest {
 	pub tool_resources: Option<CreateThreadRequestToolResources>,
 }
 /// A set of resources that are made available to the assistant's tools in this thread. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateThreadRequestToolResources {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub code_interpreter: Option<CreateThreadRequestToolResourcesCodeInterpreter>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_search: Option<CreateThreadRequestToolResourcesFileSearch>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateThreadRequestToolResourcesCodeInterpreter {
 	/// A list of [file](https://platform.openai.com/docs/api-reference/files) IDs made available to the `code_interpreter` tool. There can be a maximum of 20 files associated with the tool.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -4036,7 +4036,7 @@ pub struct CreateVectorStoreFileRequest {
 	/// A [File](https://platform.openai.com/docs/api-reference/files) ID that the vector store should use. Useful for tools like `file_search` that can access files.
 	pub file_id: String,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateVectorStoreRequest {
 	/// The chunking strategy used to chunk the file(s). If not set, will use the `auto` strategy. Only applicable if `file_ids` is non-empty.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -4385,7 +4385,7 @@ pub struct FileSearchToolCall {
 	/// The type of the file search tool call. Always `file_search_call`.
 	pub r#type: FileSearchToolCallType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FileSearchToolCallResultsItem {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub attributes: Option<VectorStoreFileAttributes>,
@@ -4463,7 +4463,7 @@ pub struct FineTuneChatCompletionRequestAssistantMessage {
 	pub weight: Option<i64>,
 }
 /// The per-line training example of a fine-tuning input file for chat models using the supervised method.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTuneChatRequestInput {
 	/// A list of functions the model may generate JSON inputs for.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -4487,7 +4487,7 @@ pub enum FineTuneChatRequestInputItems {
 	ChatCompletionRequestFunctionMessage(ChatCompletionRequestFunctionMessage),
 }
 /// The per-line training example of a fine-tuning input file for completions models
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTuneCompletionRequestInput {
 	/// The desired completion for this training example.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -4497,14 +4497,14 @@ pub struct FineTuneCompletionRequestInput {
 	pub prompt: Option<String>,
 }
 /// Configuration for the DPO fine-tuning method.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTuneDPOMethod {
 	/// The hyperparameters used for the fine-tuning job.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub hyperparameters: Option<FineTuneDPOMethodHyperparameters>,
 }
 /// The hyperparameters used for the fine-tuning job.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTuneDPOMethodHyperparameters {
 	/// Number of examples in each batch. A larger batch size means that model parameters are updated less frequently, but with lower variance.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -4552,7 +4552,7 @@ pub enum FineTuneDPOMethodHyperparametersNEpochs {
 	Integer(i64),
 }
 /// The method used for fine-tuning.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTuneMethod {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub dpo: Option<FineTuneDPOMethod>,
@@ -4570,7 +4570,7 @@ pub enum FineTuneMethodType {
 	Dpo,
 }
 /// The per-line training example of a fine-tuning input file for chat models using the dpo method.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTunePreferenceRequestInput {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub input: Option<FineTunePreferenceRequestInputInput>,
@@ -4581,7 +4581,7 @@ pub struct FineTunePreferenceRequestInput {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub preferred_completion: Option<Vec<FineTunePreferenceRequestInputItems>>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTunePreferenceRequestInputInput {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub messages: Option<Vec<FineTunePreferenceRequestInputInputItems>>,
@@ -4608,14 +4608,14 @@ pub enum FineTunePreferenceRequestInputItems {
 	ChatCompletionRequestAssistantMessage(ChatCompletionRequestAssistantMessage),
 }
 /// Configuration for the supervised fine-tuning method.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTuneSupervisedMethod {
 	/// The hyperparameters used for the fine-tuning job.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub hyperparameters: Option<FineTuneSupervisedMethodHyperparameters>,
 }
 /// The hyperparameters used for the fine-tuning job.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTuneSupervisedMethodHyperparameters {
 	/// Number of examples in each batch. A larger batch size means that model parameters are updated less frequently, but with lower variance.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -4767,7 +4767,7 @@ pub struct FineTuningJobCheckpoint {
 	pub step_number: i64,
 }
 /// Metrics at the step number during the fine-tuning job.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTuningJobCheckpointMetrics {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub full_valid_loss: Option<f64>,
@@ -4844,7 +4844,7 @@ pub enum FineTuningJobEventType {
 	Metrics,
 }
 /// The hyperparameters used for the fine-tuning job. This value will only be returned when running `supervised` jobs.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTuningJobHyperparameters {
 	/// Number of examples in each batch. A larger batch size means that model parameters
 	/// are updated less frequently, but with lower variance.
@@ -5054,7 +5054,7 @@ pub enum FunctionToolType {
 	Function,
 }
 /// Represents the url or the content of an image generated by the OpenAI API.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct Image {
 	/// The base64-encoded JSON of the generated image, if `response_format` is `b64_json`.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -5320,7 +5320,7 @@ pub enum InviteObject {
 	#[serde(rename = "organization.invite")]
 	OrganizationInvite,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct InviteProjectsItem {
 	/// Project's public ID
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -5773,7 +5773,7 @@ pub struct MessageDeltaContentImageFileObject {
 	/// Always `image_file`.
 	pub r#type: MessageDeltaContentImageFileObjectType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct MessageDeltaContentImageFileObjectImageFile {
 	/// Specifies the detail level of the image if specified by the user. `low` uses fewer tokens, you can opt in to high resolution using `high`.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -5807,7 +5807,7 @@ pub struct MessageDeltaContentImageUrlObject {
 	/// Always `image_url`.
 	pub r#type: MessageDeltaContentImageUrlObjectType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct MessageDeltaContentImageUrlObjectImageUrl {
 	/// Specifies the detail level of the image. `low` uses fewer tokens, you can opt in to high resolution using `high`.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -5864,7 +5864,7 @@ pub struct MessageDeltaContentTextAnnotationsFileCitationObject {
 	/// Always `file_citation`.
 	pub r#type: MessageDeltaContentTextAnnotationsFileCitationObjectType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct MessageDeltaContentTextAnnotationsFileCitationObjectFileCitation {
 	/// The ID of the specific File the citation is from.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -5897,7 +5897,7 @@ pub struct MessageDeltaContentTextAnnotationsFilePathObject {
 	/// Always `file_path`.
 	pub r#type: MessageDeltaContentTextAnnotationsFilePathObjectType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct MessageDeltaContentTextAnnotationsFilePathObjectFilePath {
 	/// The ID of the file that was generated.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -5920,7 +5920,7 @@ pub struct MessageDeltaContentTextObject {
 	/// Always `text`.
 	pub r#type: MessageDeltaContentTextObjectType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct MessageDeltaContentTextObjectText {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub annotations: Option<Vec<MessageDeltaContentTextObjectTextItems>>,
@@ -5952,7 +5952,7 @@ pub struct MessageDeltaObject {
 	pub object: MessageDeltaObjectObject,
 }
 /// The delta containing the fields that have changed on the Message.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct MessageDeltaObjectDelta {
 	/// The content of the message in array of text and/or images.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -6015,7 +6015,7 @@ pub struct MessageObject {
 	/// The [thread](https://platform.openai.com/docs/api-reference/threads) ID that this message belongs to.
 	pub thread_id: String,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct MessageObjectAttachmentsItem {
 	/// The ID of the file to attach to the message.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -6122,7 +6122,7 @@ pub struct Model {
 pub enum ModelObject {
 	Model,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModelResponseProperties {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub metadata: Option<Metadata>,
@@ -6142,7 +6142,7 @@ pub struct ModelResponseProperties {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub user: Option<String>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyAssistantRequest {
 	/// The description of the assistant. The maximum length is 512 characters.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -6186,36 +6186,36 @@ pub enum ModifyAssistantRequestItems {
 	AssistantToolsFunction(AssistantToolsFunction),
 }
 /// A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyAssistantRequestToolResources {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub code_interpreter: Option<ModifyAssistantRequestToolResourcesCodeInterpreter>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_search: Option<ModifyAssistantRequestToolResourcesFileSearch>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyAssistantRequestToolResourcesCodeInterpreter {
 	/// Overrides the list of [file](https://platform.openai.com/docs/api-reference/files) IDs made available to the `code_interpreter` tool. There can be a maximum of 20 files associated with the tool.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_ids: Option<Vec<String>>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyAssistantRequestToolResourcesFileSearch {
 	/// Overrides the [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object) attached to this assistant. There can be a maximum of 1 vector store attached to the assistant.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub vector_store_ids: Option<Vec<String>>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyMessageRequest {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub metadata: Option<Metadata>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyRunRequest {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub metadata: Option<Metadata>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyThreadRequest {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub metadata: Option<Metadata>,
@@ -6224,20 +6224,20 @@ pub struct ModifyThreadRequest {
 	pub tool_resources: Option<ModifyThreadRequestToolResources>,
 }
 /// A set of resources that are made available to the assistant's tools in this thread. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyThreadRequestToolResources {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub code_interpreter: Option<ModifyThreadRequestToolResourcesCodeInterpreter>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_search: Option<ModifyThreadRequestToolResourcesFileSearch>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyThreadRequestToolResourcesCodeInterpreter {
 	/// A list of [file](https://platform.openai.com/docs/api-reference/files) IDs made available to the `code_interpreter` tool. There can be a maximum of 20 files associated with the tool.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_ids: Option<Vec<String>>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyThreadRequestToolResourcesFileSearch {
 	/// The [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object) attached to this thread. There can be a maximum of 1 vector store attached to the thread.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -6509,7 +6509,7 @@ pub enum ProjectApiKeyObject {
 	#[serde(rename = "organization.project.api_key")]
 	OrganizationProjectApiKey,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ProjectApiKeyOwner {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub service_account: Option<ProjectServiceAccount>,
@@ -6598,7 +6598,7 @@ pub enum ProjectRateLimitObject {
 	#[serde(rename = "project.rate_limit")]
 	ProjectRateLimit,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ProjectRateLimitUpdateRequest {
 	/// The maximum batch input tokens per day. Only relevant for certain models.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -7095,7 +7095,7 @@ pub enum RealtimeClientEventTranscriptionSessionUpdateType {
 	TranscriptionSessionUpdate,
 }
 /// The item to add to the conversation.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeConversationItem {
 	/// The arguments of the function call (for `function_call` items).
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -7140,7 +7140,7 @@ pub struct RealtimeConversationItem {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub r#type: Option<RealtimeConversationItemType>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeConversationItemContentItem {
 	/// Base64-encoded audio bytes, used for `input_audio` content type.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -7208,7 +7208,7 @@ pub enum RealtimeConversationItemType {
 	FunctionCallOutput,
 }
 /// The item to add to the conversation.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeConversationItemWithReference {
 	/// The arguments of the function call (for `function_call` items).
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -7256,7 +7256,7 @@ pub struct RealtimeConversationItemWithReference {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub r#type: Option<RealtimeConversationItemWithReferenceType>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeConversationItemWithReferenceContentItem {
 	/// Base64-encoded audio bytes, used for `input_audio` content type.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -7324,7 +7324,7 @@ pub enum RealtimeConversationItemWithReferenceType {
 	FunctionCallOutput,
 }
 /// The response resource.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeResponse {
 	/// Which conversation the response is added to, determined by the `conversation`
 	/// field in the `response.create` event. If `auto`, the response will be added to
@@ -7381,7 +7381,7 @@ pub struct RealtimeResponse {
 	pub voice: Option<VoiceIdsShared>,
 }
 /// Create a new Realtime response with these parameters
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeResponseCreateParams {
 	/// Controls which conversation the response is added to. Currently supports
 	/// `auto` and `none`, with `auto` as the default value. The `auto` value
@@ -7481,7 +7481,7 @@ pub enum RealtimeResponseCreateParamsOutputAudioFormat {
 	#[serde(rename = "g711_alaw")]
 	G711Alaw,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeResponseCreateParamsToolsItem {
 	/// The description of the function, including guidance on when and how 
 	/// to call it, and guidance about what to tell the user when calling 
@@ -7546,7 +7546,7 @@ pub enum RealtimeResponseStatus {
 	Incomplete,
 }
 /// Additional details about the status.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeResponseStatusDetails {
 	/// A description of the error that caused the response to fail, 
 	/// populated when the `status` is `failed`.
@@ -7567,7 +7567,7 @@ pub struct RealtimeResponseStatusDetails {
 }
 /// A description of the error that caused the response to fail, 
 /// populated when the `status` is `failed`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeResponseStatusDetailsError {
 	/// Error code, if any.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -7608,7 +7608,7 @@ pub enum RealtimeResponseStatusDetailsType {
 /// Realtime API session will maintain a conversation context and append new 
 /// Items to the Conversation, thus output from previous turns (text and 
 /// audio tokens) will become the input for later turns.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeResponseUsage {
 	/// Details about the input tokens used in the Response.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -7630,7 +7630,7 @@ pub struct RealtimeResponseUsage {
 	pub total_tokens: Option<i64>,
 }
 /// Details about the input tokens used in the Response.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeResponseUsageInputTokenDetails {
 	/// The number of audio tokens used in the Response.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -7643,7 +7643,7 @@ pub struct RealtimeResponseUsageInputTokenDetails {
 	pub text_tokens: Option<i64>,
 }
 /// Details about the output tokens used in the Response.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeResponseUsageOutputTokenDetails {
 	/// The number of audio tokens used in the Response.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -7700,7 +7700,7 @@ pub struct RealtimeServerEventConversationCreated {
 	pub r#type: RealtimeServerEventConversationCreatedType,
 }
 /// The conversation resource.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeServerEventConversationCreatedConversation {
 	/// The unique ID of the conversation.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -7841,7 +7841,7 @@ pub struct RealtimeServerEventConversationItemInputAudioTranscriptionFailed {
 	pub r#type: RealtimeServerEventConversationItemInputAudioTranscriptionFailedType,
 }
 /// Details of the transcription error.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeServerEventConversationItemInputAudioTranscriptionFailedError {
 	/// Error code, if any.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -8046,7 +8046,7 @@ pub struct RealtimeServerEventRateLimitsUpdated {
 	/// The event type, must be `rate_limits.updated`.
 	pub r#type: RealtimeServerEventRateLimitsUpdatedType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeServerEventRateLimitsUpdatedRateLimitsItem {
 	/// The maximum allowed value for the rate limit.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -8196,7 +8196,7 @@ pub struct RealtimeServerEventResponseContentPartAdded {
 	pub r#type: RealtimeServerEventResponseContentPartAddedType,
 }
 /// The content part that was added.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeServerEventResponseContentPartAddedPart {
 	/// Base64-encoded audio data (if type is "audio").
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -8245,7 +8245,7 @@ pub struct RealtimeServerEventResponseContentPartDone {
 	pub r#type: RealtimeServerEventResponseContentPartDoneType,
 }
 /// The content part that is done.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeServerEventResponseContentPartDonePart {
 	/// Base64-encoded audio data (if type is "audio").
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -8505,7 +8505,7 @@ pub enum RealtimeServerEventTranscriptionSessionUpdatedType {
 	TranscriptionSessionUpdated,
 }
 /// Realtime session object configuration.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSession {
 	/// Unique identifier for the session that looks like `sess_1234567890abcdef`.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -8568,7 +8568,7 @@ pub struct RealtimeSession {
 	pub voice: Option<VoiceIdsShared>,
 }
 /// Realtime session object configuration.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionCreateRequest {
 	/// The format of input audio. Options are `pcm16`, `g711_ulaw`, or `g711_alaw`.
 	/// For `pcm16`, input audio must be 16-bit PCM at a 24kHz sample rate, 
@@ -8642,7 +8642,7 @@ pub enum RealtimeSessionCreateRequestInputAudioFormat {
 /// Configuration for input audio noise reduction. This can be set to `null` to turn off.
 /// Noise reduction filters audio added to the input audio buffer before it is sent to VAD and the model.
 /// Filtering the audio can improve VAD and turn detection accuracy (reducing false positives) and model performance by improving perception of the input audio.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionCreateRequestInputAudioNoiseReduction {
 	/// Type of noise reduction. `near_field` is for close-talking microphones such as headphones, `far_field` is for far-field microphones such as laptop or conference room microphones.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -8658,7 +8658,7 @@ pub enum RealtimeSessionCreateRequestInputAudioNoiseReductionType {
 	FarField,
 }
 /// Configuration for input audio transcription, defaults to off and can be  set to `null` to turn off once on. Input audio transcription is not native to the model, since the model consumes audio directly. Transcription runs  asynchronously through [the /audio/transcriptions endpoint](https://platform.openai.com/docs/api-reference/audio/createTranscription) and should be treated as guidance of input audio content rather than precisely what the model heard. The client can optionally set the language and prompt for transcription, these offer additional guidance to the transcription service.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionCreateRequestInputAudioTranscription {
 	/// The language of the input audio. Supplying the input language in
 	/// [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) (e.g. `en`) format
@@ -8717,7 +8717,7 @@ pub enum RealtimeSessionCreateRequestOutputAudioFormat {
 	#[serde(rename = "g711_alaw")]
 	G711Alaw,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionCreateRequestToolsItem {
 	/// The description of the function, including guidance on when and how 
 	/// to call it, and guidance about what to tell the user when calling 
@@ -8743,7 +8743,7 @@ pub enum RealtimeSessionCreateRequestToolsItemType {
 /// Configuration for turn detection, ether Server VAD or Semantic VAD. This can be set to `null` to turn off, in which case the client must manually trigger model response.
 /// Server VAD means that the model will detect the start and end of speech based on audio volume and respond at the end of user speech.
 /// Semantic VAD is more advanced and uses a turn detection model (in conjuction with VAD) to semantically estimate whether the user has finished speaking, then dynamically sets a timeout based on this probability. For example, if user audio trails off with "uhhm", the model will score a low probability of turn end and wait longer for the user to continue speaking. This can be useful for more natural conversations, but may have a higher latency.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionCreateRequestTurnDetection {
 	/// Whether or not to automatically generate a response when a VAD stop event occurs.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -8872,7 +8872,7 @@ pub struct RealtimeSessionCreateResponseClientSecret {
 /// to the model, since the model consumes audio directly. Transcription runs 
 /// asynchronously through Whisper and should be treated as rough guidance 
 /// rather than the representation understood by the model.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionCreateResponseInputAudioTranscription {
 	/// The model to use for transcription, `whisper-1` is the only currently 
 	/// supported model.
@@ -8895,7 +8895,7 @@ pub enum RealtimeSessionCreateResponseModalities {
 	Text,
 	Audio,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionCreateResponseToolsItem {
 	/// The description of the function, including guidance on when and how 
 	/// to call it, and guidance about what to tell the user when calling 
@@ -8921,7 +8921,7 @@ pub enum RealtimeSessionCreateResponseToolsItemType {
 /// Configuration for turn detection. Can be set to `null` to turn off. Server 
 /// VAD means that the model will detect the start and end of speech based on 
 /// audio volume and respond at the end of user speech.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionCreateResponseTurnDetection {
 	/// Amount of audio to include before the VAD detected speech (in 
 	/// milliseconds). Defaults to 300ms.
@@ -8956,7 +8956,7 @@ pub enum RealtimeSessionInputAudioFormat {
 /// Configuration for input audio noise reduction. This can be set to `null` to turn off.
 /// Noise reduction filters audio added to the input audio buffer before it is sent to VAD and the model.
 /// Filtering the audio can improve VAD and turn detection accuracy (reducing false positives) and model performance by improving perception of the input audio.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionInputAudioNoiseReduction {
 	/// Type of noise reduction. `near_field` is for close-talking microphones such as headphones, `far_field` is for far-field microphones such as laptop or conference room microphones.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -8972,7 +8972,7 @@ pub enum RealtimeSessionInputAudioNoiseReductionType {
 	FarField,
 }
 /// Configuration for input audio transcription, defaults to off and can be  set to `null` to turn off once on. Input audio transcription is not native to the model, since the model consumes audio directly. Transcription runs  asynchronously through [the /audio/transcriptions endpoint](https://platform.openai.com/docs/api-reference/audio/createTranscription) and should be treated as guidance of input audio content rather than precisely what the model heard. The client can optionally set the language and prompt for transcription, these offer additional guidance to the transcription service.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionInputAudioTranscription {
 	/// The language of the input audio. Supplying the input language in
 	/// [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) (e.g. `en`) format
@@ -9031,7 +9031,7 @@ pub enum RealtimeSessionOutputAudioFormat {
 	#[serde(rename = "g711_alaw")]
 	G711Alaw,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionToolsItem {
 	/// The description of the function, including guidance on when and how 
 	/// to call it, and guidance about what to tell the user when calling 
@@ -9057,7 +9057,7 @@ pub enum RealtimeSessionToolsItemType {
 /// Configuration for turn detection, ether Server VAD or Semantic VAD. This can be set to `null` to turn off, in which case the client must manually trigger model response.
 /// Server VAD means that the model will detect the start and end of speech based on audio volume and respond at the end of user speech.
 /// Semantic VAD is more advanced and uses a turn detection model (in conjuction with VAD) to semantically estimate whether the user has finished speaking, then dynamically sets a timeout based on this probability. For example, if user audio trails off with "uhhm", the model will score a low probability of turn end and wait longer for the user to continue speaking. This can be useful for more natural conversations, but may have a higher latency.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionTurnDetection {
 	/// Whether or not to automatically generate a response when a VAD stop event occurs.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -9106,7 +9106,7 @@ pub enum RealtimeSessionTurnDetectionType {
 	SemanticVad,
 }
 /// Realtime transcription session object configuration.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeTranscriptionSessionCreateRequest {
 	/// The set of items to include in the transcription. Current available items are:
 	/// - `item.input_audio_transcription.logprobs`
@@ -9150,7 +9150,7 @@ pub enum RealtimeTranscriptionSessionCreateRequestInputAudioFormat {
 /// Configuration for input audio noise reduction. This can be set to `null` to turn off.
 /// Noise reduction filters audio added to the input audio buffer before it is sent to VAD and the model.
 /// Filtering the audio can improve VAD and turn detection accuracy (reducing false positives) and model performance by improving perception of the input audio.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeTranscriptionSessionCreateRequestInputAudioNoiseReduction {
 	/// Type of noise reduction. `near_field` is for close-talking microphones such as headphones, `far_field` is for far-field microphones such as laptop or conference room microphones.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -9166,7 +9166,7 @@ pub enum RealtimeTranscriptionSessionCreateRequestInputAudioNoiseReductionType {
 	FarField,
 }
 /// Configuration for input audio transcription. The client can optionally set the language and prompt for transcription, these offer additional guidance to the transcription service.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeTranscriptionSessionCreateRequestInputAudioTranscription {
 	/// The language of the input audio. Supplying the input language in
 	/// [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) (e.g. `en`) format
@@ -9203,7 +9203,7 @@ pub enum RealtimeTranscriptionSessionCreateRequestModalities {
 /// Configuration for turn detection, ether Server VAD or Semantic VAD. This can be set to `null` to turn off, in which case the client must manually trigger model response.
 /// Server VAD means that the model will detect the start and end of speech based on audio volume and respond at the end of user speech.
 /// Semantic VAD is more advanced and uses a turn detection model (in conjuction with VAD) to semantically estimate whether the user has finished speaking, then dynamically sets a timeout based on this probability. For example, if user audio trails off with "uhhm", the model will score a low probability of turn end and wait longer for the user to continue speaking. This can be useful for more natural conversations, but may have a higher latency.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeTranscriptionSessionCreateRequestTurnDetection {
 	/// Whether or not to automatically generate a response when a VAD stop event occurs. Not available for transcription sessions.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -9290,7 +9290,7 @@ pub struct RealtimeTranscriptionSessionCreateResponseClientSecret {
 	pub value: String,
 }
 /// Configuration of the transcription model.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeTranscriptionSessionCreateResponseInputAudioTranscription {
 	/// The language of the input audio. Supplying the input language in
 	/// [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) (e.g. `en`) format
@@ -9326,7 +9326,7 @@ pub enum RealtimeTranscriptionSessionCreateResponseModalities {
 /// Configuration for turn detection. Can be set to `null` to turn off. Server 
 /// VAD means that the model will detect the start and end of speech based on 
 /// audio volume and respond at the end of user speech.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeTranscriptionSessionCreateResponseTurnDetection {
 	/// Amount of audio to include before the VAD detected speech (in 
 	/// milliseconds). Defaults to 300ms.
@@ -9350,7 +9350,7 @@ pub struct RealtimeTranscriptionSessionCreateResponseTurnDetection {
 /// 
 /// Configuration options for 
 /// [reasoning models](https://platform.openai.com/docs/guides/reasoning).
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct Reasoning {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub effort: Option<ReasoningEffort>,
@@ -9447,7 +9447,7 @@ pub struct Refusal {
 pub enum RefusalType {
 	Refusal,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct Response {
 	/// Unix timestamp (in seconds) of when this Response was created.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -10020,7 +10020,7 @@ pub enum ResponseInProgressEventType {
 	ResponseInProgress,
 }
 /// Details about why the response is incomplete.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ResponseIncompleteDetails {
 	/// The reason why the response is incomplete.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -10121,7 +10121,7 @@ pub enum ResponseOutputItemDoneEventType {
 	#[serde(rename = "response.output_item.done")]
 	ResponseOutputItemDone,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ResponseProperties {
 	/// Inserts a system (or developer) message as the first item in the model's context.
 	/// 
@@ -10185,7 +10185,7 @@ pub struct ResponseProperties {
 /// text or structured JSON data. Learn more:
 /// - [Text inputs and outputs](https://platform.openai.com/docs/guides/text)
 /// - [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs)
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ResponsePropertiesText {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub format: Option<TextResponseFormatConfiguration>,
@@ -10512,7 +10512,7 @@ pub struct RunObject {
 	pub usage: RunCompletionUsage,
 }
 /// Details on why the run is incomplete. Will be `null` if the run is not incomplete.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RunObjectIncompleteDetails {
 	/// The reason why the run is incomplete. This will point to which specific token limit was reached over the course of the run.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -10627,7 +10627,7 @@ pub struct RunStepDeltaObject {
 	pub object: RunStepDeltaObjectObject,
 }
 /// The delta containing the fields that have changed on the run step.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RunStepDeltaObjectDelta {
 	/// The details of the run step.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -10656,7 +10656,7 @@ pub struct RunStepDeltaStepDetailsMessageCreationObject {
 	/// Always `message_creation`.
 	pub r#type: RunStepDeltaStepDetailsMessageCreationObjectType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RunStepDeltaStepDetailsMessageCreationObjectMessageCreation {
 	/// The ID of the message that was created by this run step.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -10684,7 +10684,7 @@ pub struct RunStepDeltaStepDetailsToolCallsCodeObject {
 	pub r#type: RunStepDeltaStepDetailsToolCallsCodeObjectType,
 }
 /// The Code Interpreter tool call definition.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RunStepDeltaStepDetailsToolCallsCodeObjectCodeInterpreter {
 	/// The input to the Code Interpreter tool call.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -10716,7 +10716,7 @@ pub struct RunStepDeltaStepDetailsToolCallsCodeOutputImageObject {
 	/// Always `image`.
 	pub r#type: RunStepDeltaStepDetailsToolCallsCodeOutputImageObjectType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RunStepDeltaStepDetailsToolCallsCodeOutputImageObjectImage {
 	/// The [file](https://platform.openai.com/docs/api-reference/files) ID of the image.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -10778,7 +10778,7 @@ pub struct RunStepDeltaStepDetailsToolCallsFunctionObject {
 	pub r#type: RunStepDeltaStepDetailsToolCallsFunctionObjectType,
 }
 /// The definition of the function that was called.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RunStepDeltaStepDetailsToolCallsFunctionObjectFunction {
 	/// The arguments passed to the function.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -11182,7 +11182,7 @@ pub struct SubmitToolOutputsRunRequest {
 	/// A list of tools for which the outputs are being submitted.
 	pub tool_outputs: Vec<SubmitToolOutputsRunRequestToolOutputsItem>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct SubmitToolOutputsRunRequestToolOutputsItem {
 	/// The output of the tool call to be submitted to continue the run.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -11262,20 +11262,20 @@ pub enum ThreadObjectObject {
 	Thread,
 }
 /// A set of resources that are made available to the assistant's tools in this thread. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ThreadObjectToolResources {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub code_interpreter: Option<ThreadObjectToolResourcesCodeInterpreter>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_search: Option<ThreadObjectToolResourcesFileSearch>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ThreadObjectToolResourcesCodeInterpreter {
 	/// A list of [file](https://platform.openai.com/docs/api-reference/files) IDs made available to the `code_interpreter` tool. There can be a maximum of 20 files associated with the tool.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_ids: Option<Vec<String>>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ThreadObjectToolResourcesFileSearch {
 	/// The [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object) attached to this thread. There can be a maximum of 1 vector store attached to the thread.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -11467,7 +11467,7 @@ pub enum TypeType {
 pub struct UpdateVectorStoreFileAttributesRequest {
 	pub attributes: VectorStoreFileAttributes,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct UpdateVectorStoreRequest {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub expires_after: Option<UpdateVectorStoreRequestExpiresAfter>,
@@ -11977,7 +11977,7 @@ pub struct VectorStoreFileContentResponse {
 	/// The object type, which is always `vector_store.file_content.page`
 	pub object: VectorStoreFileContentResponseObject,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct VectorStoreFileContentResponseDataItem {
 	/// The text content
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -12215,7 +12215,7 @@ pub enum WebSearchContextSize {
 	High,
 }
 /// Approximate location parameters for the search.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct WebSearchLocation {
 	/// Free text input for the city of the user, e.g. `San Francisco`.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -12285,7 +12285,7 @@ pub enum WebSearchToolType {
 	#[serde(rename = "web_search_preview_2025_03_11")]
 	WebSearchPreview20250311,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct WebSearchToolUserLocation {
 	/// Free text input for the city of the user, e.g. `San Francisco`.
 	#[serde(skip_serializing_if = "Option::is_none")]
