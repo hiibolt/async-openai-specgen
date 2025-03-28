@@ -1,6 +1,6 @@
 use super::{
     Data, Alias, parse,
-    super::types::objects::{Object, FieldValue, Field},
+    super::data::objects::{Object, FieldValue, Field},
     enums::parse_enum,
     arrays::parse_array
 };
@@ -17,6 +17,7 @@ pub(super) fn parse_object (
 
     schemas: &mut BTreeMap<String, Data>,
     aliases: &mut BTreeMap<String, Alias>,
+    wanted_by: String,
 
     key: &str,
     value: &Yaml
@@ -81,6 +82,8 @@ pub(super) fn parse_object (
         name: key.to_string(),
         description: description.map(|s| s.to_string()),
         properties: BTreeMap::new(),
+        wanted_by: BTreeSet::from([ wanted_by.clone() ]),
+        relies_on: BTreeSet::new(),
     };
 
     // Check if it's an `allOf` object
@@ -97,10 +100,12 @@ pub(super) fn parse_object (
 
                 // Add the requested type recursively
                 println!("Need to recurse for `allOf` object: {referred_type}");
+                object.relies_on.insert(referred_type.to_string());
                 parse(
                     global_yaml,
                     schemas,
                     aliases,
+                    wanted_by.clone(),
                     referred_type,
                     &referred_type_yaml,
                 )
@@ -136,6 +141,7 @@ pub(super) fn parse_object (
                     global_yaml,
                     schemas,
                     aliases,
+                    wanted_by.clone(),
                     &mut object,
                     key,
                     sub_object,
@@ -148,6 +154,7 @@ pub(super) fn parse_object (
             global_yaml,
             schemas,
             aliases,
+            wanted_by.clone(),
             &mut object,
             key,
             value,
@@ -169,6 +176,7 @@ fn process_properties (
     global_yaml: &Yaml,
     schemas: &mut BTreeMap<String, Data>,
     aliases: &mut BTreeMap<String, Alias>,
+    wanted_by: String,
 
     object: &mut Object,
     key: &str,
@@ -282,6 +290,7 @@ fn process_properties (
                         global_yaml,
                         schemas,
                         aliases,
+                        wanted_by.clone(),
                         field_type_key.as_str(),
                         property_value
                     )
@@ -326,6 +335,7 @@ fn process_properties (
                             global_yaml,
                             schemas,
                             aliases,
+                            wanted_by.clone(),
                             field_type_key.as_str(),
                             property_value
                         )
@@ -345,6 +355,7 @@ fn process_properties (
                     global_yaml,
                     schemas,
                     aliases,
+                    wanted_by.clone(),
                     key,
                     property_key,
                     property_value
@@ -364,6 +375,7 @@ fn process_properties (
                         global_yaml,
                         schemas,
                         aliases,
+                        wanted_by.clone(),
                         field_type_key.as_str(),
                         property_value
                     )
@@ -400,6 +412,7 @@ fn process_properties (
                         global_yaml,
                         schemas,
                         aliases,
+                        wanted_by.clone(),
                         field_type_key.as_str(),
                         property_value
                     )
@@ -419,6 +432,7 @@ fn process_properties (
                         global_yaml,
                         schemas,
                         aliases,
+                        wanted_by.clone(),
                         field_type_key.as_str(),
                         property_value
                     )
@@ -441,6 +455,7 @@ fn process_properties (
                         global_yaml,
                         schemas,
                         aliases,
+                        wanted_by.clone(),
                         parsed_referred_type,
                         &referred_type_yaml,
                     )
@@ -478,6 +493,7 @@ fn process_properties (
                             global_yaml,
                             schemas,
                             aliases,
+                            wanted_by.clone(),
                             key,
                             property_key,
                             property_value

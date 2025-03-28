@@ -6,7 +6,7 @@ pub struct AddUploadPartRequest {
 	/// The chunk of bytes for this Part.
 	pub data: String,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AdminApiKey {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub created_at: Option<i64>,
@@ -23,7 +23,7 @@ pub struct AdminApiKey {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub value: Option<String>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AdminApiKeyOwner {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub created_at: Option<i64>,
@@ -44,7 +44,7 @@ pub enum Annotation {
 	UrlCitation(UrlCitation),
 	FilePath(FilePath),
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ApiKeyList {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub data: Option<Vec<AdminApiKey>>,
@@ -84,47 +84,46 @@ pub struct AssistantObject {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub tool_resources: Option<AssistantObjectToolResources>,
 	/// A list of tool enabled on the assistant. There can be a maximum of 128 tools per assistant. Tools can be of types `code_interpreter`, `file_search`, or `function`.
-	pub tools: Vec<AssistantObjectTools>,
+	pub tools: Vec<AssistantObjectItems>,
 	/// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
 	/// 
 	/// We generally recommend altering this or temperature but not both.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub top_p: Option<f64>,
 }
-/// The object type, which is always `assistant`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
+pub enum AssistantObjectItems {
+	AssistantToolsCode(AssistantToolsCode),
+	AssistantToolsFileSearch(AssistantToolsFileSearch),
+	AssistantToolsFunction(AssistantToolsFunction),
+}
+/// The object type, which is always `assistant`.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
 pub enum AssistantObjectObject {
 	Assistant,
 }
 /// A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AssistantObjectToolResources {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub code_interpreter: Option<AssistantObjectToolResourcesCodeInterpreter>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_search: Option<AssistantObjectToolResourcesFileSearch>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AssistantObjectToolResourcesCodeInterpreter {
 	/// A list of [file](https://platform.openai.com/docs/api-reference/files) IDs made available to the `code_interpreter`` tool. There can be a maximum of 20 files associated with the tool.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_ids: Option<Vec<String>>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AssistantObjectToolResourcesFileSearch {
 	/// The ID of the [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object) attached to this assistant. There can be a maximum of 1 vector store attached to the assistant.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub vector_store_ids: Option<Vec<String>>,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum AssistantObjectTools {
-	AssistantToolsCode(AssistantToolsCode),
-	AssistantToolsFileSearch(AssistantToolsFileSearch),
-	AssistantToolsFunction(AssistantToolsFunction),
 }
 /// Represents an event emitted when streaming a Run.
 /// 
@@ -158,7 +157,6 @@ pub enum AssistantStreamEvent {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum AssistantSupportedModels {
 	#[serde(rename = "o3-mini")]
 	O3Mini,
@@ -228,7 +226,6 @@ pub struct AssistantToolsCode {
 /// The type of tool being defined: `code_interpreter`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum AssistantToolsCodeType {
 	#[serde(rename = "code_interpreter")]
 	CodeInterpreter,
@@ -242,7 +239,7 @@ pub struct AssistantToolsFileSearch {
 	pub r#type: AssistantToolsFileSearchType,
 }
 /// Overrides for the file search tool.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AssistantToolsFileSearchFileSearch {
 	/// The maximum number of results the file search tool should output. The default is 20 for `gpt-4*` models and 5 for `gpt-3.5-turbo`. This number should be between 1 and 50 inclusive.
 	/// 
@@ -255,7 +252,6 @@ pub struct AssistantToolsFileSearchFileSearch {
 /// The type of tool being defined: `file_search`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum AssistantToolsFileSearchType {
 	#[serde(rename = "file_search")]
 	FileSearch,
@@ -268,7 +264,6 @@ pub struct AssistantToolsFileSearchTypeOnly {
 /// The type of tool being defined: `file_search`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum AssistantToolsFileSearchTypeOnlyType {
 	#[serde(rename = "file_search")]
 	FileSearch,
@@ -282,7 +277,6 @@ pub struct AssistantToolsFunction {
 /// The type of tool being defined: `function`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum AssistantToolsFunctionType {
 	Function,
 }
@@ -332,7 +326,6 @@ pub struct AssistantsNamedToolChoiceFunction {
 /// The type of the tool. If type is `function`, the function name must be set
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum AssistantsNamedToolChoiceType {
 	Function,
 	#[serde(rename = "code_interpreter")]
@@ -343,7 +336,6 @@ pub enum AssistantsNamedToolChoiceType {
 /// The format of the output, in one of these options: `json`, `text`, `srt`, `verbose_json`, or `vtt`. For `gpt-4o-transcribe` and `gpt-4o-mini-transcribe`, the only supported format is `json`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum AudioResponseFormat {
 	Json,
 	Text,
@@ -356,77 +348,32 @@ pub enum AudioResponseFormat {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct AuditLog {
 	pub actor: AuditLogActor,
-	/// The details for events with this `type`.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub api_key.created: Option<AuditLogApiKey.created>,
-	/// The details for events with this `type`.
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub api_key.deleted: Option<AuditLogApiKey.deleted>,
-	/// The details for events with this `type`.
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub api_key.updated: Option<AuditLogApiKey.updated>,
+	pub api_key: Option<AuditLogApiKey>,
 	/// The Unix timestamp (in seconds) of the event.
 	pub effective_at: i64,
 	/// The ID of this log.
 	pub id: String,
-	/// The details for events with this `type`.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub invite.accepted: Option<AuditLogInvite.accepted>,
-	/// The details for events with this `type`.
+	pub invite: Option<AuditLogInvite>,
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub invite.deleted: Option<AuditLogInvite.deleted>,
-	/// The details for events with this `type`.
+	pub login: Option<AuditLogLogin>,
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub invite.sent: Option<AuditLogInvite.sent>,
-	/// The details for events with this `type`.
+	pub logout: Option<AuditLogLogout>,
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub login.failed: Option<AuditLogLogin.failed>,
-	/// The details for events with this `type`.
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub logout.failed: Option<AuditLogLogout.failed>,
-	/// The details for events with this `type`.
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub organization.updated: Option<AuditLogOrganization.updated>,
-	/// The project that the action was scoped to. Absent for actions not scoped to projects.
+	pub organization: Option<AuditLogOrganization>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub project: Option<AuditLogProject>,
-	/// The details for events with this `type`.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub project.archived: Option<AuditLogProject.archived>,
-	/// The details for events with this `type`.
+	pub rate_limit: Option<AuditLogRateLimit>,
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub project.created: Option<AuditLogProject.created>,
-	/// The details for events with this `type`.
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub project.updated: Option<AuditLogProject.updated>,
-	/// The details for events with this `type`.
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub rate_limit.deleted: Option<AuditLogRateLimit.deleted>,
-	/// The details for events with this `type`.
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub rate_limit.updated: Option<AuditLogRateLimit.updated>,
-	/// The details for events with this `type`.
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub service_account.created: Option<AuditLogServiceAccount.created>,
-	/// The details for events with this `type`.
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub service_account.deleted: Option<AuditLogServiceAccount.deleted>,
-	/// The details for events with this `type`.
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub service_account.updated: Option<AuditLogServiceAccount.updated>,
+	pub service_account: Option<AuditLogServiceAccount>,
 	pub r#type: AuditLogEventType,
-	/// The details for events with this `type`.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub user.added: Option<AuditLogUser.added>,
-	/// The details for events with this `type`.
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub user.deleted: Option<AuditLogUser.deleted>,
-	/// The details for events with this `type`.
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub user.updated: Option<AuditLogUser.updated>,
+	pub user: Option<AuditLogUser>,
 }
 /// The actor who performed the audit logged action.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogActor {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub api_key: Option<AuditLogActorApiKey>,
@@ -437,7 +384,7 @@ pub struct AuditLogActor {
 	pub r#type: Option<AuditLogActorType>,
 }
 /// The API Key used to perform the audit logged action.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogActorApiKey {
 	/// The tracking id of the API key.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -453,21 +400,20 @@ pub struct AuditLogActorApiKey {
 /// The type of API key. Can be either `user` or `service_account`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum AuditLogActorApiKeyType {
 	User,
 	#[serde(rename = "service_account")]
 	ServiceAccount,
 }
 /// The service account that performed the audit logged action.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogActorServiceAccount {
 	/// The service account id.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The session in which the audit logged action was performed.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogActorSession {
 	/// The IP address from which the action was performed.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -478,14 +424,13 @@ pub struct AuditLogActorSession {
 /// The type of actor. Is either `session` or `api_key`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum AuditLogActorType {
 	Session,
 	#[serde(rename = "api_key")]
 	ApiKey,
 }
 /// The user who performed the audit logged action.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogActorUser {
 	/// The user email.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -494,43 +439,55 @@ pub struct AuditLogActorUser {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogApiKey {
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub created: Option<AuditLogApiKeyCreated>,
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub deleted: Option<AuditLogApiKeyDeleted>,
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub updated: Option<AuditLogApiKeyUpdated>,
+}
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogApiKey.created {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogApiKeyCreated {
 	/// The payload used to create the API key.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub data: Option<AuditLogApiKey.createdData>,
+	pub data: Option<AuditLogApiKeyCreatedData>,
 	/// The tracking ID of the API key.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The payload used to create the API key.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogApiKey.createdData {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogApiKeyCreatedData {
 	/// A list of scopes allowed for the API key, e.g. `["api.model.request"]`
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub scopes: Option<Vec<String>>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogApiKey.deleted {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogApiKeyDeleted {
 	/// The tracking ID of the API key.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogApiKey.updated {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogApiKeyUpdated {
 	/// The payload used to update the API key.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub changes_requested: Option<AuditLogApiKey.updatedChangesRequested>,
+	pub changes_requested: Option<AuditLogApiKeyUpdatedChangesRequested>,
 	/// The tracking ID of the API key.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The payload used to update the API key.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogApiKey.updatedChangesRequested {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogApiKeyUpdatedChangesRequested {
 	/// A list of scopes allowed for the API key, e.g. `["api.model.request"]`
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub scopes: Option<Vec<String>>,
@@ -538,7 +495,6 @@ pub struct AuditLogApiKey.updatedChangesRequested {
 /// The event type.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum AuditLogEventType {
 	#[serde(rename = "api_key.created")]
 	ApiKeyCreated,
@@ -585,33 +541,45 @@ pub enum AuditLogEventType {
 	#[serde(rename = "user.deleted")]
 	UserDeleted,
 }
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogInvite {
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub accepted: Option<AuditLogInviteAccepted>,
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub deleted: Option<AuditLogInviteDeleted>,
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub sent: Option<AuditLogInviteSent>,
+}
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogInvite.accepted {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogInviteAccepted {
 	/// The ID of the invite.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogInvite.deleted {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogInviteDeleted {
 	/// The ID of the invite.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogInvite.sent {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogInviteSent {
 	/// The payload used to create the invite.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub data: Option<AuditLogInvite.sentData>,
+	pub data: Option<AuditLogInviteSentData>,
 	/// The ID of the invite.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The payload used to create the invite.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogInvite.sentData {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogInviteSentData {
 	/// The email invited to the organization.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub email: Option<String>,
@@ -619,9 +587,15 @@ pub struct AuditLogInvite.sentData {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub role: Option<String>,
 }
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogLogin {
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub failed: Option<AuditLogLoginFailed>,
+}
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogLogin.failed {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogLoginFailed {
 	/// The error code of the failure.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub error_code: Option<String>,
@@ -629,9 +603,15 @@ pub struct AuditLogLogin.failed {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub error_message: Option<String>,
 }
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogLogout {
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub failed: Option<AuditLogLogoutFailed>,
+}
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogLogout.failed {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogLogoutFailed {
 	/// The error code of the failure.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub error_code: Option<String>,
@@ -639,19 +619,25 @@ pub struct AuditLogLogout.failed {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub error_message: Option<String>,
 }
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogOrganization {
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub updated: Option<AuditLogOrganizationUpdated>,
+}
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogOrganization.updated {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogOrganizationUpdated {
 	/// The payload used to update the organization settings.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub changes_requested: Option<AuditLogOrganization.updatedChangesRequested>,
+	pub changes_requested: Option<AuditLogOrganizationUpdatedChangesRequested>,
 	/// The organization ID.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The payload used to update the organization settings.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogOrganization.updatedChangesRequested {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogOrganizationUpdatedChangesRequested {
 	/// The organization description.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub description: Option<String>,
@@ -659,13 +645,13 @@ pub struct AuditLogOrganization.updatedChangesRequested {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub name: Option<String>,
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub settings: Option<AuditLogOrganization.updatedChangesRequestedSettings>,
+	pub settings: Option<AuditLogOrganizationUpdatedChangesRequestedSettings>,
 	/// The organization title.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub title: Option<String>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogOrganization.updatedChangesRequestedSettings {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogOrganizationUpdatedChangesRequestedSettings {
 	/// Visibility of the threads page which shows messages created with the Assistants API and Playground. One of `ANY_ROLE`, `OWNERS`, or `NONE`.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub threads_ui_visibility: Option<String>,
@@ -673,36 +659,38 @@ pub struct AuditLogOrganization.updatedChangesRequestedSettings {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub usage_dashboard_visibility: Option<String>,
 }
-/// The project that the action was scoped to. Absent for actions not scoped to projects.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct AuditLogProject {
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub archived: Option<AuditLogProjectArchived>,
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub created: Option<AuditLogProjectCreated>,
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub updated: Option<AuditLogProjectUpdated>,
+}
+/// The details for events with this `type`.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogProjectArchived {
 	/// The project ID.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
-	/// The project title.
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub name: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogProject.archived {
-	/// The project ID.
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub id: Option<String>,
-}
-/// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogProject.created {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogProjectCreated {
 	/// The payload used to create the project.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub data: Option<AuditLogProject.createdData>,
+	pub data: Option<AuditLogProjectCreatedData>,
 	/// The project ID.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The payload used to create the project.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogProject.createdData {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogProjectCreatedData {
 	/// The project name.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub name: Option<String>,
@@ -711,42 +699,51 @@ pub struct AuditLogProject.createdData {
 	pub title: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogProject.updated {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogProjectUpdated {
 	/// The payload used to update the project.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub changes_requested: Option<AuditLogProject.updatedChangesRequested>,
+	pub changes_requested: Option<AuditLogProjectUpdatedChangesRequested>,
 	/// The project ID.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The payload used to update the project.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogProject.updatedChangesRequested {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogProjectUpdatedChangesRequested {
 	/// The title of the project as seen on the dashboard.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub title: Option<String>,
 }
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogRateLimit {
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub deleted: Option<AuditLogRateLimitDeleted>,
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub updated: Option<AuditLogRateLimitUpdated>,
+}
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogRateLimit.deleted {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogRateLimitDeleted {
 	/// The rate limit ID
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogRateLimit.updated {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogRateLimitUpdated {
 	/// The payload used to update the rate limits.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub changes_requested: Option<AuditLogRateLimit.updatedChangesRequested>,
+	pub changes_requested: Option<AuditLogRateLimitUpdatedChangesRequested>,
 	/// The rate limit ID
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The payload used to update the rate limits.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogRateLimit.updatedChangesRequested {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogRateLimitUpdatedChangesRequested {
 	/// The maximum batch input tokens per day. Only relevant for certain models.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub batch_1_day_max_input_tokens: Option<i64>,
@@ -766,84 +763,108 @@ pub struct AuditLogRateLimit.updatedChangesRequested {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub max_tokens_per_1_minute: Option<i64>,
 }
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogServiceAccount {
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub created: Option<AuditLogServiceAccountCreated>,
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub deleted: Option<AuditLogServiceAccountDeleted>,
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub updated: Option<AuditLogServiceAccountUpdated>,
+}
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogServiceAccount.created {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogServiceAccountCreated {
 	/// The payload used to create the service account.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub data: Option<AuditLogServiceAccount.createdData>,
+	pub data: Option<AuditLogServiceAccountCreatedData>,
 	/// The service account ID.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The payload used to create the service account.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogServiceAccount.createdData {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogServiceAccountCreatedData {
 	/// The role of the service account. Is either `owner` or `member`.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub role: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogServiceAccount.deleted {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogServiceAccountDeleted {
 	/// The service account ID.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogServiceAccount.updated {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogServiceAccountUpdated {
 	/// The payload used to updated the service account.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub changes_requested: Option<AuditLogServiceAccount.updatedChangesRequested>,
+	pub changes_requested: Option<AuditLogServiceAccountUpdatedChangesRequested>,
 	/// The service account ID.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The payload used to updated the service account.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogServiceAccount.updatedChangesRequested {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogServiceAccountUpdatedChangesRequested {
 	/// The role of the service account. Is either `owner` or `member`.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub role: Option<String>,
 }
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogUser {
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub added: Option<AuditLogUserAdded>,
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub deleted: Option<AuditLogUserDeleted>,
+	/// The details for events with this `type`.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub updated: Option<AuditLogUserUpdated>,
+}
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogUser.added {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogUserAdded {
 	/// The payload used to add the user to the project.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub data: Option<AuditLogUser.addedData>,
+	pub data: Option<AuditLogUserAddedData>,
 	/// The user ID.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The payload used to add the user to the project.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogUser.addedData {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogUserAddedData {
 	/// The role of the user. Is either `owner` or `member`.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub role: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogUser.deleted {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogUserDeleted {
 	/// The user ID.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The details for events with this `type`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogUser.updated {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogUserUpdated {
 	/// The payload used to update the user.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub changes_requested: Option<AuditLogUser.updatedChangesRequested>,
+	pub changes_requested: Option<AuditLogUserUpdatedChangesRequested>,
 	/// The project ID.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 }
 /// The payload used to update the user.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct AuditLogUser.updatedChangesRequested {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct AuditLogUserUpdatedChangesRequested {
 	/// The role of the user. Is either `owner` or `member`.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub role: Option<String>,
@@ -857,7 +878,6 @@ pub struct AutoChunkingStrategyRequestParam {
 /// Always `auto`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum AutoChunkingStrategyRequestParamType {
 	Auto,
 }
@@ -914,16 +934,16 @@ pub struct Batch {
 	/// The current status of the batch.
 	pub status: BatchStatus,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct BatchErrors {
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub data: Option<Vec<BatchErrorsData>>,
+	pub data: Option<Vec<BatchErrorsDataItem>>,
 	/// The object type, which is always `list`.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub object: Option<String>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct BatchErrorsData {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct BatchErrorsDataItem {
 	/// An error code identifying the error type.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub code: Option<String>,
@@ -940,7 +960,6 @@ pub struct BatchErrorsData {
 /// The object type, which is always `batch`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum BatchObject {
 	Batch,
 }
@@ -955,7 +974,7 @@ pub struct BatchRequestCounts {
 	pub total: i64,
 }
 /// The per-line object of the batch input file
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct BatchRequestInput {
 	/// A developer-provided per-request id that will be used to match outputs to inputs. Must be unique for each request in a batch.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -970,13 +989,12 @@ pub struct BatchRequestInput {
 /// The HTTP method to be used for the request. Currently only `POST` is supported.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum BatchRequestInputMethod {
 	#[serde(rename = "POST")]
 	Post,
 }
 /// The per-line object of the batch output and error files
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct BatchRequestOutput {
 	/// A developer-provided per-request id that will be used to match outputs to inputs.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -990,7 +1008,7 @@ pub struct BatchRequestOutput {
 	pub response: Option<BatchRequestOutputResponse>,
 }
 /// For requests that failed with a non-HTTP error, this will contain more information on the cause of the failure.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct BatchRequestOutputError {
 	/// A machine-readable error code.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -999,7 +1017,7 @@ pub struct BatchRequestOutputError {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub message: Option<String>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct BatchRequestOutputResponse {
 	/// The JSON body of the response
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -1014,7 +1032,6 @@ pub struct BatchRequestOutputResponse {
 /// The current status of the batch.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum BatchStatus {
 	Validating,
 	Failed,
@@ -1026,7 +1043,7 @@ pub enum BatchStatus {
 	Cancelling,
 	Cancelled,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CancelUploadRequest {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -1041,7 +1058,6 @@ pub struct ChatCompletionDeleted {
 /// The type of object being deleted.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionDeletedObject {
 	#[serde(rename = "chat.completion.deleted")]
 	ChatCompletionDeleted,
@@ -1079,7 +1095,6 @@ pub struct ChatCompletionList {
 /// The type of this object. It is always set to "list".
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionListObject {
 	List,
 }
@@ -1102,7 +1117,7 @@ pub struct ChatCompletionMessageListData {
 	/// Annotations for the message, when applicable, as when using the
 	/// [web search tool](https://platform.openai.com/docs/guides/tools-web-search?api-mode=chat).
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub annotations: Option<Vec<ChatCompletionResponseMessageAnnotations>>,
+	pub annotations: Option<Vec<ChatCompletionResponseMessageAnnotationsItem>>,
 	/// If the audio output modality is requested, this object contains data
 	/// about the audio response from the model. [Learn more](https://platform.openai.com/docs/guides/audio).
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -1125,7 +1140,6 @@ pub struct ChatCompletionMessageListData {
 /// The type of this object. It is always set to "list".
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionMessageListObject {
 	List,
 }
@@ -1150,7 +1164,7 @@ pub struct ChatCompletionMessageToolCallChunk {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub r#type: Option<ChatCompletionMessageToolCallChunkType>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ChatCompletionMessageToolCallChunkFunction {
 	/// The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -1162,7 +1176,6 @@ pub struct ChatCompletionMessageToolCallChunkFunction {
 /// The type of the tool. Currently, only `function` is supported.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionMessageToolCallChunkType {
 	Function,
 }
@@ -1177,14 +1190,12 @@ pub struct ChatCompletionMessageToolCallFunction {
 /// The type of the tool. Currently, only `function` is supported.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionMessageToolCallType {
 	Function,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum ChatCompletionModalitiesChatCompletionModalities {
+pub enum ChatCompletionModalitiesItem {
 	Text,
 	Audio,
 }
@@ -1203,7 +1214,6 @@ pub struct ChatCompletionNamedToolChoiceFunction {
 /// The type of the tool. Currently, only `function` is supported.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionNamedToolChoiceType {
 	Function,
 }
@@ -1244,7 +1254,7 @@ pub struct ChatCompletionRequestAssistantMessageAudio {
 #[serde(untagged)]
 pub enum ChatCompletionRequestAssistantMessageContent {
 	String(String),
-	Array(ChatCompletionRequestAssistantMessageContentArray),
+	ChatCompletionRequestAssistantMessageContentChatCompletionRequestAssistantMessageContentPartArray(ChatCompletionRequestAssistantMessageContentChatCompletionRequestAssistantMessageContentPartArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -1264,7 +1274,6 @@ pub struct ChatCompletionRequestAssistantMessageFunctionCall {
 /// The role of the messages author, in this case `assistant`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionRequestAssistantMessageRole {
 	Assistant,
 }
@@ -1287,12 +1296,11 @@ pub struct ChatCompletionRequestDeveloperMessage {
 #[serde(untagged)]
 pub enum ChatCompletionRequestDeveloperMessageContent {
 	String(String),
-	Array(ChatCompletionRequestDeveloperMessageContentArray),
+	ChatCompletionRequestDeveloperMessageContentChatCompletionRequestMessageContentPartTextArray(ChatCompletionRequestDeveloperMessageContentChatCompletionRequestMessageContentPartTextArray),
 }
 /// The role of the messages author, in this case `developer`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionRequestDeveloperMessageRole {
 	Developer,
 }
@@ -1308,7 +1316,6 @@ pub struct ChatCompletionRequestFunctionMessage {
 /// The role of the messages author, in this case `function`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionRequestFunctionMessageRole {
 	Function,
 }
@@ -1340,7 +1347,6 @@ pub struct ChatCompletionRequestMessageContentPartAudioInputAudio {
 /// The format of the encoded audio data. Currently supports "wav" and "mp3".
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionRequestMessageContentPartAudioInputAudioFormat {
 	Wav,
 	Mp3,
@@ -1348,7 +1354,6 @@ pub enum ChatCompletionRequestMessageContentPartAudioInputAudioFormat {
 /// The type of the content part. Always `input_audio`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionRequestMessageContentPartAudioType {
 	#[serde(rename = "input_audio")]
 	InputAudio,
@@ -1360,7 +1365,7 @@ pub struct ChatCompletionRequestMessageContentPartFile {
 	/// The type of the content part. Always `file`.
 	pub r#type: ChatCompletionRequestMessageContentPartFileType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ChatCompletionRequestMessageContentPartFileFile {
 	/// The base64 encoded file data, used when passing the file to the model 
 	/// as a string.
@@ -1377,7 +1382,6 @@ pub struct ChatCompletionRequestMessageContentPartFileFile {
 /// The type of the content part. Always `file`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionRequestMessageContentPartFileType {
 	File,
 }
@@ -1399,7 +1403,6 @@ pub struct ChatCompletionRequestMessageContentPartImageImageUrl {
 /// Specifies the detail level of the image. Learn more in the [Vision guide](https://platform.openai.com/docs/guides/vision#low-or-high-fidelity-image-understanding).
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionRequestMessageContentPartImageImageUrlDetail {
 	Auto,
 	Low,
@@ -1408,7 +1411,6 @@ pub enum ChatCompletionRequestMessageContentPartImageImageUrlDetail {
 /// The type of the content part.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionRequestMessageContentPartImageType {
 	#[serde(rename = "image_url")]
 	ImageUrl,
@@ -1423,7 +1425,6 @@ pub struct ChatCompletionRequestMessageContentPartRefusal {
 /// The type of the content part.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionRequestMessageContentPartRefusalType {
 	Refusal,
 }
@@ -1438,7 +1439,6 @@ pub struct ChatCompletionRequestMessageContentPartText {
 /// The type of the content part.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionRequestMessageContentPartTextType {
 	Text,
 }
@@ -1461,7 +1461,7 @@ pub struct ChatCompletionRequestSystemMessage {
 #[serde(untagged)]
 pub enum ChatCompletionRequestSystemMessageContent {
 	String(String),
-	Array(ChatCompletionRequestSystemMessageContentArray),
+	ChatCompletionRequestSystemMessageContentChatCompletionRequestSystemMessageContentPartArray(ChatCompletionRequestSystemMessageContentChatCompletionRequestSystemMessageContentPartArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -1472,7 +1472,6 @@ pub enum ChatCompletionRequestSystemMessageContentPart {
 /// The role of the messages author, in this case `system`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionRequestSystemMessageRole {
 	System,
 }
@@ -1491,7 +1490,7 @@ pub struct ChatCompletionRequestToolMessage {
 #[serde(untagged)]
 pub enum ChatCompletionRequestToolMessageContent {
 	String(String),
-	Array(ChatCompletionRequestToolMessageContentArray),
+	ChatCompletionRequestToolMessageContentChatCompletionRequestToolMessageContentPartArray(ChatCompletionRequestToolMessageContentChatCompletionRequestToolMessageContentPartArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -1502,7 +1501,6 @@ pub enum ChatCompletionRequestToolMessageContentPart {
 /// The role of the messages author, in this case `tool`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionRequestToolMessageRole {
 	Tool,
 }
@@ -1524,7 +1522,7 @@ pub struct ChatCompletionRequestUserMessage {
 #[serde(untagged)]
 pub enum ChatCompletionRequestUserMessageContent {
 	String(String),
-	Array(ChatCompletionRequestUserMessageContentArray),
+	ChatCompletionRequestUserMessageContentChatCompletionRequestUserMessageContentPartArray(ChatCompletionRequestUserMessageContentChatCompletionRequestUserMessageContentPartArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -1538,7 +1536,6 @@ pub enum ChatCompletionRequestUserMessageContentPart {
 /// The role of the messages author, in this case `user`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionRequestUserMessageRole {
 	User,
 }
@@ -1548,7 +1545,7 @@ pub struct ChatCompletionResponseMessage {
 	/// Annotations for the message, when applicable, as when using the
 	/// [web search tool](https://platform.openai.com/docs/guides/tools-web-search?api-mode=chat).
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub annotations: Option<Vec<ChatCompletionResponseMessageAnnotations>>,
+	pub annotations: Option<Vec<ChatCompletionResponseMessageAnnotationsItem>>,
 	/// If the audio output modality is requested, this object contains data
 	/// about the audio response from the model. [Learn more](https://platform.openai.com/docs/guides/audio).
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -1567,23 +1564,22 @@ pub struct ChatCompletionResponseMessage {
 }
 /// A URL citation when using web search.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct ChatCompletionResponseMessageAnnotations {
+pub struct ChatCompletionResponseMessageAnnotationsItem {
 	/// The type of the URL citation. Always `url_citation`.
-	pub r#type: ChatCompletionResponseMessageAnnotationsType,
+	pub r#type: ChatCompletionResponseMessageAnnotationsItemType,
 	/// A URL citation when using web search.
-	pub url_citation: ChatCompletionResponseMessageAnnotationsUrlCitation,
+	pub url_citation: ChatCompletionResponseMessageAnnotationsItemUrlCitation,
 }
 /// The type of the URL citation. Always `url_citation`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum ChatCompletionResponseMessageAnnotationsType {
+pub enum ChatCompletionResponseMessageAnnotationsItemType {
 	#[serde(rename = "url_citation")]
 	UrlCitation,
 }
 /// A URL citation when using web search.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct ChatCompletionResponseMessageAnnotationsUrlCitation {
+pub struct ChatCompletionResponseMessageAnnotationsItemUrlCitation {
 	/// The index of the last character of the URL citation in the message.
 	pub end_index: i64,
 	/// The index of the first character of the URL citation in the message.
@@ -1620,14 +1616,12 @@ pub struct ChatCompletionResponseMessageFunctionCall {
 /// The role of the author of this message.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionResponseMessageRole {
 	Assistant,
 }
 /// The role of the author of a message
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionRole {
 	Developer,
 	System,
@@ -1637,7 +1631,7 @@ pub enum ChatCompletionRole {
 	Function,
 }
 /// Options for streaming response. Only set this when you set `stream: true`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ChatCompletionStreamOptions {
 	/// If set, an additional chunk will be streamed before the `data: [DONE]`
 	/// message. The `usage` field on this chunk shows the token usage statistics
@@ -1651,7 +1645,7 @@ pub struct ChatCompletionStreamOptions {
 	pub include_usage: Option<bool>,
 }
 /// A chat completion delta generated by streamed model responses.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ChatCompletionStreamResponseDelta {
 	/// The contents of the chunk message.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -1669,7 +1663,7 @@ pub struct ChatCompletionStreamResponseDelta {
 	pub tool_calls: Option<Vec<ChatCompletionMessageToolCallChunk>>,
 }
 /// Deprecated and replaced by `tool_calls`. The name and arguments of a function that should be called, as generated by the model.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ChatCompletionStreamResponseDeltaFunctionCall {
 	/// The arguments to call the function with, as generated by the model in JSON format. Note that the model does not always generate valid JSON, and may hallucinate parameters not defined by your function schema. Validate the arguments in your code before calling your function.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -1681,7 +1675,6 @@ pub struct ChatCompletionStreamResponseDeltaFunctionCall {
 /// The role of the author of this message.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionStreamResponseDeltaRole {
 	Developer,
 	System,
@@ -1698,10 +1691,10 @@ pub struct ChatCompletionTokenLogprob {
 	/// The token.
 	pub token: String,
 	/// List of the most likely tokens and their log probability, at this token position. In rare cases, there may be fewer than the number of requested `top_logprobs` returned.
-	pub top_logprobs: Vec<ChatCompletionTokenLogprobTopLogprobs>,
+	pub top_logprobs: Vec<ChatCompletionTokenLogprobTopLogprobsItem>,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct ChatCompletionTokenLogprobTopLogprobs {
+pub struct ChatCompletionTokenLogprobTopLogprobsItem {
 	/// A list of integers representing the UTF-8 bytes representation of the token. Useful in instances where characters are represented by multiple tokens and their byte representations must be combined to generate the correct text representation. Can be `null` if there is no bytes representation for the token.
 	pub bytes: Vec<i64>,
 	/// The log probability of this token, if it is within the top 20 most likely tokens. Otherwise, the value `-9999.0` is used to signify that the token is very unlikely.
@@ -1734,7 +1727,6 @@ pub enum ChatCompletionToolChoiceOption {
 /// The type of the tool. Currently, only `function` is supported.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ChatCompletionToolType {
 	Function,
 }
@@ -1762,7 +1754,6 @@ pub struct Click {
 /// Indicates which mouse button was pressed during the click. One of `left`, `right`, `wheel`, `back`, or `forward`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ClickButton {
 	Left,
 	Right,
@@ -1774,19 +1765,18 @@ pub enum ClickButton {
 /// always set to `click`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ClickType {
 	Click,
 }
 /// The output of a code interpreter tool call that is a file.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct CodeInterpreterFileOutput {
-	pub files: Vec<CodeInterpreterFileOutputFiles>,
+	pub files: Vec<CodeInterpreterFileOutputFilesItem>,
 	/// The type of the code interpreter file output. Always `files`.
 	pub r#type: CodeInterpreterFileOutputType,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CodeInterpreterFileOutputFiles {
+pub struct CodeInterpreterFileOutputFilesItem {
 	/// The ID of the file.
 	pub file_id: String,
 	/// The MIME type of the file.
@@ -1795,7 +1785,6 @@ pub struct CodeInterpreterFileOutputFiles {
 /// The type of the code interpreter file output. Always `files`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CodeInterpreterFileOutputType {
 	Files,
 }
@@ -1810,7 +1799,6 @@ pub struct CodeInterpreterTextOutput {
 /// The type of the code interpreter text output. Always `logs`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CodeInterpreterTextOutputType {
 	Logs,
 }
@@ -1839,7 +1827,6 @@ pub struct CodeInterpreterToolCall {
 /// The status of the code interpreter tool call.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CodeInterpreterToolCallStatus {
 	#[serde(rename = "in_progress")]
 	InProgress,
@@ -1849,7 +1836,6 @@ pub enum CodeInterpreterToolCallStatus {
 /// The type of the code interpreter tool call. Always `code_interpreter_call`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CodeInterpreterToolCallType {
 	#[serde(rename = "code_interpreter_call")]
 	CodeInterpreterCall,
@@ -1864,7 +1850,6 @@ pub enum CodeInterpreterToolOutput {
 /// The type of the code interpreter tool. Always `code_interpreter`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CodeInterpreterToolType {
 	#[serde(rename = "code_interpreter")]
 	CodeInterpreter,
@@ -1894,7 +1879,6 @@ pub struct ComparisonFilter {
 /// - `lte`: less than or equal
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ComparisonFilterType {
 	Eq,
 	Ne,
@@ -1937,7 +1921,7 @@ pub struct CompletionUsage {
 	pub total_tokens: i64,
 }
 /// Breakdown of tokens used in a completion.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CompletionUsageCompletionTokensDetails {
 	/// When using Predicted Outputs, the number of tokens in the
 	/// prediction that appeared in the completion.
@@ -1958,7 +1942,7 @@ pub struct CompletionUsageCompletionTokensDetails {
 	pub rejected_prediction_tokens: Option<i64>,
 }
 /// Breakdown of tokens used in the prompt.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CompletionUsagePromptTokensDetails {
 	/// Audio input tokens present in the prompt.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -1971,21 +1955,20 @@ pub struct CompletionUsagePromptTokensDetails {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct CompoundFilter {
 	/// Array of filters to combine. Items can be `ComparisonFilter` or `CompoundFilter`.
-	pub filters: Vec<CompoundFilterFilters>,
+	pub filters: Vec<CompoundFilterItems>,
 	/// Type of operation: `and` or `or`.
 	pub r#type: CompoundFilterType,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum CompoundFilterFilters {
+pub enum CompoundFilterItems {
 	ComparisonFilter(ComparisonFilter),
 	Object(serde_json::Value),
 }
 /// Type of operation: `and` or `or`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CompoundFilterType {
 	And,
 	Or,
@@ -2021,7 +2004,6 @@ pub struct ComputerScreenshotImage {
 /// always set to `computer_screenshot`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ComputerScreenshotImageType {
 	#[serde(rename = "computer_screenshot")]
 	ComputerScreenshot,
@@ -2099,7 +2081,6 @@ pub struct ComputerToolCallOutputResource {
 /// `incomplete`. Populated when input items are returned via API.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ComputerToolCallOutputStatus {
 	#[serde(rename = "in_progress")]
 	InProgress,
@@ -2109,7 +2090,6 @@ pub enum ComputerToolCallOutputStatus {
 /// The type of the computer tool call output. Always `computer_call_output`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ComputerToolCallOutputType {
 	#[serde(rename = "computer_call_output")]
 	ComputerCallOutput,
@@ -2128,7 +2108,6 @@ pub struct ComputerToolCallSafetyCheck {
 /// `incomplete`. Populated when items are returned via API.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ComputerToolCallStatus {
 	#[serde(rename = "in_progress")]
 	InProgress,
@@ -2138,7 +2117,6 @@ pub enum ComputerToolCallStatus {
 /// The type of the computer call. Always `computer_call`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ComputerToolCallType {
 	#[serde(rename = "computer_call")]
 	ComputerCall,
@@ -2146,7 +2124,6 @@ pub enum ComputerToolCallType {
 /// The type of computer environment to control.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ComputerToolEnvironment {
 	Mac,
 	Windows,
@@ -2156,7 +2133,6 @@ pub enum ComputerToolEnvironment {
 /// The type of the computer use tool. Always `computer_use_preview`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ComputerToolType {
 	#[serde(rename = "computer_use_preview")]
 	ComputerUsePreview,
@@ -2192,7 +2168,7 @@ pub struct CostsResult {
 	pub project_id: Option<String>,
 }
 /// The monetary value in its associated currency.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CostsResultAmount {
 	/// Lowercase ISO-4217 currency e.g. "usd"
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -2203,7 +2179,6 @@ pub struct CostsResultAmount {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CostsResultObject {
 	#[serde(rename = "organization.costs.result")]
 	OrganizationCostsResult,
@@ -2235,50 +2210,45 @@ pub struct CreateAssistantRequest {
 	pub tool_resources: Option<CreateAssistantRequestToolResources>,
 	/// A list of tool enabled on the assistant. There can be a maximum of 128 tools per assistant. Tools can be of types `code_interpreter`, `file_search`, or `function`.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub tools: Option<Vec<CreateAssistantRequestTools>>,
+	pub tools: Option<Vec<CreateAssistantRequestItems>>,
 	/// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
 	/// 
 	/// We generally recommend altering this or temperature but not both.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub top_p: Option<f64>,
 }
-/// A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+#[serde(untagged)]
+pub enum CreateAssistantRequestItems {
+	AssistantToolsCode(AssistantToolsCode),
+	AssistantToolsFileSearch(AssistantToolsFileSearch),
+	AssistantToolsFunction(AssistantToolsFunction),
+}
+/// A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateAssistantRequestToolResources {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub code_interpreter: Option<CreateAssistantRequestToolResourcesCodeInterpreter>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_search: Option<CreateAssistantRequestToolResourcesFileSearch>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateAssistantRequestToolResourcesCodeInterpreter {
 	/// A list of [file](https://platform.openai.com/docs/api-reference/files) IDs made available to the `code_interpreter` tool. There can be a maximum of 20 files associated with the tool.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_ids: Option<Vec<String>>,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CreateAssistantRequestToolResourcesFileSearch {
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub CreateAssistantRequestToolResourcesFileSearch: Option<CreateAssistantRequestToolResourcesFileSearchCreateAssistantRequestToolResourcesFileSearch>,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum CreateAssistantRequestToolResourcesFileSearchCreateAssistantRequestToolResourcesFileSearch {
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateAssistantRequestTools {
-	AssistantToolsCode(AssistantToolsCode),
-	AssistantToolsFileSearch(AssistantToolsFileSearch),
-	AssistantToolsFunction(AssistantToolsFunction),
+pub enum CreateAssistantRequestToolResourcesFileSearch {
 }
 /// Represents a chat completion response returned by model, based on the provided input.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct CreateChatCompletionFunctionResponse {
 	/// A list of chat completion choices. Can be more than one if `n` is greater than 1.
-	pub choices: Vec<CreateChatCompletionFunctionResponseChoices>,
+	pub choices: Vec<CreateChatCompletionFunctionResponseChoicesItem>,
 	/// The Unix timestamp (in seconds) of when the chat completion was created.
 	pub created: i64,
 	/// A unique identifier for the chat completion.
@@ -2296,9 +2266,9 @@ pub struct CreateChatCompletionFunctionResponse {
 	pub usage: Option<CompletionUsage>,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CreateChatCompletionFunctionResponseChoices {
+pub struct CreateChatCompletionFunctionResponseChoicesItem {
 	/// The reason the model stopped generating tokens. This will be `stop` if the model hit a natural stop point or a provided stop sequence, `length` if the maximum number of tokens specified in the request was reached, `content_filter` if content was omitted due to a flag from our content filters, or `function_call` if the model called a function.
-	pub finish_reason: CreateChatCompletionFunctionResponseChoicesFinishReason,
+	pub finish_reason: CreateChatCompletionFunctionResponseChoicesItemFinishReason,
 	/// The index of the choice in the list of choices.
 	pub index: i64,
 	pub message: ChatCompletionResponseMessage,
@@ -2306,8 +2276,7 @@ pub struct CreateChatCompletionFunctionResponseChoices {
 /// The reason the model stopped generating tokens. This will be `stop` if the model hit a natural stop point or a provided stop sequence, `length` if the maximum number of tokens specified in the request was reached, `content_filter` if content was omitted due to a flag from our content filters, or `function_call` if the model called a function.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateChatCompletionFunctionResponseChoicesFinishReason {
+pub enum CreateChatCompletionFunctionResponseChoicesItemFinishReason {
 	Stop,
 	Length,
 	#[serde(rename = "function_call")]
@@ -2318,12 +2287,11 @@ pub enum CreateChatCompletionFunctionResponseChoicesFinishReason {
 /// The object type, which is always `chat.completion`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateChatCompletionFunctionResponseObject {
 	#[serde(rename = "chat.completion")]
 	ChatCompletion,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateChatCompletionRequest {
 	/// Parameters for audio output. Required when audio output is requested with
 	/// `modalities: ["audio"]`. [Learn more](https://platform.openai.com/docs/guides/audio).
@@ -2504,7 +2472,6 @@ pub struct CreateChatCompletionRequestAudio {
 /// `opus`, or `pcm16`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateChatCompletionRequestAudioFormat {
 	Wav,
 	Mp3,
@@ -2573,14 +2540,13 @@ pub enum CreateChatCompletionRequestResponseFormat {
 ///   When this parameter is set, the response body will include the `service_tier` utilized.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateChatCompletionRequestServiceTier {
 	Auto,
 	Default,
 }
 /// This tool searches the web for relevant results to use in a response.
 /// Learn more about the [web search tool](https://platform.openai.com/docs/guides/tools-web-search?api-mode=chat).
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateChatCompletionRequestWebSearchOptions {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub search_context_size: Option<WebSearchContextSize>,
@@ -2598,7 +2564,6 @@ pub struct CreateChatCompletionRequestWebSearchOptionsUserLocation {
 /// The type of location approximation. Always `approximate`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateChatCompletionRequestWebSearchOptionsUserLocationType {
 	Approximate,
 }
@@ -2606,7 +2571,7 @@ pub enum CreateChatCompletionRequestWebSearchOptionsUserLocationType {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct CreateChatCompletionResponse {
 	/// A list of chat completion choices. Can be more than one if `n` is greater than 1.
-	pub choices: Vec<CreateChatCompletionResponseChoices>,
+	pub choices: Vec<CreateChatCompletionResponseChoicesItem>,
 	/// The Unix timestamp (in seconds) of when the chat completion was created.
 	pub created: i64,
 	/// A unique identifier for the chat completion.
@@ -2627,16 +2592,16 @@ pub struct CreateChatCompletionResponse {
 	pub usage: Option<CompletionUsage>,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CreateChatCompletionResponseChoices {
+pub struct CreateChatCompletionResponseChoicesItem {
 	/// The reason the model stopped generating tokens. This will be `stop` if the model hit a natural stop point or a provided stop sequence,
 	/// `length` if the maximum number of tokens specified in the request was reached,
 	/// `content_filter` if content was omitted due to a flag from our content filters,
 	/// `tool_calls` if the model called a tool, or `function_call` (deprecated) if the model called a function.
-	pub finish_reason: CreateChatCompletionResponseChoicesFinishReason,
+	pub finish_reason: CreateChatCompletionResponseChoicesItemFinishReason,
 	/// The index of the choice in the list of choices.
 	pub index: i64,
 	/// Log probability information for the choice.
-	pub logprobs: CreateChatCompletionResponseChoicesLogprobs,
+	pub logprobs: CreateChatCompletionResponseChoicesItemLogprobs,
 	pub message: ChatCompletionResponseMessage,
 }
 /// The reason the model stopped generating tokens. This will be `stop` if the model hit a natural stop point or a provided stop sequence,
@@ -2645,8 +2610,7 @@ pub struct CreateChatCompletionResponseChoices {
 /// `tool_calls` if the model called a tool, or `function_call` (deprecated) if the model called a function.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateChatCompletionResponseChoicesFinishReason {
+pub enum CreateChatCompletionResponseChoicesItemFinishReason {
 	Stop,
 	Length,
 	#[serde(rename = "tool_calls")]
@@ -2658,7 +2622,7 @@ pub enum CreateChatCompletionResponseChoicesFinishReason {
 }
 /// Log probability information for the choice.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CreateChatCompletionResponseChoicesLogprobs {
+pub struct CreateChatCompletionResponseChoicesItemLogprobs {
 	/// A list of message content tokens with log probability information.
 	pub content: Vec<ChatCompletionTokenLogprob>,
 	/// A list of message refusal tokens with log probability information.
@@ -2667,7 +2631,6 @@ pub struct CreateChatCompletionResponseChoicesLogprobs {
 /// The object type, which is always `chat.completion`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateChatCompletionResponseObject {
 	#[serde(rename = "chat.completion")]
 	ChatCompletion,
@@ -2675,7 +2638,6 @@ pub enum CreateChatCompletionResponseObject {
 /// The service tier used for processing the request.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateChatCompletionResponseServiceTier {
 	Scale,
 	Default,
@@ -2687,7 +2649,7 @@ pub enum CreateChatCompletionResponseServiceTier {
 pub struct CreateChatCompletionStreamResponse {
 	/// A list of chat completion choices. Can contain more than one elements if `n` is greater than 1. Can also be empty for the
 	/// last chunk if you set `stream_options: {"include_usage": true}`.
-	pub choices: Vec<CreateChatCompletionStreamResponseChoices>,
+	pub choices: Vec<CreateChatCompletionStreamResponseChoicesItem>,
 	/// The Unix timestamp (in seconds) of when the chat completion was created. Each chunk has the same timestamp.
 	pub created: i64,
 	/// A unique identifier for the chat completion. Each chunk has the same ID.
@@ -2715,18 +2677,18 @@ pub struct CreateChatCompletionStreamResponse {
 	pub usage: Option<CompletionUsage>,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CreateChatCompletionStreamResponseChoices {
+pub struct CreateChatCompletionStreamResponseChoicesItem {
 	pub delta: ChatCompletionStreamResponseDelta,
 	/// The reason the model stopped generating tokens. This will be `stop` if the model hit a natural stop point or a provided stop sequence,
 	/// `length` if the maximum number of tokens specified in the request was reached,
 	/// `content_filter` if content was omitted due to a flag from our content filters,
 	/// `tool_calls` if the model called a tool, or `function_call` (deprecated) if the model called a function.
-	pub finish_reason: CreateChatCompletionStreamResponseChoicesFinishReason,
+	pub finish_reason: CreateChatCompletionStreamResponseChoicesItemFinishReason,
 	/// The index of the choice in the list of choices.
 	pub index: i64,
 	/// Log probability information for the choice.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub logprobs: Option<CreateChatCompletionStreamResponseChoicesLogprobs>,
+	pub logprobs: Option<CreateChatCompletionStreamResponseChoicesItemLogprobs>,
 }
 /// The reason the model stopped generating tokens. This will be `stop` if the model hit a natural stop point or a provided stop sequence,
 /// `length` if the maximum number of tokens specified in the request was reached,
@@ -2734,8 +2696,7 @@ pub struct CreateChatCompletionStreamResponseChoices {
 /// `tool_calls` if the model called a tool, or `function_call` (deprecated) if the model called a function.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateChatCompletionStreamResponseChoicesFinishReason {
+pub enum CreateChatCompletionStreamResponseChoicesItemFinishReason {
 	Stop,
 	Length,
 	#[serde(rename = "tool_calls")]
@@ -2747,7 +2708,7 @@ pub enum CreateChatCompletionStreamResponseChoicesFinishReason {
 }
 /// Log probability information for the choice.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CreateChatCompletionStreamResponseChoicesLogprobs {
+pub struct CreateChatCompletionStreamResponseChoicesItemLogprobs {
 	/// A list of message content tokens with log probability information.
 	pub content: Vec<ChatCompletionTokenLogprob>,
 	/// A list of message refusal tokens with log probability information.
@@ -2756,7 +2717,6 @@ pub struct CreateChatCompletionStreamResponseChoicesLogprobs {
 /// The object type, which is always `chat.completion.chunk`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateChatCompletionStreamResponseObject {
 	#[serde(rename = "chat.completion.chunk")]
 	ChatCompletionChunk,
@@ -2764,7 +2724,6 @@ pub enum CreateChatCompletionStreamResponseObject {
 /// The service tier used for processing the request.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateChatCompletionStreamResponseServiceTier {
 	Scale,
 	Default,
@@ -2858,15 +2817,15 @@ pub struct CreateCompletionRequest {
 #[serde(untagged)]
 pub enum CreateCompletionRequestPrompt {
 	String(String),
-	Array(CreateCompletionRequestPromptArray),
-	Array(CreateCompletionRequestPromptArray),
-	Array(CreateCompletionRequestPromptArray),
+	CreateCompletionRequestPromptStringArray(CreateCompletionRequestPromptStringArray),
+	CreateCompletionRequestPromptIntegerArray(CreateCompletionRequestPromptIntegerArray),
+	CreateCompletionRequestPromptArrayArray(CreateCompletionRequestPromptArrayArray),
 }
 /// Represents a completion response from the API. Note: both the streamed and non-streamed response objects share the same shape (unlike the chat endpoint).
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct CreateCompletionResponse {
 	/// The list of completion choices the model generated for the input prompt.
-	pub choices: Vec<CreateCompletionResponseChoices>,
+	pub choices: Vec<CreateCompletionResponseChoicesItem>,
 	/// The Unix timestamp (in seconds) of when the completion was created.
 	pub created: i64,
 	/// A unique identifier for the completion.
@@ -2884,13 +2843,13 @@ pub struct CreateCompletionResponse {
 	pub usage: Option<CompletionUsage>,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CreateCompletionResponseChoices {
+pub struct CreateCompletionResponseChoicesItem {
 	/// The reason the model stopped generating tokens. This will be `stop` if the model hit a natural stop point or a provided stop sequence,
 	/// `length` if the maximum number of tokens specified in the request was reached,
 	/// or `content_filter` if content was omitted due to a flag from our content filters.
-	pub finish_reason: CreateCompletionResponseChoicesFinishReason,
+	pub finish_reason: CreateCompletionResponseChoicesItemFinishReason,
 	pub index: i64,
-	pub logprobs: CreateCompletionResponseChoicesLogprobs,
+	pub logprobs: CreateCompletionResponseChoicesItemLogprobs,
 	pub text: String,
 }
 /// The reason the model stopped generating tokens. This will be `stop` if the model hit a natural stop point or a provided stop sequence,
@@ -2898,15 +2857,14 @@ pub struct CreateCompletionResponseChoices {
 /// or `content_filter` if content was omitted due to a flag from our content filters.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateCompletionResponseChoicesFinishReason {
+pub enum CreateCompletionResponseChoicesItemFinishReason {
 	Stop,
 	Length,
 	#[serde(rename = "content_filter")]
 	ContentFilter,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CreateCompletionResponseChoicesLogprobs {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct CreateCompletionResponseChoicesItemLogprobs {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub text_offset: Option<Vec<i64>>,
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -2914,15 +2872,11 @@ pub struct CreateCompletionResponseChoicesLogprobs {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub tokens: Option<Vec<String>>,
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub top_logprobs: Option<Vec<CreateCompletionResponseChoicesLogprobsTopLogprobs>>,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CreateCompletionResponseChoicesLogprobsTopLogprobs {
+	pub top_logprobs: Option<Vec<CreateCompletionResponseChoicesItemLogprobsTopLogprobs>>,
 }
 /// The object type, which is always "text_completion"
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateCompletionResponseObject {
 	#[serde(rename = "text_completion")]
 	TextCompletion,
@@ -2946,7 +2900,6 @@ pub struct CreateEmbeddingRequest {
 /// The format to return the embeddings in. Can be either `float` or [`base64`](https://pypi.org/project/pybase64/).
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateEmbeddingRequestEncodingFormat {
 	Float,
 	Base64,
@@ -2957,9 +2910,9 @@ pub enum CreateEmbeddingRequestEncodingFormat {
 #[serde(untagged)]
 pub enum CreateEmbeddingRequestInput {
 	String(String),
-	Array(CreateEmbeddingRequestInputArray),
-	Array(CreateEmbeddingRequestInputArray),
-	Array(CreateEmbeddingRequestInputArray),
+	CreateEmbeddingRequestInputStringArray(CreateEmbeddingRequestInputStringArray),
+	CreateEmbeddingRequestInputIntegerArray(CreateEmbeddingRequestInputIntegerArray),
+	CreateEmbeddingRequestInputArrayArray(CreateEmbeddingRequestInputArrayArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct CreateEmbeddingResponse {
@@ -2975,7 +2928,6 @@ pub struct CreateEmbeddingResponse {
 /// The object type, which is always "list".
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateEmbeddingResponseObject {
 	List,
 }
@@ -2997,7 +2949,6 @@ pub struct CreateFileRequest {
 /// The intended purpose of the uploaded file. One of: - `assistants`: Used in the Assistants API - `batch`: Used in the Batch API - `fine-tune`: Used for fine-tuning - `vision`: Images used for vision fine-tuning - `user_data`: Flexible file type for any purpose - `evals`: Used for eval data sets
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateFileRequestPurpose {
 	Assistants,
 	Batch,
@@ -3021,7 +2972,7 @@ pub struct CreateFineTuningJobRequest {
 	pub hyperparameters: Option<CreateFineTuningJobRequestHyperparameters>,
 	/// A list of integrations to enable for your fine-tuning job.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub integrations: Option<Vec<CreateFineTuningJobRequestIntegrations>>,
+	pub integrations: Option<Vec<CreateFineTuningJobRequestIntegrationsItem>>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub metadata: Option<Metadata>,
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -3063,7 +3014,7 @@ pub struct CreateFineTuningJobRequest {
 }
 /// The hyperparameters used for the fine-tuning job.
 /// This value is now deprecated in favor of `method`, and should be passed in under the `method` parameter.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateFineTuningJobRequestHyperparameters {
 	/// Number of examples in each batch. A larger batch size means that model parameters
 	/// are updated less frequently, but with lower variance.
@@ -3106,26 +3057,26 @@ pub enum CreateFineTuningJobRequestHyperparametersNEpochs {
 	Integer(i64),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CreateFineTuningJobRequestIntegrations {
+pub struct CreateFineTuningJobRequestIntegrationsItem {
 	/// The type of integration to enable. Currently, only "wandb" (Weights and Biases) is supported.
-	pub r#type: CreateFineTuningJobRequestIntegrationsType,
+	pub r#type: CreateFineTuningJobRequestIntegrationsItemType,
 	/// The settings for your integration with Weights and Biases. This payload specifies the project that
 	/// metrics will be sent to. Optionally, you can set an explicit display name for your run, add tags
 	/// to your run, and set a default entity (team, username, etc) to be associated with your run.
-	pub wandb: CreateFineTuningJobRequestIntegrationsWandb,
+	pub wandb: CreateFineTuningJobRequestIntegrationsItemWandb,
 }
 /// The type of integration to enable. Currently, only "wandb" (Weights and Biases) is supported.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum CreateFineTuningJobRequestIntegrationsType {
+pub enum CreateFineTuningJobRequestIntegrationsItemType {
 	Wandb(String),
 }
 /// The settings for your integration with Weights and Biases. This payload specifies the project that
 /// metrics will be sent to. Optionally, you can set an explicit display name for your run, add tags
 /// to your run, and set a default entity (team, username, etc) to be associated with your run.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CreateFineTuningJobRequestIntegrationsWandb {
+pub struct CreateFineTuningJobRequestIntegrationsItemWandb {
 	/// The entity to use for the run. This allows you to set the team or username of the WandB user that you would
 	/// like associated with the run. If not set, the default entity for the registered WandB API key is used.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -3168,7 +3119,6 @@ pub struct CreateImageEditRequest {
 /// The format in which the generated images are returned. Must be one of `url` or `b64_json`. URLs are only valid for 60 minutes after the image has been generated.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateImageEditRequestResponseFormat {
 	Url,
 	#[serde(rename = "b64_json")]
@@ -3177,7 +3127,6 @@ pub enum CreateImageEditRequestResponseFormat {
 /// The size of the generated images. Must be one of `256x256`, `512x512`, or `1024x1024`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateImageEditRequestSize {
 	#[serde(rename = "256x256")]
 	Type256x256,
@@ -3215,7 +3164,6 @@ pub struct CreateImageRequest {
 /// The quality of the image that will be generated. `hd` creates images with finer details and greater consistency across the image. This param is only supported for `dall-e-3`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateImageRequestQuality {
 	Standard,
 	Hd,
@@ -3223,7 +3171,6 @@ pub enum CreateImageRequestQuality {
 /// The format in which the generated images are returned. Must be one of `url` or `b64_json`. URLs are only valid for 60 minutes after the image has been generated.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateImageRequestResponseFormat {
 	Url,
 	#[serde(rename = "b64_json")]
@@ -3232,7 +3179,6 @@ pub enum CreateImageRequestResponseFormat {
 /// The size of the generated images. Must be one of `256x256`, `512x512`, or `1024x1024` for `dall-e-2`. Must be one of `1024x1024`, `1792x1024`, or `1024x1792` for `dall-e-3` models.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateImageRequestSize {
 	#[serde(rename = "256x256")]
 	Type256x256,
@@ -3248,7 +3194,6 @@ pub enum CreateImageRequestSize {
 /// The style of the generated images. Must be one of `vivid` or `natural`. Vivid causes the model to lean towards generating hyper-real and dramatic images. Natural causes the model to produce more natural, less hyper-real looking images. This param is only supported for `dall-e-3`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateImageRequestStyle {
 	Vivid,
 	Natural,
@@ -3276,7 +3221,6 @@ pub struct CreateImageVariationRequest {
 /// The format in which the generated images are returned. Must be one of `url` or `b64_json`. URLs are only valid for 60 minutes after the image has been generated.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateImageVariationRequestResponseFormat {
 	Url,
 	#[serde(rename = "b64_json")]
@@ -3285,7 +3229,6 @@ pub enum CreateImageVariationRequestResponseFormat {
 /// The size of the generated images. Must be one of `256x256`, `512x512`, or `1024x1024`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateImageVariationRequestSize {
 	#[serde(rename = "256x256")]
 	Type256x256,
@@ -3298,7 +3241,7 @@ pub enum CreateImageVariationRequestSize {
 pub struct CreateMessageRequest {
 	/// A list of files attached to the message, and the tools they should be added to.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub attachments: Option<Vec<CreateMessageRequestAttachments>>,
+	pub attachments: Option<Vec<CreateMessageRequestAttachmentsItem>>,
 	pub content: CreateMessageRequestContent,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub metadata: Option<Metadata>,
@@ -3307,19 +3250,19 @@ pub struct CreateMessageRequest {
 	/// - `assistant`: Indicates the message is generated by the assistant. Use this value to insert messages from the assistant into the conversation.
 	pub role: CreateMessageRequestRole,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CreateMessageRequestAttachments {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct CreateMessageRequestAttachmentsItem {
 	/// The ID of the file to attach to the message.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_id: Option<String>,
 	/// The tools to add this file to.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub tools: Option<Vec<CreateMessageRequestAttachmentsTools>>,
+	pub tools: Option<Vec<CreateMessageRequestAttachmentsItemItems>>,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum CreateMessageRequestAttachmentsTools {
+pub enum CreateMessageRequestAttachmentsItemItems {
 	AssistantToolsCode(AssistantToolsCode),
 	AssistantToolsFileSearchTypeOnly(AssistantToolsFileSearchTypeOnly),
 }
@@ -3328,12 +3271,12 @@ pub enum CreateMessageRequestAttachmentsTools {
 #[serde(untagged)]
 pub enum CreateMessageRequestContent {
 	String(String),
-	Array(CreateMessageRequestContentArray),
+	CreateMessageRequestContentVariedArray(CreateMessageRequestContentVariedArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum CreateMessageRequestContentCreateMessageRequestContent {
+pub enum CreateMessageRequestContentItems {
 	MessageContentImageFileObject(MessageContentImageFileObject),
 	MessageContentImageUrlObject(MessageContentImageUrlObject),
 	MessageRequestContentTextObject(MessageRequestContentTextObject),
@@ -3343,12 +3286,11 @@ pub enum CreateMessageRequestContentCreateMessageRequestContent {
 /// - `assistant`: Indicates the message is generated by the assistant. Use this value to insert messages from the assistant into the conversation.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateMessageRequestRole {
 	User,
 	Assistant,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateModelResponseProperties {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub metadata: Option<Metadata>,
@@ -3386,14 +3328,13 @@ pub struct CreateModerationRequest {
 #[serde(untagged)]
 pub enum CreateModerationRequestInput {
 	String(String),
-	Array(CreateModerationRequestInputArray),
-	Array(CreateModerationRequestInputArray),
+	CreateModerationRequestInputStringArray(CreateModerationRequestInputStringArray),
+	CreateModerationRequestInputVariedArray(CreateModerationRequestInputVariedArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum CreateModerationRequestInputCreateModerationRequestInput {
-	Object(serde_json::Value),
+pub enum CreateModerationRequestInputItems {
 	Object(serde_json::Value),
 }
 /// Represents if a given text input is potentially harmful.
@@ -3404,194 +3345,140 @@ pub struct CreateModerationResponse {
 	/// The model used to generate the moderation results.
 	pub model: String,
 	/// A list of moderation objects.
-	pub results: Vec<CreateModerationResponseResults>,
+	pub results: Vec<CreateModerationResponseResultsItem>,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CreateModerationResponseResults {
+pub struct CreateModerationResponseResultsItem {
 	/// A list of the categories, and whether they are flagged or not.
-	pub categories: CreateModerationResponseResultsCategories,
+	pub categories: CreateModerationResponseResultsItemCategories,
 	/// A list of the categories along with the input type(s) that the score applies to.
-	pub category_applied_input_types: CreateModerationResponseResultsCategoryAppliedInputTypes,
+	pub category_applied_input_types: CreateModerationResponseResultsItemCategoryAppliedInputTypes,
 	/// A list of the categories along with their scores as predicted by model.
-	pub category_scores: CreateModerationResponseResultsCategoryScores,
+	pub category_scores: CreateModerationResponseResultsItemCategoryScores,
 	/// Whether any of the below categories are flagged.
 	pub flagged: bool,
 }
 /// A list of the categories, and whether they are flagged or not.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CreateModerationResponseResultsCategories {
+pub struct CreateModerationResponseResultsItemCategories {
 	/// Content that expresses, incites, or promotes harassing language towards any target.
 	pub harassment: bool,
 	/// Harassment content that also includes violence or serious harm towards any target.
-	pub harassment/threatening: bool,
+	#[serde(rename = "harassment/threatening")]
+	pub harassment_threatening: bool,
 	/// Content that expresses, incites, or promotes hate based on race, gender, ethnicity, religion, nationality, sexual orientation, disability status, or caste. Hateful content aimed at non-protected groups (e.g., chess players) is harassment.
 	pub hate: bool,
 	/// Hateful content that also includes violence or serious harm towards the targeted group based on race, gender, ethnicity, religion, nationality, sexual orientation, disability status, or caste.
-	pub hate/threatening: bool,
+	#[serde(rename = "hate/threatening")]
+	pub hate_threatening: bool,
 	/// Content that includes instructions or advice that facilitate the planning or execution of wrongdoing, or that gives advice or instruction on how to commit illicit acts. For example, "how to shoplift" would fit this category.
 	pub illicit: bool,
 	/// Content that includes instructions or advice that facilitate the planning or execution of wrongdoing that also includes violence, or that gives advice or instruction on the procurement of any weapon.
-	pub illicit/violent: bool,
+	#[serde(rename = "illicit/violent")]
+	pub illicit_violent: bool,
 	/// Content that promotes, encourages, or depicts acts of self-harm, such as suicide, cutting, and eating disorders.
-	pub self-harm: bool,
+	#[serde(rename = "self-harm")]
+	pub self_harm: bool,
 	/// Content that encourages performing acts of self-harm, such as suicide, cutting, and eating disorders, or that gives instructions or advice on how to commit such acts.
-	pub self-harm/instructions: bool,
+	#[serde(rename = "self-harm/instructions")]
+	pub self_harm_instructions: bool,
 	/// Content where the speaker expresses that they are engaging or intend to engage in acts of self-harm, such as suicide, cutting, and eating disorders.
-	pub self-harm/intent: bool,
+	#[serde(rename = "self-harm/intent")]
+	pub self_harm_intent: bool,
 	/// Content meant to arouse sexual excitement, such as the description of sexual activity, or that promotes sexual services (excluding sex education and wellness).
 	pub sexual: bool,
 	/// Sexual content that includes an individual who is under 18 years old.
-	pub sexual/minors: bool,
+	#[serde(rename = "sexual/minors")]
+	pub sexual_minors: bool,
 	/// Content that depicts death, violence, or physical injury.
 	pub violence: bool,
 	/// Content that depicts death, violence, or physical injury in graphic detail.
-	pub violence/graphic: bool,
+	#[serde(rename = "violence/graphic")]
+	pub violence_graphic: bool,
 }
 /// A list of the categories along with the input type(s) that the score applies to.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CreateModerationResponseResultsCategoryAppliedInputTypes {
+pub struct CreateModerationResponseResultsItemCategoryAppliedInputTypes {
 	/// The applied input type(s) for the category 'harassment'.
-	pub harassment: Vec<CreateModerationResponseResultsCategoryAppliedInputTypesHarassment>,
+	pub harassment: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'harassment/threatening'.
-	pub harassment/threatening: Vec<CreateModerationResponseResultsCategoryAppliedInputTypesHarassment/threatening>,
+	#[serde(rename = "harassment/threatening")]
+	pub harassment_threatening: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'hate'.
-	pub hate: Vec<CreateModerationResponseResultsCategoryAppliedInputTypesHate>,
+	pub hate: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'hate/threatening'.
-	pub hate/threatening: Vec<CreateModerationResponseResultsCategoryAppliedInputTypesHate/threatening>,
+	#[serde(rename = "hate/threatening")]
+	pub hate_threatening: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'illicit'.
-	pub illicit: Vec<CreateModerationResponseResultsCategoryAppliedInputTypesIllicit>,
+	pub illicit: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'illicit/violent'.
-	pub illicit/violent: Vec<CreateModerationResponseResultsCategoryAppliedInputTypesIllicit/violent>,
+	#[serde(rename = "illicit/violent")]
+	pub illicit_violent: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'self-harm'.
-	pub self-harm: Vec<CreateModerationResponseResultsCategoryAppliedInputTypesSelfHarm>,
+	#[serde(rename = "self-harm")]
+	pub self_harm: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'self-harm/instructions'.
-	pub self-harm/instructions: Vec<CreateModerationResponseResultsCategoryAppliedInputTypesSelfHarm/instructions>,
+	#[serde(rename = "self-harm/instructions")]
+	pub self_harm_instructions: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'self-harm/intent'.
-	pub self-harm/intent: Vec<CreateModerationResponseResultsCategoryAppliedInputTypesSelfHarm/intent>,
+	#[serde(rename = "self-harm/intent")]
+	pub self_harm_intent: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'sexual'.
-	pub sexual: Vec<CreateModerationResponseResultsCategoryAppliedInputTypesSexual>,
+	pub sexual: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'sexual/minors'.
-	pub sexual/minors: Vec<CreateModerationResponseResultsCategoryAppliedInputTypesSexual/minors>,
+	#[serde(rename = "sexual/minors")]
+	pub sexual_minors: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'violence'.
-	pub violence: Vec<CreateModerationResponseResultsCategoryAppliedInputTypesViolence>,
+	pub violence: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 	/// The applied input type(s) for the category 'violence/graphic'.
-	pub violence/graphic: Vec<CreateModerationResponseResultsCategoryAppliedInputTypesViolence/graphic>,
+	#[serde(rename = "violence/graphic")]
+	pub violence_graphic: Vec<CreateModerationResponseResultsItemCategoryAppliedInputTypesItem>,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateModerationResponseResultsCategoryAppliedInputTypesHarassment {
-	Text,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateModerationResponseResultsCategoryAppliedInputTypesHarassment/threatening {
-	Text,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateModerationResponseResultsCategoryAppliedInputTypesHate {
-	Text,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateModerationResponseResultsCategoryAppliedInputTypesHate/threatening {
-	Text,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateModerationResponseResultsCategoryAppliedInputTypesIllicit {
-	Text,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateModerationResponseResultsCategoryAppliedInputTypesIllicit/violent {
-	Text,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateModerationResponseResultsCategoryAppliedInputTypesSelfHarm {
-	Text,
-	Image,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateModerationResponseResultsCategoryAppliedInputTypesSelfHarm/instructions {
-	Text,
-	Image,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateModerationResponseResultsCategoryAppliedInputTypesSelfHarm/intent {
-	Text,
-	Image,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateModerationResponseResultsCategoryAppliedInputTypesSexual {
-	Text,
-	Image,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateModerationResponseResultsCategoryAppliedInputTypesSexual/minors {
-	Text,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateModerationResponseResultsCategoryAppliedInputTypesViolence {
-	Text,
-	Image,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateModerationResponseResultsCategoryAppliedInputTypesViolence/graphic {
+pub enum CreateModerationResponseResultsItemCategoryAppliedInputTypesItem {
 	Text,
 	Image,
 }
 /// A list of the categories along with their scores as predicted by model.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CreateModerationResponseResultsCategoryScores {
+pub struct CreateModerationResponseResultsItemCategoryScores {
 	/// The score for the category 'harassment'.
 	pub harassment: f64,
 	/// The score for the category 'harassment/threatening'.
-	pub harassment/threatening: f64,
+	#[serde(rename = "harassment/threatening")]
+	pub harassment_threatening: f64,
 	/// The score for the category 'hate'.
 	pub hate: f64,
 	/// The score for the category 'hate/threatening'.
-	pub hate/threatening: f64,
+	#[serde(rename = "hate/threatening")]
+	pub hate_threatening: f64,
 	/// The score for the category 'illicit'.
 	pub illicit: f64,
 	/// The score for the category 'illicit/violent'.
-	pub illicit/violent: f64,
+	#[serde(rename = "illicit/violent")]
+	pub illicit_violent: f64,
 	/// The score for the category 'self-harm'.
-	pub self-harm: f64,
+	#[serde(rename = "self-harm")]
+	pub self_harm: f64,
 	/// The score for the category 'self-harm/instructions'.
-	pub self-harm/instructions: f64,
+	#[serde(rename = "self-harm/instructions")]
+	pub self_harm_instructions: f64,
 	/// The score for the category 'self-harm/intent'.
-	pub self-harm/intent: f64,
+	#[serde(rename = "self-harm/intent")]
+	pub self_harm_intent: f64,
 	/// The score for the category 'sexual'.
 	pub sexual: f64,
 	/// The score for the category 'sexual/minors'.
-	pub sexual/minors: f64,
+	#[serde(rename = "sexual/minors")]
+	pub sexual_minors: f64,
 	/// The score for the category 'violence'.
 	pub violence: f64,
 	/// The score for the category 'violence/graphic'.
-	pub violence/graphic: f64,
+	#[serde(rename = "violence/graphic")]
+	pub violence_graphic: f64,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateResponse {
 	/// Specify additional output data to include in the model response. Currently
 	/// supported values are:
@@ -3712,7 +3599,7 @@ pub struct CreateResponse {
 #[serde(untagged)]
 pub enum CreateResponseInput {
 	String(String),
-	Array(CreateResponseInputArray),
+	CreateResponseInputInputItemArray(CreateResponseInputInputItemArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct CreateRunRequest {
@@ -3754,7 +3641,7 @@ pub struct CreateRunRequest {
 	pub tool_choice: Option<CreateRunRequestToolChoice>,
 	/// Override the tools the assistant can use for this run. This is useful for modifying the behavior on a per-run basis.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub tools: Option<Vec<CreateRunRequestTools>>,
+	pub tools: Option<Vec<CreateRunRequestItems>>,
 	/// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
 	/// 
 	/// We generally recommend altering this or temperature but not both.
@@ -3766,7 +3653,7 @@ pub struct CreateRunRequest {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum CreateRunRequestTools {
+pub enum CreateRunRequestItems {
 	AssistantToolsCode(AssistantToolsCode),
 	AssistantToolsFileSearch(AssistantToolsFileSearch),
 	AssistantToolsFunction(AssistantToolsFunction),
@@ -3800,7 +3687,6 @@ pub struct CreateSpeechRequest {
 /// The format to audio in. Supported formats are `mp3`, `opus`, `aac`, `flac`, `wav`, and `pcm`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateSpeechRequestResponseFormat {
 	Mp3,
 	Opus,
@@ -3846,7 +3732,7 @@ pub struct CreateThreadAndRunRequest {
 	pub tool_resources: Option<CreateThreadAndRunRequestToolResources>,
 	/// Override the tools the assistant can use for this run. This is useful for modifying the behavior on a per-run basis.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub tools: Option<Vec<CreateThreadAndRunRequestTools>>,
+	pub tools: Option<Vec<CreateThreadAndRunRequestItems>>,
 	/// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
 	/// 
 	/// We generally recommend altering this or temperature but not both.
@@ -3855,33 +3741,33 @@ pub struct CreateThreadAndRunRequest {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub truncation_strategy: Option<CreateThreadAndRunRequestTruncationStrategy>,
 }
-/// A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+#[serde(untagged)]
+pub enum CreateThreadAndRunRequestItems {
+	AssistantToolsCode(AssistantToolsCode),
+	AssistantToolsFileSearch(AssistantToolsFileSearch),
+	AssistantToolsFunction(AssistantToolsFunction),
+}
+/// A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateThreadAndRunRequestToolResources {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub code_interpreter: Option<CreateThreadAndRunRequestToolResourcesCodeInterpreter>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_search: Option<CreateThreadAndRunRequestToolResourcesFileSearch>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateThreadAndRunRequestToolResourcesCodeInterpreter {
 	/// A list of [file](https://platform.openai.com/docs/api-reference/files) IDs made available to the `code_interpreter` tool. There can be a maximum of 20 files associated with the tool.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_ids: Option<Vec<String>>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateThreadAndRunRequestToolResourcesFileSearch {
 	/// The ID of the [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object) attached to this assistant. There can be a maximum of 1 vector store attached to the assistant.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub vector_store_ids: Option<Vec<String>>,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateThreadAndRunRequestTools {
-	AssistantToolsCode(AssistantToolsCode),
-	AssistantToolsFileSearch(AssistantToolsFileSearch),
-	AssistantToolsFunction(AssistantToolsFunction),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct CreateThreadAndRunRequestTruncationStrategy {
@@ -3893,7 +3779,7 @@ pub struct CreateThreadAndRunRequestTruncationStrategy {
 }
 /// Options to create a new thread. If no thread is provided when running a 
 /// request, an empty thread will be created.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateThreadRequest {
 	/// A list of [messages](https://platform.openai.com/docs/api-reference/messages) to start the thread with.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -3905,28 +3791,23 @@ pub struct CreateThreadRequest {
 	pub tool_resources: Option<CreateThreadRequestToolResources>,
 }
 /// A set of resources that are made available to the assistant's tools in this thread. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateThreadRequestToolResources {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub code_interpreter: Option<CreateThreadRequestToolResourcesCodeInterpreter>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_search: Option<CreateThreadRequestToolResourcesFileSearch>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateThreadRequestToolResourcesCodeInterpreter {
 	/// A list of [file](https://platform.openai.com/docs/api-reference/files) IDs made available to the `code_interpreter` tool. There can be a maximum of 20 files associated with the tool.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_ids: Option<Vec<String>>,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CreateThreadRequestToolResourcesFileSearch {
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub CreateThreadRequestToolResourcesFileSearch: Option<CreateThreadRequestToolResourcesFileSearchCreateThreadRequestToolResourcesFileSearch>,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum CreateThreadRequestToolResourcesFileSearchCreateThreadRequestToolResourcesFileSearch {
+pub enum CreateThreadRequestToolResourcesFileSearch {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct CreateTranscriptionRequest {
@@ -3962,12 +3843,11 @@ pub struct CreateTranscriptionRequest {
 	pub temperature: Option<f64>,
 	/// The timestamp granularities to populate for this transcription. `response_format` must be set `verbose_json` to use timestamp granularities. Either or both of these options are supported: `word`, or `segment`. Note: There is no additional latency for segment timestamps, but generating word timestamps incurs additional latency.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub timestamp_granularities: Option<Vec<CreateTranscriptionRequestTimestampGranularities>>,
+	pub timestamp_granularities: Option<Vec<CreateTranscriptionRequestItem>>,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum CreateTranscriptionRequestTimestampGranularities {
+pub enum CreateTranscriptionRequestItem {
 	Word,
 	Segment,
 }
@@ -3984,10 +3864,8 @@ pub struct CreateTranscriptionResponseJson {
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
 pub enum CreateTranscriptionResponseStreamEvent {
-	#[serde(rename = "TranscriptTextDeltaEvent(TranscriptTextDeltaEvent)")]
-	TranscriptTextDeltaEvent(transcriptTextDeltaEvent),
-	#[serde(rename = "TranscriptTextDoneEvent(TranscriptTextDoneEvent)")]
-	TranscriptTextDoneEvent(transcriptTextDoneEvent),
+	TranscriptTextDeltaEvent(TranscriptTextDeltaEvent),
+	TranscriptTextDoneEvent(TranscriptTextDoneEvent),
 }
 /// Represents a verbose json transcription response returned by model, based on the provided input.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -4024,7 +3902,6 @@ pub struct CreateTranslationRequest {
 /// The format of the output, in one of these options: `json`, `text`, `srt`, `verbose_json`, or `vtt`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateTranslationRequestResponseFormat {
 	Json,
 	Text,
@@ -4069,7 +3946,6 @@ pub struct CreateUploadRequest {
 /// See the [documentation on File purposes](https://platform.openai.com/docs/api-reference/files/create#files-create-purpose).
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum CreateUploadRequestPurpose {
 	Assistants,
 	Batch,
@@ -4095,7 +3971,7 @@ pub struct CreateVectorStoreFileRequest {
 	/// A [File](https://platform.openai.com/docs/api-reference/files) ID that the vector store should use. Useful for tools like `file_search` that can access files.
 	pub file_id: String,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct CreateVectorStoreRequest {
 	/// The chunking strategy used to chunk the file(s). If not set, will use the `auto` strategy. Only applicable if `file_ids` is non-empty.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -4113,15 +3989,9 @@ pub struct CreateVectorStoreRequest {
 }
 /// The chunking strategy used to chunk the file(s). If not set, will use the `auto` strategy. Only applicable if `file_ids` is non-empty.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct CreateVectorStoreRequestChunkingStrategy {
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub CreateVectorStoreRequestChunkingStrategy: Option<CreateVectorStoreRequestChunkingStrategyCreateVectorStoreRequestChunkingStrategy>,
-}
-/// The chunking strategy used to chunk the file(s). If not set, will use the `auto` strategy. Only applicable if `file_ids` is non-empty.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum CreateVectorStoreRequestChunkingStrategyCreateVectorStoreRequestChunkingStrategy {
+pub enum CreateVectorStoreRequestChunkingStrategy {
 	AutoChunkingStrategyRequestParam(AutoChunkingStrategyRequestParam),
 	StaticChunkingStrategyRequestParam(StaticChunkingStrategyRequestParam),
 }
@@ -4138,7 +4008,6 @@ pub struct DeleteAssistantResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum DeleteAssistantResponseObject {
 	#[serde(rename = "assistant.deleted")]
 	AssistantDeleted,
@@ -4151,7 +4020,6 @@ pub struct DeleteFileResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum DeleteFileResponseObject {
 	File,
 }
@@ -4167,7 +4035,6 @@ pub struct DeleteFineTuningCheckpointPermissionResponse {
 /// The object type, which is always "checkpoint.permission".
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum DeleteFineTuningCheckpointPermissionResponseObject {
 	#[serde(rename = "checkpoint.permission")]
 	CheckpointPermission,
@@ -4180,7 +4047,6 @@ pub struct DeleteMessageResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum DeleteMessageResponseObject {
 	#[serde(rename = "thread.message.deleted")]
 	ThreadMessageDeleted,
@@ -4199,7 +4065,6 @@ pub struct DeleteThreadResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum DeleteThreadResponseObject {
 	#[serde(rename = "thread.deleted")]
 	ThreadDeleted,
@@ -4212,7 +4077,6 @@ pub struct DeleteVectorStoreFileResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum DeleteVectorStoreFileResponseObject {
 	#[serde(rename = "vector_store.file.deleted")]
 	VectorStoreFileDeleted,
@@ -4225,7 +4089,6 @@ pub struct DeleteVectorStoreResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum DeleteVectorStoreResponseObject {
 	#[serde(rename = "vector_store.deleted")]
 	VectorStoreDeleted,
@@ -4238,14 +4101,12 @@ pub struct DoneEvent {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum DoneEventData {
 	#[serde(rename = "[DONE]")]
-	[done],
+	Done,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum DoneEventEvent {
 	Done,
 }
@@ -4264,7 +4125,6 @@ pub struct DoubleClick {
 /// always set to `double_click`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum DoubleClickType {
 	#[serde(rename = "double_click")]
 	DoubleClick,
@@ -4289,7 +4149,6 @@ pub struct Drag {
 /// always set to `drag`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum DragType {
 	Drag,
 }
@@ -4323,7 +4182,6 @@ pub enum EasyInputMessageContent {
 /// `developer`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum EasyInputMessageRole {
 	User,
 	Assistant,
@@ -4333,7 +4191,6 @@ pub enum EasyInputMessageRole {
 /// The type of the message input. Always `message`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum EasyInputMessageType {
 	Message,
 }
@@ -4350,7 +4207,6 @@ pub struct Embedding {
 /// The object type, which is always "embedding".
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum EmbeddingObject {
 	Embedding,
 }
@@ -4369,7 +4225,6 @@ pub struct ErrorEvent {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ErrorEventEvent {
 	Error,
 }
@@ -4390,7 +4245,6 @@ pub struct FileCitation {
 /// The type of the file citation. Always `file_citation`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FileCitationType {
 	#[serde(rename = "file_citation")]
 	FileCitation,
@@ -4408,7 +4262,6 @@ pub struct FilePath {
 /// The type of the file path. Always `file_path`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FilePathType {
 	#[serde(rename = "file_path")]
 	FilePath,
@@ -4416,7 +4269,6 @@ pub enum FilePathType {
 /// The ranker to use for the file search. If not specified will use the `auto` ranker.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FileSearchRanker {
 	Auto,
 	#[serde(rename = "default_2024_08_21")]
@@ -4461,15 +4313,15 @@ pub struct FileSearchToolCall {
 	pub queries: Vec<String>,
 	/// The results of the file search tool call.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub results: Option<Vec<FileSearchToolCallResults>>,
+	pub results: Option<Vec<FileSearchToolCallResultsItem>>,
 	/// The status of the file search tool call. One of `in_progress`, 
 	/// `searching`, `incomplete` or `failed`,
 	pub status: FileSearchToolCallStatus,
 	/// The type of the file search tool call. Always `file_search_call`.
 	pub r#type: FileSearchToolCallType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct FileSearchToolCallResults {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct FileSearchToolCallResultsItem {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub attributes: Option<VectorStoreFileAttributes>,
 	/// The unique ID of the file.
@@ -4489,7 +4341,6 @@ pub struct FileSearchToolCallResults {
 /// `searching`, `incomplete` or `failed`,
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FileSearchToolCallStatus {
 	#[serde(rename = "in_progress")]
 	InProgress,
@@ -4501,7 +4352,6 @@ pub enum FileSearchToolCallStatus {
 /// The type of the file search tool call. Always `file_search_call`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FileSearchToolCallType {
 	#[serde(rename = "file_search_call")]
 	FileSearchCall,
@@ -4517,7 +4367,6 @@ pub enum FileSearchToolFilters {
 /// The type of the file search tool. Always `file_search`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FileSearchToolType {
 	#[serde(rename = "file_search")]
 	FileSearch,
@@ -4549,13 +4398,13 @@ pub struct FineTuneChatCompletionRequestAssistantMessage {
 	pub weight: Option<i64>,
 }
 /// The per-line training example of a fine-tuning input file for chat models using the supervised method.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTuneChatRequestInput {
 	/// A list of functions the model may generate JSON inputs for.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub functions: Option<Vec<ChatCompletionFunctions>>,
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub messages: Option<Vec<FineTuneChatRequestInputMessages>>,
+	pub messages: Option<Vec<FineTuneChatRequestInputItems>>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub parallel_tool_calls: Option<ParallelToolCalls>,
 	/// A list of tools the model may generate JSON inputs for.
@@ -4565,7 +4414,7 @@ pub struct FineTuneChatRequestInput {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum FineTuneChatRequestInputMessages {
+pub enum FineTuneChatRequestInputItems {
 	ChatCompletionRequestSystemMessage(ChatCompletionRequestSystemMessage),
 	ChatCompletionRequestUserMessage(ChatCompletionRequestUserMessage),
 	FineTuneChatCompletionRequestAssistantMessage(FineTuneChatCompletionRequestAssistantMessage),
@@ -4573,7 +4422,7 @@ pub enum FineTuneChatRequestInputMessages {
 	ChatCompletionRequestFunctionMessage(ChatCompletionRequestFunctionMessage),
 }
 /// The per-line training example of a fine-tuning input file for completions models
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTuneCompletionRequestInput {
 	/// The desired completion for this training example.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -4583,14 +4432,14 @@ pub struct FineTuneCompletionRequestInput {
 	pub prompt: Option<String>,
 }
 /// Configuration for the DPO fine-tuning method.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTuneDPOMethod {
 	/// The hyperparameters used for the fine-tuning job.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub hyperparameters: Option<FineTuneDPOMethodHyperparameters>,
 }
 /// The hyperparameters used for the fine-tuning job.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTuneDPOMethodHyperparameters {
 	/// Number of examples in each batch. A larger batch size means that model parameters are updated less frequently, but with lower variance.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -4638,7 +4487,7 @@ pub enum FineTuneDPOMethodHyperparametersNEpochs {
 	Integer(i64),
 }
 /// The method used for fine-tuning.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTuneMethod {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub dpo: Option<FineTuneDPOMethod>,
@@ -4651,27 +4500,26 @@ pub struct FineTuneMethod {
 /// The type of method. Is either `supervised` or `dpo`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FineTuneMethodType {
 	Supervised,
 	Dpo,
 }
 /// The per-line training example of a fine-tuning input file for chat models using the dpo method.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTunePreferenceRequestInput {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub input: Option<FineTunePreferenceRequestInputInput>,
 	/// The non-preferred completion message for the output.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub non_preferred_completion: Option<Vec<FineTunePreferenceRequestInputNonPreferredCompletion>>,
+	pub non_preferred_completion: Option<Vec<FineTunePreferenceRequestInputItems>>,
 	/// The preferred completion message for the output.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub preferred_completion: Option<Vec<FineTunePreferenceRequestInputPreferredCompletion>>,
+	pub preferred_completion: Option<Vec<FineTunePreferenceRequestInputItems>>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTunePreferenceRequestInputInput {
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub messages: Option<Vec<FineTunePreferenceRequestInputInputMessages>>,
+	pub messages: Option<Vec<FineTunePreferenceRequestInputInputItems>>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub parallel_tool_calls: Option<ParallelToolCalls>,
 	/// A list of tools the model may generate JSON inputs for.
@@ -4681,7 +4529,7 @@ pub struct FineTunePreferenceRequestInputInput {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum FineTunePreferenceRequestInputInputMessages {
+pub enum FineTunePreferenceRequestInputInputItems {
 	ChatCompletionRequestSystemMessage(ChatCompletionRequestSystemMessage),
 	ChatCompletionRequestUserMessage(ChatCompletionRequestUserMessage),
 	FineTuneChatCompletionRequestAssistantMessage(FineTuneChatCompletionRequestAssistantMessage),
@@ -4691,24 +4539,18 @@ pub enum FineTunePreferenceRequestInputInputMessages {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum FineTunePreferenceRequestInputNonPreferredCompletion {
-	ChatCompletionRequestAssistantMessage(ChatCompletionRequestAssistantMessage),
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum FineTunePreferenceRequestInputPreferredCompletion {
+pub enum FineTunePreferenceRequestInputItems {
 	ChatCompletionRequestAssistantMessage(ChatCompletionRequestAssistantMessage),
 }
 /// Configuration for the supervised fine-tuning method.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTuneSupervisedMethod {
 	/// The hyperparameters used for the fine-tuning job.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub hyperparameters: Option<FineTuneSupervisedMethodHyperparameters>,
 }
 /// The hyperparameters used for the fine-tuning job.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTuneSupervisedMethodHyperparameters {
 	/// Number of examples in each batch. A larger batch size means that model parameters are updated less frequently, but with lower variance.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -4759,7 +4601,6 @@ pub struct FineTuningCheckpointPermission {
 /// The object type, which is always "checkpoint.permission".
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FineTuningCheckpointPermissionObject {
 	#[serde(rename = "checkpoint.permission")]
 	CheckpointPermission,
@@ -4776,7 +4617,6 @@ pub struct FineTuningIntegration {
 /// The type of the integration being enabled for the fine-tuning job
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FineTuningIntegrationType {
 	Wandb,
 }
@@ -4819,7 +4659,7 @@ pub struct FineTuningJob {
 	pub id: String,
 	/// A list of integrations to enable for this fine-tuning job.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub integrations: Option<Vec<FineTuningJobIntegrations>>,
+	pub integrations: Option<Vec<FineTuningJobItems>>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub metadata: Option<Metadata>,
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -4862,7 +4702,7 @@ pub struct FineTuningJobCheckpoint {
 	pub step_number: i64,
 }
 /// Metrics at the step number during the fine-tuning job.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTuningJobCheckpointMetrics {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub full_valid_loss: Option<f64>,
@@ -4882,7 +4722,6 @@ pub struct FineTuningJobCheckpointMetrics {
 /// The object type, which is always "fine_tuning.job.checkpoint".
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FineTuningJobCheckpointObject {
 	#[serde(rename = "fine_tuning.job.checkpoint")]
 	FineTuningJobCheckpoint,
@@ -4904,7 +4743,7 @@ pub struct FineTuningJobEvent {
 	pub created_at: i64,
 	/// The data associated with the event.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub data: Option<FineTuningJobEventData>,
+	pub data: Option<serde_json::Value>,
 	/// The object identifier.
 	pub id: String,
 	/// The log level of the event.
@@ -4917,14 +4756,9 @@ pub struct FineTuningJobEvent {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub r#type: Option<FineTuningJobEventType>,
 }
-/// The data associated with the event.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct FineTuningJobEventData {
-}
 /// The log level of the event.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FineTuningJobEventLevel {
 	Info,
 	Warn,
@@ -4933,7 +4767,6 @@ pub enum FineTuningJobEventLevel {
 /// The object type, which is always "fine_tuning.job.event".
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FineTuningJobEventObject {
 	#[serde(rename = "fine_tuning.job.event")]
 	FineTuningJobEvent,
@@ -4941,13 +4774,12 @@ pub enum FineTuningJobEventObject {
 /// The type of event.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FineTuningJobEventType {
 	Message,
 	Metrics,
 }
 /// The hyperparameters used for the fine-tuning job. This value will only be returned when running `supervised` jobs.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct FineTuningJobHyperparameters {
 	/// Number of examples in each batch. A larger batch size means that model parameters
 	/// are updated less frequently, but with lower variance.
@@ -4992,13 +4824,12 @@ pub enum FineTuningJobHyperparametersNEpochs {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum FineTuningJobIntegrations {
+pub enum FineTuningJobItems {
 	FineTuningIntegration(FineTuningIntegration),
 }
 /// The object type, which is always "fine_tuning.job".
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FineTuningJobObject {
 	#[serde(rename = "fine_tuning.job")]
 	FineTuningJob,
@@ -5006,7 +4837,6 @@ pub enum FineTuningJobObject {
 /// The current status of the fine-tuning job, which can be either `validating_files`, `queued`, `running`, `succeeded`, `failed`, or `cancelled`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FineTuningJobStatus {
 	#[serde(rename = "validating_files")]
 	ValidatingFiles,
@@ -5104,7 +4934,6 @@ pub struct FunctionToolCallOutputResource {
 /// `incomplete`. Populated when items are returned via API.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FunctionToolCallOutputStatus {
 	#[serde(rename = "in_progress")]
 	InProgress,
@@ -5114,7 +4943,6 @@ pub enum FunctionToolCallOutputStatus {
 /// The type of the function tool call output. Always `function_call_output`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FunctionToolCallOutputType {
 	#[serde(rename = "function_call_output")]
 	FunctionCallOutput,
@@ -5141,7 +4969,6 @@ pub struct FunctionToolCallResource {
 /// `incomplete`. Populated when items are returned via API.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FunctionToolCallStatus {
 	#[serde(rename = "in_progress")]
 	InProgress,
@@ -5151,7 +4978,6 @@ pub enum FunctionToolCallStatus {
 /// The type of the function tool call. Always `function_call`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FunctionToolCallType {
 	#[serde(rename = "function_call")]
 	FunctionCall,
@@ -5159,12 +4985,11 @@ pub enum FunctionToolCallType {
 /// The type of the function tool. Always `function`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum FunctionToolType {
 	Function,
 }
 /// Represents the url or the content of an image generated by the OpenAI API.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct Image {
 	/// The base64-encoded JSON of the generated image, if `response_format` is `b64_json`.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -5189,7 +5014,6 @@ pub struct ImagesResponse {
 /// - `computer_call_output.output.image_url`: Include image urls from the computer call output.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum Includable {
 	#[serde(rename = "file_search_call.results")]
 	FileSearchCallResults,
@@ -5213,7 +5037,6 @@ pub struct InputAudio {
 /// `wav`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum InputAudioFormat {
 	Mp3,
 	Wav,
@@ -5221,7 +5044,6 @@ pub enum InputAudioFormat {
 /// The type of the input item. Always `input_audio`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum InputAudioType {
 	#[serde(rename = "input_audio")]
 	InputAudio,
@@ -5252,7 +5074,6 @@ pub struct InputFile {
 /// The type of the input item. Always `input_file`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum InputFileType {
 	#[serde(rename = "input_file")]
 	InputFile,
@@ -5277,7 +5098,6 @@ pub struct InputImage {
 /// `low`, or `auto`. Defaults to `auto`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum InputImageDetail {
 	High,
 	Low,
@@ -5286,7 +5106,6 @@ pub enum InputImageDetail {
 /// The type of the input item. Always `input_image`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum InputImageType {
 	#[serde(rename = "input_image")]
 	InputImage,
@@ -5334,7 +5153,6 @@ pub struct InputMessageResource {
 /// The role of the message input. One of `user`, `system`, or `developer`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum InputMessageRole {
 	User,
 	System,
@@ -5344,7 +5162,6 @@ pub enum InputMessageRole {
 /// `incomplete`. Populated when items are returned via API.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum InputMessageStatus {
 	#[serde(rename = "in_progress")]
 	InProgress,
@@ -5354,7 +5171,6 @@ pub enum InputMessageStatus {
 /// The type of the message input. Always set to `message`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum InputMessageType {
 	Message,
 }
@@ -5369,7 +5185,6 @@ pub struct InputText {
 /// The type of the input item. Always `input_text`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum InputTextType {
 	#[serde(rename = "input_text")]
 	InputText,
@@ -5392,7 +5207,7 @@ pub struct Invite {
 	pub object: InviteObject,
 	/// The projects that were granted membership upon acceptance of the invite.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub projects: Option<Vec<InviteProjects>>,
+	pub projects: Option<Vec<InviteProjectsItem>>,
 	/// `owner` or `reader`
 	pub role: InviteRole,
 	/// `accepted`,`expired`, or `pending`
@@ -5408,7 +5223,6 @@ pub struct InviteDeleteResponse {
 /// The object type, which is always `organization.invite.deleted`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum InviteDeleteResponseObject {
 	#[serde(rename = "organization.invite.deleted")]
 	OrganizationInviteDeleted,
@@ -5431,32 +5245,29 @@ pub struct InviteListResponse {
 /// The object type, which is always `list`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum InviteListResponseObject {
 	List,
 }
 /// The object type, which is always `organization.invite`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum InviteObject {
 	#[serde(rename = "organization.invite")]
 	OrganizationInvite,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct InviteProjects {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct InviteProjectsItem {
 	/// Project's public ID
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub id: Option<String>,
 	/// Project membership role
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub role: Option<InviteProjectsRole>,
+	pub role: Option<InviteProjectsItemRole>,
 }
 /// Project membership role
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum InviteProjectsRole {
+pub enum InviteProjectsItemRole {
 	Member,
 	Owner,
 }
@@ -5466,29 +5277,27 @@ pub struct InviteRequest {
 	pub email: String,
 	/// An array of projects to which membership is granted at the same time the org invite is accepted. If omitted, the user will be invited to the default project for compatibility with legacy behavior.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub projects: Option<Vec<InviteRequestProjects>>,
+	pub projects: Option<Vec<InviteRequestProjectsItem>>,
 	/// `owner` or `reader`
 	pub role: InviteRequestRole,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct InviteRequestProjects {
+pub struct InviteRequestProjectsItem {
 	/// Project's public ID
 	pub id: String,
 	/// Project membership role
-	pub role: InviteRequestProjectsRole,
+	pub role: InviteRequestProjectsItemRole,
 }
 /// Project membership role
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum InviteRequestProjectsRole {
+pub enum InviteRequestProjectsItemRole {
 	Member,
 	Owner,
 }
 /// `owner` or `reader`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum InviteRequestRole {
 	Reader,
 	Owner,
@@ -5496,7 +5305,6 @@ pub enum InviteRequestRole {
 /// `owner` or `reader`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum InviteRole {
 	Owner,
 	Reader,
@@ -5504,7 +5312,6 @@ pub enum InviteRole {
 /// `accepted`,`expired`, or `pending`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum InviteStatus {
 	Accepted,
 	Expired,
@@ -5536,7 +5343,6 @@ pub struct ItemReference {
 /// The type of item to reference. Always `item_reference`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ItemReferenceType {
 	#[serde(rename = "item_reference")]
 	ItemReference,
@@ -5569,7 +5375,6 @@ pub struct KeyPress {
 /// always set to `keypress`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum KeyPressType {
 	Keypress,
 }
@@ -5591,7 +5396,6 @@ pub struct ListAuditLogsResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ListAuditLogsResponseObject {
 	List,
 }
@@ -5607,7 +5411,6 @@ pub struct ListBatchesResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ListBatchesResponseObject {
 	List,
 }
@@ -5631,7 +5434,6 @@ pub struct ListFineTuningCheckpointPermissionResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ListFineTuningCheckpointPermissionResponseObject {
 	List,
 }
@@ -5647,7 +5449,6 @@ pub struct ListFineTuningJobCheckpointsResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ListFineTuningJobCheckpointsResponseObject {
 	List,
 }
@@ -5659,7 +5460,6 @@ pub struct ListFineTuningJobEventsResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ListFineTuningJobEventsResponseObject {
 	List,
 }
@@ -5678,7 +5478,6 @@ pub struct ListModelsResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ListModelsResponseObject {
 	List,
 }
@@ -5690,7 +5489,6 @@ pub struct ListPaginatedFineTuningJobsResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ListPaginatedFineTuningJobsResponseObject {
 	List,
 }
@@ -5773,7 +5571,6 @@ pub struct MessageContentImageFileObjectImageFile {
 /// Specifies the detail level of the image if specified by the user. `low` uses fewer tokens, you can opt in to high resolution using `high`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageContentImageFileObjectImageFileDetail {
 	Auto,
 	Low,
@@ -5782,7 +5579,6 @@ pub enum MessageContentImageFileObjectImageFileDetail {
 /// Always `image_file`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageContentImageFileObjectType {
 	#[serde(rename = "image_file")]
 	ImageFile,
@@ -5805,7 +5601,6 @@ pub struct MessageContentImageUrlObjectImageUrl {
 /// Specifies the detail level of the image. `low` uses fewer tokens, you can opt in to high resolution using `high`. Default value is `auto`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageContentImageUrlObjectImageUrlDetail {
 	Auto,
 	Low,
@@ -5814,7 +5609,6 @@ pub enum MessageContentImageUrlObjectImageUrlDetail {
 /// The type of the content part.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageContentImageUrlObjectType {
 	#[serde(rename = "image_url")]
 	ImageUrl,
@@ -5829,7 +5623,6 @@ pub struct MessageContentRefusalObject {
 /// Always `refusal`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageContentRefusalObjectType {
 	Refusal,
 }
@@ -5852,7 +5645,6 @@ pub struct MessageContentTextAnnotationsFileCitationObjectFileCitation {
 /// Always `file_citation`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageContentTextAnnotationsFileCitationObjectType {
 	#[serde(rename = "file_citation")]
 	FileCitation,
@@ -5876,7 +5668,6 @@ pub struct MessageContentTextAnnotationsFilePathObjectFilePath {
 /// Always `file_path`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageContentTextAnnotationsFilePathObjectType {
 	#[serde(rename = "file_path")]
 	FilePath,
@@ -5890,21 +5681,20 @@ pub struct MessageContentTextObject {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct MessageContentTextObjectText {
-	pub annotations: Vec<MessageContentTextObjectTextAnnotations>,
+	pub annotations: Vec<MessageContentTextObjectTextItems>,
 	/// The data that makes up the text.
 	pub value: String,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum MessageContentTextObjectTextAnnotations {
+pub enum MessageContentTextObjectTextItems {
 	MessageContentTextAnnotationsFileCitationObject(MessageContentTextAnnotationsFileCitationObject),
 	MessageContentTextAnnotationsFilePathObject(MessageContentTextAnnotationsFilePathObject),
 }
 /// Always `text`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageContentTextObjectType {
 	Text,
 }
@@ -5918,7 +5708,7 @@ pub struct MessageDeltaContentImageFileObject {
 	/// Always `image_file`.
 	pub r#type: MessageDeltaContentImageFileObjectType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct MessageDeltaContentImageFileObjectImageFile {
 	/// Specifies the detail level of the image if specified by the user. `low` uses fewer tokens, you can opt in to high resolution using `high`.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -5930,7 +5720,6 @@ pub struct MessageDeltaContentImageFileObjectImageFile {
 /// Specifies the detail level of the image if specified by the user. `low` uses fewer tokens, you can opt in to high resolution using `high`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageDeltaContentImageFileObjectImageFileDetail {
 	Auto,
 	Low,
@@ -5939,7 +5728,6 @@ pub enum MessageDeltaContentImageFileObjectImageFileDetail {
 /// Always `image_file`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageDeltaContentImageFileObjectType {
 	#[serde(rename = "image_file")]
 	ImageFile,
@@ -5954,7 +5742,7 @@ pub struct MessageDeltaContentImageUrlObject {
 	/// Always `image_url`.
 	pub r#type: MessageDeltaContentImageUrlObjectType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct MessageDeltaContentImageUrlObjectImageUrl {
 	/// Specifies the detail level of the image. `low` uses fewer tokens, you can opt in to high resolution using `high`.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -5966,7 +5754,6 @@ pub struct MessageDeltaContentImageUrlObjectImageUrl {
 /// Specifies the detail level of the image. `low` uses fewer tokens, you can opt in to high resolution using `high`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageDeltaContentImageUrlObjectImageUrlDetail {
 	Auto,
 	Low,
@@ -5975,7 +5762,6 @@ pub enum MessageDeltaContentImageUrlObjectImageUrlDetail {
 /// Always `image_url`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageDeltaContentImageUrlObjectType {
 	#[serde(rename = "image_url")]
 	ImageUrl,
@@ -5993,7 +5779,6 @@ pub struct MessageDeltaContentRefusalObject {
 /// Always `refusal`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageDeltaContentRefusalObjectType {
 	Refusal,
 }
@@ -6014,7 +5799,7 @@ pub struct MessageDeltaContentTextAnnotationsFileCitationObject {
 	/// Always `file_citation`.
 	pub r#type: MessageDeltaContentTextAnnotationsFileCitationObjectType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct MessageDeltaContentTextAnnotationsFileCitationObjectFileCitation {
 	/// The ID of the specific File the citation is from.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -6026,7 +5811,6 @@ pub struct MessageDeltaContentTextAnnotationsFileCitationObjectFileCitation {
 /// Always `file_citation`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageDeltaContentTextAnnotationsFileCitationObjectType {
 	#[serde(rename = "file_citation")]
 	FileCitation,
@@ -6048,7 +5832,7 @@ pub struct MessageDeltaContentTextAnnotationsFilePathObject {
 	/// Always `file_path`.
 	pub r#type: MessageDeltaContentTextAnnotationsFilePathObjectType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct MessageDeltaContentTextAnnotationsFilePathObjectFilePath {
 	/// The ID of the file that was generated.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -6057,7 +5841,6 @@ pub struct MessageDeltaContentTextAnnotationsFilePathObjectFilePath {
 /// Always `file_path`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageDeltaContentTextAnnotationsFilePathObjectType {
 	#[serde(rename = "file_path")]
 	FilePath,
@@ -6072,10 +5855,10 @@ pub struct MessageDeltaContentTextObject {
 	/// Always `text`.
 	pub r#type: MessageDeltaContentTextObjectType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct MessageDeltaContentTextObjectText {
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub annotations: Option<Vec<MessageDeltaContentTextObjectTextAnnotations>>,
+	pub annotations: Option<Vec<MessageDeltaContentTextObjectTextItems>>,
 	/// The data that makes up the text.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub value: Option<String>,
@@ -6083,14 +5866,13 @@ pub struct MessageDeltaContentTextObjectText {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum MessageDeltaContentTextObjectTextAnnotations {
+pub enum MessageDeltaContentTextObjectTextItems {
 	MessageDeltaContentTextAnnotationsFileCitationObject(MessageDeltaContentTextAnnotationsFileCitationObject),
 	MessageDeltaContentTextAnnotationsFilePathObject(MessageDeltaContentTextAnnotationsFilePathObject),
 }
 /// Always `text`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageDeltaContentTextObjectType {
 	Text,
 }
@@ -6105,11 +5887,11 @@ pub struct MessageDeltaObject {
 	pub object: MessageDeltaObjectObject,
 }
 /// The delta containing the fields that have changed on the Message.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct MessageDeltaObjectDelta {
 	/// The content of the message in array of text and/or images.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub content: Option<Vec<MessageDeltaObjectDeltaContent>>,
+	pub content: Option<Vec<MessageDeltaObjectDeltaItems>>,
 	/// The entity that produced the message. One of `user` or `assistant`.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub role: Option<MessageDeltaObjectDeltaRole>,
@@ -6117,7 +5899,7 @@ pub struct MessageDeltaObjectDelta {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum MessageDeltaObjectDeltaContent {
+pub enum MessageDeltaObjectDeltaItems {
 	MessageDeltaContentImageFileObject(MessageDeltaContentImageFileObject),
 	MessageDeltaContentTextObject(MessageDeltaContentTextObject),
 	MessageDeltaContentRefusalObject(MessageDeltaContentRefusalObject),
@@ -6126,7 +5908,6 @@ pub enum MessageDeltaObjectDeltaContent {
 /// The entity that produced the message. One of `user` or `assistant`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageDeltaObjectDeltaRole {
 	User,
 	Assistant,
@@ -6134,7 +5915,6 @@ pub enum MessageDeltaObjectDeltaRole {
 /// The object type, which is always `thread.message.delta`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageDeltaObjectObject {
 	#[serde(rename = "thread.message.delta")]
 	ThreadMessageDelta,
@@ -6145,11 +5925,11 @@ pub struct MessageObject {
 	/// If applicable, the ID of the [assistant](https://platform.openai.com/docs/api-reference/assistants) that authored this message.
 	pub assistant_id: String,
 	/// A list of files attached to the message, and the tools they were added to.
-	pub attachments: Vec<MessageObjectAttachments>,
+	pub attachments: Vec<MessageObjectAttachmentsItem>,
 	/// The Unix timestamp (in seconds) for when the message was completed.
 	pub completed_at: i64,
 	/// The content of the message in array of text and/or images.
-	pub content: Vec<MessageObjectContent>,
+	pub content: Vec<MessageObjectItems>,
 	/// The Unix timestamp (in seconds) for when the message was created.
 	pub created_at: i64,
 	/// The identifier, which can be referenced in API endpoints.
@@ -6170,30 +5950,21 @@ pub struct MessageObject {
 	/// The [thread](https://platform.openai.com/docs/api-reference/threads) ID that this message belongs to.
 	pub thread_id: String,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct MessageObjectAttachments {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct MessageObjectAttachmentsItem {
 	/// The ID of the file to attach to the message.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_id: Option<String>,
 	/// The tools to add this file to.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub tools: Option<Vec<MessageObjectAttachmentsTools>>,
+	pub tools: Option<Vec<MessageObjectAttachmentsItemItems>>,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum MessageObjectAttachmentsTools {
+pub enum MessageObjectAttachmentsItemItems {
 	AssistantToolsCode(AssistantToolsCode),
 	AssistantToolsFileSearchTypeOnly(AssistantToolsFileSearchTypeOnly),
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum MessageObjectContent {
-	MessageContentImageFileObject(MessageContentImageFileObject),
-	MessageContentImageUrlObject(MessageContentImageUrlObject),
-	MessageContentTextObject(MessageContentTextObject),
-	MessageContentRefusalObject(MessageContentRefusalObject),
 }
 /// On an incomplete message, details about why the message is incomplete.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -6204,7 +5975,6 @@ pub struct MessageObjectIncompleteDetails {
 /// The reason the message is incomplete.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageObjectIncompleteDetailsReason {
 	#[serde(rename = "content_filter")]
 	ContentFilter,
@@ -6217,10 +5987,18 @@ pub enum MessageObjectIncompleteDetailsReason {
 	#[serde(rename = "run_failed")]
 	RunFailed,
 }
-/// The object type, which is always `thread.message`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
+pub enum MessageObjectItems {
+	MessageContentImageFileObject(MessageContentImageFileObject),
+	MessageContentImageUrlObject(MessageContentImageUrlObject),
+	MessageContentTextObject(MessageContentTextObject),
+	MessageContentRefusalObject(MessageContentRefusalObject),
+}
+/// The object type, which is always `thread.message`.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
 pub enum MessageObjectObject {
 	#[serde(rename = "thread.message")]
 	ThreadMessage,
@@ -6228,7 +6006,6 @@ pub enum MessageObjectObject {
 /// The entity that produced the message. One of `user` or `assistant`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageObjectRole {
 	User,
 	Assistant,
@@ -6236,7 +6013,6 @@ pub enum MessageObjectRole {
 /// The status of the message, which can be either `in_progress`, `incomplete`, or `completed`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageObjectStatus {
 	#[serde(rename = "in_progress")]
 	InProgress,
@@ -6254,7 +6030,6 @@ pub struct MessageRequestContentTextObject {
 /// Always `text`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MessageRequestContentTextObjectType {
 	Text,
 }
@@ -6262,10 +6037,6 @@ pub enum MessageRequestContentTextObjectType {
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
 pub enum MessageStreamEvent {
-	Object(serde_json::Value),
-	Object(serde_json::Value),
-	Object(serde_json::Value),
-	Object(serde_json::Value),
 	Object(serde_json::Value),
 }
 /// Describes an OpenAI model offering that can be used with the API.
@@ -6283,11 +6054,10 @@ pub struct Model {
 /// The object type, which is always "model".
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ModelObject {
 	Model,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModelResponseProperties {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub metadata: Option<Metadata>,
@@ -6307,7 +6077,7 @@ pub struct ModelResponseProperties {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub user: Option<String>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyAssistantRequest {
 	/// The description of the assistant. The maximum length is 512 characters.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -6335,52 +6105,52 @@ pub struct ModifyAssistantRequest {
 	pub tool_resources: Option<ModifyAssistantRequestToolResources>,
 	/// A list of tool enabled on the assistant. There can be a maximum of 128 tools per assistant. Tools can be of types `code_interpreter`, `file_search`, or `function`.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub tools: Option<Vec<ModifyAssistantRequestTools>>,
+	pub tools: Option<Vec<ModifyAssistantRequestItems>>,
 	/// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
 	/// 
 	/// We generally recommend altering this or temperature but not both.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub top_p: Option<f64>,
 }
-/// A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+#[serde(untagged)]
+pub enum ModifyAssistantRequestItems {
+	AssistantToolsCode(AssistantToolsCode),
+	AssistantToolsFileSearch(AssistantToolsFileSearch),
+	AssistantToolsFunction(AssistantToolsFunction),
+}
+/// A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyAssistantRequestToolResources {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub code_interpreter: Option<ModifyAssistantRequestToolResourcesCodeInterpreter>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_search: Option<ModifyAssistantRequestToolResourcesFileSearch>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyAssistantRequestToolResourcesCodeInterpreter {
 	/// Overrides the list of [file](https://platform.openai.com/docs/api-reference/files) IDs made available to the `code_interpreter` tool. There can be a maximum of 20 files associated with the tool.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_ids: Option<Vec<String>>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyAssistantRequestToolResourcesFileSearch {
 	/// Overrides the [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object) attached to this assistant. There can be a maximum of 1 vector store attached to the assistant.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub vector_store_ids: Option<Vec<String>>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum ModifyAssistantRequestTools {
-	AssistantToolsCode(AssistantToolsCode),
-	AssistantToolsFileSearch(AssistantToolsFileSearch),
-	AssistantToolsFunction(AssistantToolsFunction),
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyMessageRequest {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub metadata: Option<Metadata>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyRunRequest {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub metadata: Option<Metadata>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyThreadRequest {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub metadata: Option<Metadata>,
@@ -6389,20 +6159,20 @@ pub struct ModifyThreadRequest {
 	pub tool_resources: Option<ModifyThreadRequestToolResources>,
 }
 /// A set of resources that are made available to the assistant's tools in this thread. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyThreadRequestToolResources {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub code_interpreter: Option<ModifyThreadRequestToolResourcesCodeInterpreter>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_search: Option<ModifyThreadRequestToolResourcesFileSearch>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyThreadRequestToolResourcesCodeInterpreter {
 	/// A list of [file](https://platform.openai.com/docs/api-reference/files) IDs made available to the `code_interpreter` tool. There can be a maximum of 20 files associated with the tool.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_ids: Option<Vec<String>>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ModifyThreadRequestToolResourcesFileSearch {
 	/// The [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object) attached to this thread. There can be a maximum of 1 vector store attached to the thread.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -6423,7 +6193,6 @@ pub struct Move {
 /// always set to `move`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum MoveType {
 	Move,
 }
@@ -6454,14 +6223,12 @@ pub struct OpenAIFile {
 /// The object type, which is always `file`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum OpenAIFileObject {
 	File,
 }
 /// The intended purpose of the file. Supported values are `assistants`, `assistants_output`, `batch`, `batch_output`, `fine-tune`, `fine-tune-results` and `vision`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum OpenAIFilePurpose {
 	Assistants,
 	#[serde(rename = "assistants_output")]
@@ -6478,7 +6245,6 @@ pub enum OpenAIFilePurpose {
 /// Deprecated. The current status of the file, which can be either `uploaded`, `processed`, or `error`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum OpenAIFileStatus {
 	Uploaded,
 	Processed,
@@ -6493,7 +6259,6 @@ pub struct OtherChunkingStrategyResponseParam {
 /// Always `other`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum OtherChunkingStrategyResponseParamType {
 	Other,
 }
@@ -6510,7 +6275,6 @@ pub struct OutputAudio {
 /// The type of the output audio. Always `output_audio`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum OutputAudioType {
 	#[serde(rename = "output_audio")]
 	OutputAudio,
@@ -6526,18 +6290,12 @@ pub enum OutputContent {
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
 pub enum OutputItem {
-	#[serde(rename = "OutputMessage(OutputMessage)")]
-	OutputMessage(outputMessage),
-	#[serde(rename = "FileSearchToolCall(FileSearchToolCall)")]
-	FileSearchToolCall(fileSearchToolCall),
-	#[serde(rename = "FunctionToolCall(FunctionToolCall)")]
-	FunctionToolCall(functionToolCall),
-	#[serde(rename = "WebSearchToolCall(WebSearchToolCall)")]
-	WebSearchToolCall(webSearchToolCall),
-	#[serde(rename = "ComputerToolCall(ComputerToolCall)")]
-	ComputerToolCall(computerToolCall),
-	#[serde(rename = "ReasoningItem(ReasoningItem)")]
-	ReasoningItem(reasoningItem),
+	OutputMessage(OutputMessage),
+	FileSearchToolCall(FileSearchToolCall),
+	FunctionToolCall(FunctionToolCall),
+	WebSearchToolCall(WebSearchToolCall),
+	ComputerToolCall(ComputerToolCall),
+	ReasoningItem(ReasoningItem),
 }
 /// An output message from the model.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -6557,7 +6315,6 @@ pub struct OutputMessage {
 /// The role of the output message. Always `assistant`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum OutputMessageRole {
 	Assistant,
 }
@@ -6565,7 +6322,6 @@ pub enum OutputMessageRole {
 /// `incomplete`. Populated when input items are returned via API.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum OutputMessageStatus {
 	#[serde(rename = "in_progress")]
 	InProgress,
@@ -6575,7 +6331,6 @@ pub enum OutputMessageStatus {
 /// The type of the output message. Always `message`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum OutputMessageType {
 	Message,
 }
@@ -6592,7 +6347,6 @@ pub struct OutputText {
 /// The type of the output text. Always `output_text`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum OutputTextType {
 	#[serde(rename = "output_text")]
 	OutputText,
@@ -6617,13 +6371,12 @@ pub struct PredictionContent {
 #[serde(untagged)]
 pub enum PredictionContentContent {
 	String(String),
-	Array(PredictionContentContentArray),
+	PredictionContentContentChatCompletionRequestMessageContentPartTextArray(PredictionContentContentChatCompletionRequestMessageContentPartTextArray),
 }
 /// The type of the predicted content you want to provide. This type is
 /// currently always `content`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum PredictionContentType {
 	Content,
 }
@@ -6667,7 +6420,6 @@ pub struct ProjectApiKeyDeleteResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectApiKeyDeleteResponseObject {
 	#[serde(rename = "organization.project.api_key.deleted")]
 	OrganizationProjectApiKeyDeleted,
@@ -6682,19 +6434,17 @@ pub struct ProjectApiKeyListResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectApiKeyListResponseObject {
 	List,
 }
 /// The object type, which is always `organization.project.api_key`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectApiKeyObject {
 	#[serde(rename = "organization.project.api_key")]
 	OrganizationProjectApiKey,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ProjectApiKeyOwner {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub service_account: Option<ProjectServiceAccount>,
@@ -6707,7 +6457,6 @@ pub struct ProjectApiKeyOwner {
 /// `user` or `service_account`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectApiKeyOwnerType {
 	User,
 	#[serde(rename = "service_account")]
@@ -6728,14 +6477,12 @@ pub struct ProjectListResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectListResponseObject {
 	List,
 }
 /// The object type, which is always `organization.project`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectObject {
 	#[serde(rename = "organization.project")]
 	OrganizationProject,
@@ -6776,19 +6523,17 @@ pub struct ProjectRateLimitListResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectRateLimitListResponseObject {
 	List,
 }
 /// The object type, which is always `project.rate_limit`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectRateLimitObject {
 	#[serde(rename = "project.rate_limit")]
 	ProjectRateLimit,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ProjectRateLimitUpdateRequest {
 	/// The maximum batch input tokens per day. Only relevant for certain models.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -6835,7 +6580,6 @@ pub struct ProjectServiceAccountApiKey {
 /// The object type, which is always `organization.project.service_account.api_key`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectServiceAccountApiKeyObject {
 	#[serde(rename = "organization.project.service_account.api_key")]
 	OrganizationProjectServiceAccountApiKey,
@@ -6857,7 +6601,6 @@ pub struct ProjectServiceAccountCreateResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectServiceAccountCreateResponseObject {
 	#[serde(rename = "organization.project.service_account")]
 	OrganizationProjectServiceAccount,
@@ -6865,7 +6608,6 @@ pub enum ProjectServiceAccountCreateResponseObject {
 /// Service accounts can only have one role of type `member`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectServiceAccountCreateResponseRole {
 	Member,
 }
@@ -6877,7 +6619,6 @@ pub struct ProjectServiceAccountDeleteResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectServiceAccountDeleteResponseObject {
 	#[serde(rename = "organization.project.service_account.deleted")]
 	OrganizationProjectServiceAccountDeleted,
@@ -6892,14 +6633,12 @@ pub struct ProjectServiceAccountListResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectServiceAccountListResponseObject {
 	List,
 }
 /// The object type, which is always `organization.project.service_account`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectServiceAccountObject {
 	#[serde(rename = "organization.project.service_account")]
 	OrganizationProjectServiceAccount,
@@ -6907,7 +6646,6 @@ pub enum ProjectServiceAccountObject {
 /// `owner` or `member`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectServiceAccountRole {
 	Owner,
 	Member,
@@ -6915,7 +6653,6 @@ pub enum ProjectServiceAccountRole {
 /// `active` or `archived`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectStatus {
 	Active,
 	Archived,
@@ -6951,7 +6688,6 @@ pub struct ProjectUserCreateRequest {
 /// `owner` or `member`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectUserCreateRequestRole {
 	Owner,
 	Member,
@@ -6964,7 +6700,6 @@ pub struct ProjectUserDeleteResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectUserDeleteResponseObject {
 	#[serde(rename = "organization.project.user.deleted")]
 	OrganizationProjectUserDeleted,
@@ -6980,7 +6715,6 @@ pub struct ProjectUserListResponse {
 /// The object type, which is always `organization.project.user`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectUserObject {
 	#[serde(rename = "organization.project.user")]
 	OrganizationProjectUser,
@@ -6988,7 +6722,6 @@ pub enum ProjectUserObject {
 /// `owner` or `member`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectUserRole {
 	Owner,
 	Member,
@@ -7001,7 +6734,6 @@ pub struct ProjectUserUpdateRequest {
 /// `owner` or `member`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ProjectUserUpdateRequestRole {
 	Owner,
 	Member,
@@ -7011,28 +6743,17 @@ pub enum ProjectUserUpdateRequestRole {
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
 pub enum RealtimeClientEvent {
-	#[serde(rename = "RealtimeClientEventConversationItemCreate(RealtimeClientEventConversationItemCreate)")]
-	RealtimeClientEventConversationItemCreate(realtimeClientEventConversationItemCreate),
-	#[serde(rename = "RealtimeClientEventConversationItemDelete(RealtimeClientEventConversationItemDelete)")]
-	RealtimeClientEventConversationItemDelete(realtimeClientEventConversationItemDelete),
-	#[serde(rename = "RealtimeClientEventConversationItemRetrieve(RealtimeClientEventConversationItemRetrieve)")]
-	RealtimeClientEventConversationItemRetrieve(realtimeClientEventConversationItemRetrieve),
-	#[serde(rename = "RealtimeClientEventConversationItemTruncate(RealtimeClientEventConversationItemTruncate)")]
-	RealtimeClientEventConversationItemTruncate(realtimeClientEventConversationItemTruncate),
-	#[serde(rename = "RealtimeClientEventInputAudioBufferAppend(RealtimeClientEventInputAudioBufferAppend)")]
-	RealtimeClientEventInputAudioBufferAppend(realtimeClientEventInputAudioBufferAppend),
-	#[serde(rename = "RealtimeClientEventInputAudioBufferClear(RealtimeClientEventInputAudioBufferClear)")]
-	RealtimeClientEventInputAudioBufferClear(realtimeClientEventInputAudioBufferClear),
-	#[serde(rename = "RealtimeClientEventInputAudioBufferCommit(RealtimeClientEventInputAudioBufferCommit)")]
-	RealtimeClientEventInputAudioBufferCommit(realtimeClientEventInputAudioBufferCommit),
-	#[serde(rename = "RealtimeClientEventResponseCancel(RealtimeClientEventResponseCancel)")]
-	RealtimeClientEventResponseCancel(realtimeClientEventResponseCancel),
-	#[serde(rename = "RealtimeClientEventResponseCreate(RealtimeClientEventResponseCreate)")]
-	RealtimeClientEventResponseCreate(realtimeClientEventResponseCreate),
-	#[serde(rename = "RealtimeClientEventSessionUpdate(RealtimeClientEventSessionUpdate)")]
-	RealtimeClientEventSessionUpdate(realtimeClientEventSessionUpdate),
-	#[serde(rename = "RealtimeClientEventTranscriptionSessionUpdate(RealtimeClientEventTranscriptionSessionUpdate)")]
-	RealtimeClientEventTranscriptionSessionUpdate(realtimeClientEventTranscriptionSessionUpdate),
+	RealtimeClientEventConversationItemCreate(RealtimeClientEventConversationItemCreate),
+	RealtimeClientEventConversationItemDelete(RealtimeClientEventConversationItemDelete),
+	RealtimeClientEventConversationItemRetrieve(RealtimeClientEventConversationItemRetrieve),
+	RealtimeClientEventConversationItemTruncate(RealtimeClientEventConversationItemTruncate),
+	RealtimeClientEventInputAudioBufferAppend(RealtimeClientEventInputAudioBufferAppend),
+	RealtimeClientEventInputAudioBufferClear(RealtimeClientEventInputAudioBufferClear),
+	RealtimeClientEventInputAudioBufferCommit(RealtimeClientEventInputAudioBufferCommit),
+	RealtimeClientEventResponseCancel(RealtimeClientEventResponseCancel),
+	RealtimeClientEventResponseCreate(RealtimeClientEventResponseCreate),
+	RealtimeClientEventSessionUpdate(RealtimeClientEventSessionUpdate),
+	RealtimeClientEventTranscriptionSessionUpdate(RealtimeClientEventTranscriptionSessionUpdate),
 }
 /// Add a new Item to the Conversation's context, including messages, function 
 /// calls, and function call responses. This event can be used both to populate a 
@@ -7060,7 +6781,6 @@ pub struct RealtimeClientEventConversationItemCreate {
 /// The event type, must be `conversation.item.create`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeClientEventConversationItemCreateType {
 	#[serde(rename = "conversation.item.create")]
 	ConversationItemCreate,
@@ -7082,7 +6802,6 @@ pub struct RealtimeClientEventConversationItemDelete {
 /// The event type, must be `conversation.item.delete`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeClientEventConversationItemDeleteType {
 	#[serde(rename = "conversation.item.delete")]
 	ConversationItemDelete,
@@ -7104,7 +6823,6 @@ pub struct RealtimeClientEventConversationItemRetrieve {
 /// The event type, must be `conversation.item.retrieve`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeClientEventConversationItemRetrieveType {
 	#[serde(rename = "conversation.item.retrieve")]
 	ConversationItemRetrieve,
@@ -7140,7 +6858,6 @@ pub struct RealtimeClientEventConversationItemTruncate {
 /// The event type, must be `conversation.item.truncate`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeClientEventConversationItemTruncateType {
 	#[serde(rename = "conversation.item.truncate")]
 	ConversationItemTruncate,
@@ -7169,7 +6886,6 @@ pub struct RealtimeClientEventInputAudioBufferAppend {
 /// The event type, must be `input_audio_buffer.append`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeClientEventInputAudioBufferAppendType {
 	#[serde(rename = "input_audio_buffer.append")]
 	InputAudioBufferAppend,
@@ -7187,7 +6903,6 @@ pub struct RealtimeClientEventInputAudioBufferClear {
 /// The event type, must be `input_audio_buffer.clear`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeClientEventInputAudioBufferClearType {
 	#[serde(rename = "input_audio_buffer.clear")]
 	InputAudioBufferClear,
@@ -7213,7 +6928,6 @@ pub struct RealtimeClientEventInputAudioBufferCommit {
 /// The event type, must be `input_audio_buffer.commit`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeClientEventInputAudioBufferCommitType {
 	#[serde(rename = "input_audio_buffer.commit")]
 	InputAudioBufferCommit,
@@ -7236,7 +6950,6 @@ pub struct RealtimeClientEventResponseCancel {
 /// The event type, must be `response.cancel`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeClientEventResponseCancelType {
 	#[serde(rename = "response.cancel")]
 	ResponseCancel,
@@ -7269,7 +6982,6 @@ pub struct RealtimeClientEventResponseCreate {
 /// The event type, must be `response.create`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeClientEventResponseCreateType {
 	#[serde(rename = "response.create")]
 	ResponseCreate,
@@ -7296,7 +7008,6 @@ pub struct RealtimeClientEventSessionUpdate {
 /// The event type, must be `session.update`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeClientEventSessionUpdateType {
 	#[serde(rename = "session.update")]
 	SessionUpdate,
@@ -7314,13 +7025,12 @@ pub struct RealtimeClientEventTranscriptionSessionUpdate {
 /// The event type, must be `transcription_session.update`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeClientEventTranscriptionSessionUpdateType {
 	#[serde(rename = "transcription_session.update")]
 	TranscriptionSessionUpdate,
 }
 /// The item to add to the conversation.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeConversationItem {
 	/// The arguments of the function call (for `function_call` items).
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -7337,7 +7047,7 @@ pub struct RealtimeConversationItem {
 	///   content
 	/// - Message items of role `assistant` support `text` content.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub content: Option<Vec<RealtimeConversationItemContent>>,
+	pub content: Option<Vec<RealtimeConversationItemContentItem>>,
 	/// The unique ID of the item, this can be generated by the client to help 
 	/// manage server-side context, but is not required because the server will 
 	/// generate one if not provided.
@@ -7365,8 +7075,8 @@ pub struct RealtimeConversationItem {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub r#type: Option<RealtimeConversationItemType>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct RealtimeConversationItemContent {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct RealtimeConversationItemContentItem {
 	/// Base64-encoded audio bytes, used for `input_audio` content type.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub audio: Option<String>,
@@ -7383,13 +7093,12 @@ pub struct RealtimeConversationItemContent {
 	pub transcript: Option<String>,
 	/// The content type (`input_text`, `input_audio`, `item_reference`, `text`).
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub r#type: Option<RealtimeConversationItemContentType>,
+	pub r#type: Option<RealtimeConversationItemContentItemType>,
 }
 /// The content type (`input_text`, `input_audio`, `item_reference`, `text`).
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum RealtimeConversationItemContentType {
+pub enum RealtimeConversationItemContentItemType {
 	#[serde(rename = "input_audio")]
 	InputAudio,
 	#[serde(rename = "input_text")]
@@ -7401,7 +7110,6 @@ pub enum RealtimeConversationItemContentType {
 /// Identifier for the API object being returned - always `realtime.item`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeConversationItemObject {
 	#[serde(rename = "realtime.item")]
 	RealtimeItem,
@@ -7410,7 +7118,6 @@ pub enum RealtimeConversationItemObject {
 /// applicable for `message` items.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeConversationItemRole {
 	User,
 	Assistant,
@@ -7421,7 +7128,6 @@ pub enum RealtimeConversationItemRole {
 /// `conversation.item.created` event.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeConversationItemStatus {
 	Completed,
 	Incomplete,
@@ -7429,7 +7135,6 @@ pub enum RealtimeConversationItemStatus {
 /// The type of the item (`message`, `function_call`, `function_call_output`).
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeConversationItemType {
 	Message,
 	#[serde(rename = "function_call")]
@@ -7438,7 +7143,7 @@ pub enum RealtimeConversationItemType {
 	FunctionCallOutput,
 }
 /// The item to add to the conversation.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeConversationItemWithReference {
 	/// The arguments of the function call (for `function_call` items).
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -7455,7 +7160,7 @@ pub struct RealtimeConversationItemWithReference {
 	///   content
 	/// - Message items of role `assistant` support `text` content.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub content: Option<Vec<RealtimeConversationItemWithReferenceContent>>,
+	pub content: Option<Vec<RealtimeConversationItemWithReferenceContentItem>>,
 	/// For an item of type (`message` | `function_call` | `function_call_output`)
 	/// this field allows the client to assign the unique ID of the item. It is
 	/// not required because the server will generate one if not provided.
@@ -7486,8 +7191,8 @@ pub struct RealtimeConversationItemWithReference {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub r#type: Option<RealtimeConversationItemWithReferenceType>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct RealtimeConversationItemWithReferenceContent {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct RealtimeConversationItemWithReferenceContentItem {
 	/// Base64-encoded audio bytes, used for `input_audio` content type.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub audio: Option<String>,
@@ -7504,13 +7209,12 @@ pub struct RealtimeConversationItemWithReferenceContent {
 	pub transcript: Option<String>,
 	/// The content type (`input_text`, `input_audio`, `item_reference`, `text`).
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub r#type: Option<RealtimeConversationItemWithReferenceContentType>,
+	pub r#type: Option<RealtimeConversationItemWithReferenceContentItemType>,
 }
 /// The content type (`input_text`, `input_audio`, `item_reference`, `text`).
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum RealtimeConversationItemWithReferenceContentType {
+pub enum RealtimeConversationItemWithReferenceContentItemType {
 	#[serde(rename = "input_audio")]
 	InputAudio,
 	#[serde(rename = "input_text")]
@@ -7522,7 +7226,6 @@ pub enum RealtimeConversationItemWithReferenceContentType {
 /// Identifier for the API object being returned - always `realtime.item`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeConversationItemWithReferenceObject {
 	#[serde(rename = "realtime.item")]
 	RealtimeItem,
@@ -7531,7 +7234,6 @@ pub enum RealtimeConversationItemWithReferenceObject {
 /// applicable for `message` items.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeConversationItemWithReferenceRole {
 	User,
 	Assistant,
@@ -7542,7 +7244,6 @@ pub enum RealtimeConversationItemWithReferenceRole {
 /// `conversation.item.created` event.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeConversationItemWithReferenceStatus {
 	Completed,
 	Incomplete,
@@ -7550,7 +7251,6 @@ pub enum RealtimeConversationItemWithReferenceStatus {
 /// The type of the item (`message`, `function_call`, `function_call_output`, `item_reference`).
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeConversationItemWithReferenceType {
 	Message,
 	#[serde(rename = "function_call")]
@@ -7559,7 +7259,7 @@ pub enum RealtimeConversationItemWithReferenceType {
 	FunctionCallOutput,
 }
 /// The response resource.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeResponse {
 	/// Which conversation the response is added to, determined by the `conversation`
 	/// field in the `response.create` event. If `auto`, the response will be added to
@@ -7583,7 +7283,7 @@ pub struct RealtimeResponse {
 	/// the model will pick one, for example if `modalities` is `["text", "audio"]`, the model
 	/// could be responding in either text or audio.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub modalities: Option<Vec<RealtimeResponseModalities>>,
+	pub modalities: Option<Vec<RealtimeResponseItem>>,
 	/// The object type, must be `realtime.response`.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub object: Option<RealtimeResponseObject>,
@@ -7616,7 +7316,7 @@ pub struct RealtimeResponse {
 	pub voice: Option<VoiceIdsShared>,
 }
 /// Create a new Realtime response with these parameters
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeResponseCreateParams {
 	/// Controls which conversation the response is added to. Currently supports
 	/// `auto` and `none`, with `auto` as the default value. The `auto` value
@@ -7656,7 +7356,7 @@ pub struct RealtimeResponseCreateParams {
 	/// The set of modalities the model can respond with. To disable audio,
 	/// set this to ["text"].
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub modalities: Option<Vec<RealtimeResponseCreateParamsModalities>>,
+	pub modalities: Option<Vec<RealtimeResponseCreateParamsItem>>,
 	/// The format of output audio. Options are `pcm16`, `g711_ulaw`, or `g711_alaw`.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub output_audio_format: Option<RealtimeResponseCreateParamsOutputAudioFormat>,
@@ -7669,7 +7369,7 @@ pub struct RealtimeResponseCreateParams {
 	pub tool_choice: Option<String>,
 	/// Tools (functions) available to the model.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub tools: Option<Vec<RealtimeResponseCreateParamsTools>>,
+	pub tools: Option<Vec<RealtimeResponseCreateParamsToolsItem>>,
 	/// The voice the model uses to respond. Voice cannot be changed during the 
 	/// session once the model has responded with audio at least once. Current 
 	/// voice options are `alloy`, `ash`, `ballad`, `coral`, `echo`, `fable`,
@@ -7690,6 +7390,12 @@ pub enum RealtimeResponseCreateParamsConversation {
 	Auto(String),
 	None(String),
 }
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum RealtimeResponseCreateParamsItem {
+	Text,
+	Audio,
+}
 /// Maximum number of output tokens for a single assistant response,
 /// inclusive of tool calls. Provide an integer between 1 and 4096 to
 /// limit output tokens, or `inf` for the maximum available tokens for a
@@ -7700,17 +7406,9 @@ pub enum RealtimeResponseCreateParamsConversation {
 pub enum RealtimeResponseCreateParamsMaxResponseOutputTokens {
 	Integer(i64),
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum RealtimeResponseCreateParamsModalities {
-	Text,
-	Audio,
-}
 /// The format of output audio. Options are `pcm16`, `g711_ulaw`, or `g711_alaw`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeResponseCreateParamsOutputAudioFormat {
 	Pcm16,
 	#[serde(rename = "g711_ulaw")]
@@ -7718,8 +7416,8 @@ pub enum RealtimeResponseCreateParamsOutputAudioFormat {
 	#[serde(rename = "g711_alaw")]
 	G711Alaw,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct RealtimeResponseCreateParamsTools {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct RealtimeResponseCreateParamsToolsItem {
 	/// The description of the function, including guidance on when and how 
 	/// to call it, and guidance about what to tell the user when calling 
 	/// (if anything).
@@ -7730,21 +7428,22 @@ pub struct RealtimeResponseCreateParamsTools {
 	pub name: Option<String>,
 	/// Parameters of the function in JSON Schema.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub parameters: Option<RealtimeResponseCreateParamsToolsParameters>,
+	pub parameters: Option<serde_json::Value>,
 	/// The type of the tool, i.e. `function`.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub r#type: Option<RealtimeResponseCreateParamsToolsType>,
-}
-/// Parameters of the function in JSON Schema.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct RealtimeResponseCreateParamsToolsParameters {
+	pub r#type: Option<RealtimeResponseCreateParamsToolsItemType>,
 }
 /// The type of the tool, i.e. `function`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum RealtimeResponseCreateParamsToolsType {
+pub enum RealtimeResponseCreateParamsToolsItemType {
 	Function,
+}
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum RealtimeResponseItem {
+	Text,
+	Audio,
 }
 /// Maximum number of output tokens for a single assistant response,
 /// inclusive of tool calls, that was used in this response.
@@ -7754,17 +7453,9 @@ pub enum RealtimeResponseCreateParamsToolsType {
 pub enum RealtimeResponseMaxOutputTokens {
 	Integer(i64),
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum RealtimeResponseModalities {
-	Text,
-	Audio,
-}
 /// The object type, must be `realtime.response`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeResponseObject {
 	#[serde(rename = "realtime.response")]
 	RealtimeResponse,
@@ -7772,7 +7463,6 @@ pub enum RealtimeResponseObject {
 /// The format of output audio. Options are `pcm16`, `g711_ulaw`, or `g711_alaw`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeResponseOutputAudioFormat {
 	Pcm16,
 	#[serde(rename = "g711_ulaw")]
@@ -7784,7 +7474,6 @@ pub enum RealtimeResponseOutputAudioFormat {
 /// `incomplete`).
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeResponseStatus {
 	Completed,
 	Cancelled,
@@ -7792,7 +7481,7 @@ pub enum RealtimeResponseStatus {
 	Incomplete,
 }
 /// Additional details about the status.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeResponseStatusDetails {
 	/// A description of the error that caused the response to fail, 
 	/// populated when the `status` is `failed`.
@@ -7813,7 +7502,7 @@ pub struct RealtimeResponseStatusDetails {
 }
 /// A description of the error that caused the response to fail, 
 /// populated when the `status` is `failed`.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeResponseStatusDetailsError {
 	/// Error code, if any.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -7829,7 +7518,6 @@ pub struct RealtimeResponseStatusDetailsError {
 /// (the server-side safety filter activated and cut off the response).
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeResponseStatusDetailsReason {
 	#[serde(rename = "turn_detected")]
 	TurnDetected,
@@ -7845,7 +7533,6 @@ pub enum RealtimeResponseStatusDetailsReason {
 /// `failed`).
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeResponseStatusDetailsType {
 	Completed,
 	Cancelled,
@@ -7856,7 +7543,7 @@ pub enum RealtimeResponseStatusDetailsType {
 /// Realtime API session will maintain a conversation context and append new 
 /// Items to the Conversation, thus output from previous turns (text and 
 /// audio tokens) will become the input for later turns.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeResponseUsage {
 	/// Details about the input tokens used in the Response.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -7878,7 +7565,7 @@ pub struct RealtimeResponseUsage {
 	pub total_tokens: Option<i64>,
 }
 /// Details about the input tokens used in the Response.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeResponseUsageInputTokenDetails {
 	/// The number of audio tokens used in the Response.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -7891,7 +7578,7 @@ pub struct RealtimeResponseUsageInputTokenDetails {
 	pub text_tokens: Option<i64>,
 }
 /// Details about the output tokens used in the Response.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeResponseUsageOutputTokenDetails {
 	/// The number of audio tokens used in the Response.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -7905,68 +7592,37 @@ pub struct RealtimeResponseUsageOutputTokenDetails {
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
 pub enum RealtimeServerEvent {
-	#[serde(rename = "RealtimeServerEventConversationCreated(RealtimeServerEventConversationCreated)")]
-	RealtimeServerEventConversationCreated(realtimeServerEventConversationCreated),
-	#[serde(rename = "RealtimeServerEventConversationItemCreated(RealtimeServerEventConversationItemCreated)")]
-	RealtimeServerEventConversationItemCreated(realtimeServerEventConversationItemCreated),
-	#[serde(rename = "RealtimeServerEventConversationItemDeleted(RealtimeServerEventConversationItemDeleted)")]
-	RealtimeServerEventConversationItemDeleted(realtimeServerEventConversationItemDeleted),
-	#[serde(rename = "RealtimeServerEventConversationItemInputAudioTranscriptionCompleted(RealtimeServerEventConversationItemInputAudioTranscriptionCompleted)")]
-	RealtimeServerEventConversationItemInputAudioTranscriptionCompleted(realtimeServerEventConversationItemInputAudioTranscriptionCompleted),
-	#[serde(rename = "RealtimeServerEventConversationItemInputAudioTranscriptionDelta(RealtimeServerEventConversationItemInputAudioTranscriptionDelta)")]
-	RealtimeServerEventConversationItemInputAudioTranscriptionDelta(realtimeServerEventConversationItemInputAudioTranscriptionDelta),
-	#[serde(rename = "RealtimeServerEventConversationItemInputAudioTranscriptionFailed(RealtimeServerEventConversationItemInputAudioTranscriptionFailed)")]
-	RealtimeServerEventConversationItemInputAudioTranscriptionFailed(realtimeServerEventConversationItemInputAudioTranscriptionFailed),
-	#[serde(rename = "RealtimeServerEventConversationItemRetrieved(RealtimeServerEventConversationItemRetrieved)")]
-	RealtimeServerEventConversationItemRetrieved(realtimeServerEventConversationItemRetrieved),
-	#[serde(rename = "RealtimeServerEventConversationItemTruncated(RealtimeServerEventConversationItemTruncated)")]
-	RealtimeServerEventConversationItemTruncated(realtimeServerEventConversationItemTruncated),
-	#[serde(rename = "RealtimeServerEventError(RealtimeServerEventError)")]
-	RealtimeServerEventError(realtimeServerEventError),
-	#[serde(rename = "RealtimeServerEventInputAudioBufferCleared(RealtimeServerEventInputAudioBufferCleared)")]
-	RealtimeServerEventInputAudioBufferCleared(realtimeServerEventInputAudioBufferCleared),
-	#[serde(rename = "RealtimeServerEventInputAudioBufferCommitted(RealtimeServerEventInputAudioBufferCommitted)")]
-	RealtimeServerEventInputAudioBufferCommitted(realtimeServerEventInputAudioBufferCommitted),
-	#[serde(rename = "RealtimeServerEventInputAudioBufferSpeechStarted(RealtimeServerEventInputAudioBufferSpeechStarted)")]
-	RealtimeServerEventInputAudioBufferSpeechStarted(realtimeServerEventInputAudioBufferSpeechStarted),
-	#[serde(rename = "RealtimeServerEventInputAudioBufferSpeechStopped(RealtimeServerEventInputAudioBufferSpeechStopped)")]
-	RealtimeServerEventInputAudioBufferSpeechStopped(realtimeServerEventInputAudioBufferSpeechStopped),
-	#[serde(rename = "RealtimeServerEventRateLimitsUpdated(RealtimeServerEventRateLimitsUpdated)")]
-	RealtimeServerEventRateLimitsUpdated(realtimeServerEventRateLimitsUpdated),
-	#[serde(rename = "RealtimeServerEventResponseAudioDelta(RealtimeServerEventResponseAudioDelta)")]
-	RealtimeServerEventResponseAudioDelta(realtimeServerEventResponseAudioDelta),
-	#[serde(rename = "RealtimeServerEventResponseAudioDone(RealtimeServerEventResponseAudioDone)")]
-	RealtimeServerEventResponseAudioDone(realtimeServerEventResponseAudioDone),
-	#[serde(rename = "RealtimeServerEventResponseAudioTranscriptDelta(RealtimeServerEventResponseAudioTranscriptDelta)")]
-	RealtimeServerEventResponseAudioTranscriptDelta(realtimeServerEventResponseAudioTranscriptDelta),
-	#[serde(rename = "RealtimeServerEventResponseAudioTranscriptDone(RealtimeServerEventResponseAudioTranscriptDone)")]
-	RealtimeServerEventResponseAudioTranscriptDone(realtimeServerEventResponseAudioTranscriptDone),
-	#[serde(rename = "RealtimeServerEventResponseContentPartAdded(RealtimeServerEventResponseContentPartAdded)")]
-	RealtimeServerEventResponseContentPartAdded(realtimeServerEventResponseContentPartAdded),
-	#[serde(rename = "RealtimeServerEventResponseContentPartDone(RealtimeServerEventResponseContentPartDone)")]
-	RealtimeServerEventResponseContentPartDone(realtimeServerEventResponseContentPartDone),
-	#[serde(rename = "RealtimeServerEventResponseCreated(RealtimeServerEventResponseCreated)")]
-	RealtimeServerEventResponseCreated(realtimeServerEventResponseCreated),
-	#[serde(rename = "RealtimeServerEventResponseDone(RealtimeServerEventResponseDone)")]
-	RealtimeServerEventResponseDone(realtimeServerEventResponseDone),
-	#[serde(rename = "RealtimeServerEventResponseFunctionCallArgumentsDelta(RealtimeServerEventResponseFunctionCallArgumentsDelta)")]
-	RealtimeServerEventResponseFunctionCallArgumentsDelta(realtimeServerEventResponseFunctionCallArgumentsDelta),
-	#[serde(rename = "RealtimeServerEventResponseFunctionCallArgumentsDone(RealtimeServerEventResponseFunctionCallArgumentsDone)")]
-	RealtimeServerEventResponseFunctionCallArgumentsDone(realtimeServerEventResponseFunctionCallArgumentsDone),
-	#[serde(rename = "RealtimeServerEventResponseOutputItemAdded(RealtimeServerEventResponseOutputItemAdded)")]
-	RealtimeServerEventResponseOutputItemAdded(realtimeServerEventResponseOutputItemAdded),
-	#[serde(rename = "RealtimeServerEventResponseOutputItemDone(RealtimeServerEventResponseOutputItemDone)")]
-	RealtimeServerEventResponseOutputItemDone(realtimeServerEventResponseOutputItemDone),
-	#[serde(rename = "RealtimeServerEventResponseTextDelta(RealtimeServerEventResponseTextDelta)")]
-	RealtimeServerEventResponseTextDelta(realtimeServerEventResponseTextDelta),
-	#[serde(rename = "RealtimeServerEventResponseTextDone(RealtimeServerEventResponseTextDone)")]
-	RealtimeServerEventResponseTextDone(realtimeServerEventResponseTextDone),
-	#[serde(rename = "RealtimeServerEventSessionCreated(RealtimeServerEventSessionCreated)")]
-	RealtimeServerEventSessionCreated(realtimeServerEventSessionCreated),
-	#[serde(rename = "RealtimeServerEventSessionUpdated(RealtimeServerEventSessionUpdated)")]
-	RealtimeServerEventSessionUpdated(realtimeServerEventSessionUpdated),
-	#[serde(rename = "RealtimeServerEventTranscriptionSessionUpdated(RealtimeServerEventTranscriptionSessionUpdated)")]
-	RealtimeServerEventTranscriptionSessionUpdated(realtimeServerEventTranscriptionSessionUpdated),
+	RealtimeServerEventConversationCreated(RealtimeServerEventConversationCreated),
+	RealtimeServerEventConversationItemCreated(RealtimeServerEventConversationItemCreated),
+	RealtimeServerEventConversationItemDeleted(RealtimeServerEventConversationItemDeleted),
+	RealtimeServerEventConversationItemInputAudioTranscriptionCompleted(RealtimeServerEventConversationItemInputAudioTranscriptionCompleted),
+	RealtimeServerEventConversationItemInputAudioTranscriptionDelta(RealtimeServerEventConversationItemInputAudioTranscriptionDelta),
+	RealtimeServerEventConversationItemInputAudioTranscriptionFailed(RealtimeServerEventConversationItemInputAudioTranscriptionFailed),
+	RealtimeServerEventConversationItemRetrieved(RealtimeServerEventConversationItemRetrieved),
+	RealtimeServerEventConversationItemTruncated(RealtimeServerEventConversationItemTruncated),
+	RealtimeServerEventError(RealtimeServerEventError),
+	RealtimeServerEventInputAudioBufferCleared(RealtimeServerEventInputAudioBufferCleared),
+	RealtimeServerEventInputAudioBufferCommitted(RealtimeServerEventInputAudioBufferCommitted),
+	RealtimeServerEventInputAudioBufferSpeechStarted(RealtimeServerEventInputAudioBufferSpeechStarted),
+	RealtimeServerEventInputAudioBufferSpeechStopped(RealtimeServerEventInputAudioBufferSpeechStopped),
+	RealtimeServerEventRateLimitsUpdated(RealtimeServerEventRateLimitsUpdated),
+	RealtimeServerEventResponseAudioDelta(RealtimeServerEventResponseAudioDelta),
+	RealtimeServerEventResponseAudioDone(RealtimeServerEventResponseAudioDone),
+	RealtimeServerEventResponseAudioTranscriptDelta(RealtimeServerEventResponseAudioTranscriptDelta),
+	RealtimeServerEventResponseAudioTranscriptDone(RealtimeServerEventResponseAudioTranscriptDone),
+	RealtimeServerEventResponseContentPartAdded(RealtimeServerEventResponseContentPartAdded),
+	RealtimeServerEventResponseContentPartDone(RealtimeServerEventResponseContentPartDone),
+	RealtimeServerEventResponseCreated(RealtimeServerEventResponseCreated),
+	RealtimeServerEventResponseDone(RealtimeServerEventResponseDone),
+	RealtimeServerEventResponseFunctionCallArgumentsDelta(RealtimeServerEventResponseFunctionCallArgumentsDelta),
+	RealtimeServerEventResponseFunctionCallArgumentsDone(RealtimeServerEventResponseFunctionCallArgumentsDone),
+	RealtimeServerEventResponseOutputItemAdded(RealtimeServerEventResponseOutputItemAdded),
+	RealtimeServerEventResponseOutputItemDone(RealtimeServerEventResponseOutputItemDone),
+	RealtimeServerEventResponseTextDelta(RealtimeServerEventResponseTextDelta),
+	RealtimeServerEventResponseTextDone(RealtimeServerEventResponseTextDone),
+	RealtimeServerEventSessionCreated(RealtimeServerEventSessionCreated),
+	RealtimeServerEventSessionUpdated(RealtimeServerEventSessionUpdated),
+	RealtimeServerEventTranscriptionSessionUpdated(RealtimeServerEventTranscriptionSessionUpdated),
 }
 /// Returned when a conversation is created. Emitted right after session creation.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -7979,7 +7635,7 @@ pub struct RealtimeServerEventConversationCreated {
 	pub r#type: RealtimeServerEventConversationCreatedType,
 }
 /// The conversation resource.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeServerEventConversationCreatedConversation {
 	/// The unique ID of the conversation.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -7991,7 +7647,6 @@ pub struct RealtimeServerEventConversationCreatedConversation {
 /// The event type, must be `conversation.created`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventConversationCreatedType {
 	#[serde(rename = "conversation.created")]
 	ConversationCreated,
@@ -8019,7 +7674,6 @@ pub struct RealtimeServerEventConversationItemCreated {
 /// The event type, must be `conversation.item.created`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventConversationItemCreatedType {
 	#[serde(rename = "conversation.item.created")]
 	ConversationItemCreated,
@@ -8039,7 +7693,6 @@ pub struct RealtimeServerEventConversationItemDeleted {
 /// The event type, must be `conversation.item.deleted`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventConversationItemDeletedType {
 	#[serde(rename = "conversation.item.deleted")]
 	ConversationItemDeleted,
@@ -8075,7 +7728,6 @@ pub struct RealtimeServerEventConversationItemInputAudioTranscriptionCompleted {
 /// `conversation.item.input_audio_transcription.completed`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventConversationItemInputAudioTranscriptionCompletedType {
 	#[serde(rename = "conversation.item.input_audio_transcription.completed")]
 	ConversationItemInputAudioTranscriptionCompleted,
@@ -8102,7 +7754,6 @@ pub struct RealtimeServerEventConversationItemInputAudioTranscriptionDelta {
 /// The event type, must be `conversation.item.input_audio_transcription.delta`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventConversationItemInputAudioTranscriptionDeltaType {
 	#[serde(rename = "conversation.item.input_audio_transcription.delta")]
 	ConversationItemInputAudioTranscriptionDelta,
@@ -8125,7 +7776,7 @@ pub struct RealtimeServerEventConversationItemInputAudioTranscriptionFailed {
 	pub r#type: RealtimeServerEventConversationItemInputAudioTranscriptionFailedType,
 }
 /// Details of the transcription error.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeServerEventConversationItemInputAudioTranscriptionFailedError {
 	/// Error code, if any.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -8144,7 +7795,6 @@ pub struct RealtimeServerEventConversationItemInputAudioTranscriptionFailedError
 /// `conversation.item.input_audio_transcription.failed`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventConversationItemInputAudioTranscriptionFailedType {
 	#[serde(rename = "conversation.item.input_audio_transcription.failed")]
 	ConversationItemInputAudioTranscriptionFailed,
@@ -8161,7 +7811,6 @@ pub struct RealtimeServerEventConversationItemRetrieved {
 /// The event type, must be `conversation.item.retrieved`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventConversationItemRetrievedType {
 	#[serde(rename = "conversation.item.retrieved")]
 	ConversationItemRetrieved,
@@ -8188,7 +7837,6 @@ pub struct RealtimeServerEventConversationItemTruncated {
 /// The event type, must be `conversation.item.truncated`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventConversationItemTruncatedType {
 	#[serde(rename = "conversation.item.truncated")]
 	ConversationItemTruncated,
@@ -8225,7 +7873,6 @@ pub struct RealtimeServerEventErrorError {
 /// The event type, must be `error`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventErrorType {
 	Error,
 }
@@ -8241,7 +7888,6 @@ pub struct RealtimeServerEventInputAudioBufferCleared {
 /// The event type, must be `input_audio_buffer.cleared`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventInputAudioBufferClearedType {
 	#[serde(rename = "input_audio_buffer.cleared")]
 	InputAudioBufferCleared,
@@ -8264,7 +7910,6 @@ pub struct RealtimeServerEventInputAudioBufferCommitted {
 /// The event type, must be `input_audio_buffer.committed`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventInputAudioBufferCommittedType {
 	#[serde(rename = "input_audio_buffer.committed")]
 	InputAudioBufferCommitted,
@@ -8296,7 +7941,6 @@ pub struct RealtimeServerEventInputAudioBufferSpeechStarted {
 /// The event type, must be `input_audio_buffer.speech_started`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventInputAudioBufferSpeechStartedType {
 	#[serde(rename = "input_audio_buffer.speech_started")]
 	InputAudioBufferSpeechStarted,
@@ -8320,7 +7964,6 @@ pub struct RealtimeServerEventInputAudioBufferSpeechStopped {
 /// The event type, must be `input_audio_buffer.speech_stopped`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventInputAudioBufferSpeechStoppedType {
 	#[serde(rename = "input_audio_buffer.speech_stopped")]
 	InputAudioBufferSpeechStopped,
@@ -8334,18 +7977,18 @@ pub struct RealtimeServerEventRateLimitsUpdated {
 	/// The unique ID of the server event.
 	pub event_id: String,
 	/// List of rate limit information.
-	pub rate_limits: Vec<RealtimeServerEventRateLimitsUpdatedRateLimits>,
+	pub rate_limits: Vec<RealtimeServerEventRateLimitsUpdatedRateLimitsItem>,
 	/// The event type, must be `rate_limits.updated`.
 	pub r#type: RealtimeServerEventRateLimitsUpdatedType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct RealtimeServerEventRateLimitsUpdatedRateLimits {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct RealtimeServerEventRateLimitsUpdatedRateLimitsItem {
 	/// The maximum allowed value for the rate limit.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub limit: Option<i64>,
 	/// The name of the rate limit (`requests`, `tokens`).
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub name: Option<RealtimeServerEventRateLimitsUpdatedRateLimitsName>,
+	pub name: Option<RealtimeServerEventRateLimitsUpdatedRateLimitsItemName>,
 	/// The remaining value before the limit is reached.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub remaining: Option<i64>,
@@ -8356,15 +7999,13 @@ pub struct RealtimeServerEventRateLimitsUpdatedRateLimits {
 /// The name of the rate limit (`requests`, `tokens`).
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum RealtimeServerEventRateLimitsUpdatedRateLimitsName {
+pub enum RealtimeServerEventRateLimitsUpdatedRateLimitsItemName {
 	Requests,
 	Tokens,
 }
 /// The event type, must be `rate_limits.updated`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventRateLimitsUpdatedType {
 	#[serde(rename = "rate_limits.updated")]
 	RateLimitsUpdated,
@@ -8390,7 +8031,6 @@ pub struct RealtimeServerEventResponseAudioDelta {
 /// The event type, must be `response.audio.delta`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventResponseAudioDeltaType {
 	#[serde(rename = "response.audio.delta")]
 	ResponseAudioDelta,
@@ -8415,7 +8055,6 @@ pub struct RealtimeServerEventResponseAudioDone {
 /// The event type, must be `response.audio.done`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventResponseAudioDoneType {
 	#[serde(rename = "response.audio.done")]
 	ResponseAudioDone,
@@ -8441,7 +8080,6 @@ pub struct RealtimeServerEventResponseAudioTranscriptDelta {
 /// The event type, must be `response.audio_transcript.delta`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventResponseAudioTranscriptDeltaType {
 	#[serde(rename = "response.audio_transcript.delta")]
 	ResponseAudioTranscriptDelta,
@@ -8469,7 +8107,6 @@ pub struct RealtimeServerEventResponseAudioTranscriptDone {
 /// The event type, must be `response.audio_transcript.done`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventResponseAudioTranscriptDoneType {
 	#[serde(rename = "response.audio_transcript.done")]
 	ResponseAudioTranscriptDone,
@@ -8494,7 +8131,7 @@ pub struct RealtimeServerEventResponseContentPartAdded {
 	pub r#type: RealtimeServerEventResponseContentPartAddedType,
 }
 /// The content part that was added.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeServerEventResponseContentPartAddedPart {
 	/// Base64-encoded audio data (if type is "audio").
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -8512,7 +8149,6 @@ pub struct RealtimeServerEventResponseContentPartAddedPart {
 /// The content type ("text", "audio").
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventResponseContentPartAddedPartType {
 	Audio,
 	Text,
@@ -8520,7 +8156,6 @@ pub enum RealtimeServerEventResponseContentPartAddedPartType {
 /// The event type, must be `response.content_part.added`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventResponseContentPartAddedType {
 	#[serde(rename = "response.content_part.added")]
 	ResponseContentPartAdded,
@@ -8545,7 +8180,7 @@ pub struct RealtimeServerEventResponseContentPartDone {
 	pub r#type: RealtimeServerEventResponseContentPartDoneType,
 }
 /// The content part that is done.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeServerEventResponseContentPartDonePart {
 	/// Base64-encoded audio data (if type is "audio").
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -8563,7 +8198,6 @@ pub struct RealtimeServerEventResponseContentPartDonePart {
 /// The content type ("text", "audio").
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventResponseContentPartDonePartType {
 	Audio,
 	Text,
@@ -8571,7 +8205,6 @@ pub enum RealtimeServerEventResponseContentPartDonePartType {
 /// The event type, must be `response.content_part.done`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventResponseContentPartDoneType {
 	#[serde(rename = "response.content_part.done")]
 	ResponseContentPartDone,
@@ -8589,7 +8222,6 @@ pub struct RealtimeServerEventResponseCreated {
 /// The event type, must be `response.created`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventResponseCreatedType {
 	#[serde(rename = "response.created")]
 	ResponseCreated,
@@ -8608,7 +8240,6 @@ pub struct RealtimeServerEventResponseDone {
 /// The event type, must be `response.done`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventResponseDoneType {
 	#[serde(rename = "response.done")]
 	ResponseDone,
@@ -8634,7 +8265,6 @@ pub struct RealtimeServerEventResponseFunctionCallArgumentsDelta {
 /// The event type, must be `response.function_call_arguments.delta`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventResponseFunctionCallArgumentsDeltaType {
 	#[serde(rename = "response.function_call_arguments.delta")]
 	ResponseFunctionCallArgumentsDelta,
@@ -8661,7 +8291,6 @@ pub struct RealtimeServerEventResponseFunctionCallArgumentsDone {
 /// The event type, must be `response.function_call_arguments.done`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventResponseFunctionCallArgumentsDoneType {
 	#[serde(rename = "response.function_call_arguments.done")]
 	ResponseFunctionCallArgumentsDone,
@@ -8682,7 +8311,6 @@ pub struct RealtimeServerEventResponseOutputItemAdded {
 /// The event type, must be `response.output_item.added`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventResponseOutputItemAddedType {
 	#[serde(rename = "response.output_item.added")]
 	ResponseOutputItemAdded,
@@ -8704,7 +8332,6 @@ pub struct RealtimeServerEventResponseOutputItemDone {
 /// The event type, must be `response.output_item.done`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventResponseOutputItemDoneType {
 	#[serde(rename = "response.output_item.done")]
 	ResponseOutputItemDone,
@@ -8730,7 +8357,6 @@ pub struct RealtimeServerEventResponseTextDelta {
 /// The event type, must be `response.text.delta`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventResponseTextDeltaType {
 	#[serde(rename = "response.text.delta")]
 	ResponseTextDelta,
@@ -8757,7 +8383,6 @@ pub struct RealtimeServerEventResponseTextDone {
 /// The event type, must be `response.text.done`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventResponseTextDoneType {
 	#[serde(rename = "response.text.done")]
 	ResponseTextDone,
@@ -8776,7 +8401,6 @@ pub struct RealtimeServerEventSessionCreated {
 /// The event type, must be `session.created`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventSessionCreatedType {
 	#[serde(rename = "session.created")]
 	SessionCreated,
@@ -8794,7 +8418,6 @@ pub struct RealtimeServerEventSessionUpdated {
 /// The event type, must be `session.updated`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventSessionUpdatedType {
 	#[serde(rename = "session.updated")]
 	SessionUpdated,
@@ -8812,13 +8435,12 @@ pub struct RealtimeServerEventTranscriptionSessionUpdated {
 /// The event type, must be `transcription_session.updated`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeServerEventTranscriptionSessionUpdatedType {
 	#[serde(rename = "transcription_session.updated")]
 	TranscriptionSessionUpdated,
 }
 /// Realtime session object configuration.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSession {
 	/// Unique identifier for the session that looks like `sess_1234567890abcdef`.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -8850,7 +8472,7 @@ pub struct RealtimeSession {
 	/// The set of modalities the model can respond with. To disable audio,
 	/// set this to ["text"].
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub modalities: Option<Vec<RealtimeSessionModalities>>,
+	pub modalities: Option<Vec<RealtimeSessionItem>>,
 	/// The Realtime model used for this session.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub model: Option<RealtimeSessionModel>,
@@ -8867,7 +8489,7 @@ pub struct RealtimeSession {
 	pub tool_choice: Option<String>,
 	/// Tools (functions) available to the model.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub tools: Option<Vec<RealtimeSessionTools>>,
+	pub tools: Option<Vec<RealtimeSessionToolsItem>>,
 	/// Configuration for turn detection, ether Server VAD or Semantic VAD. This can be set to `null` to turn off, in which case the client must manually trigger model response.
 	/// Server VAD means that the model will detect the start and end of speech based on audio volume and respond at the end of user speech.
 	/// Semantic VAD is more advanced and uses a turn detection model (in conjuction with VAD) to semantically estimate whether the user has finished speaking, then dynamically sets a timeout based on this probability. For example, if user audio trails off with "uhhm", the model will score a low probability of turn end and wait longer for the user to continue speaking. This can be useful for more natural conversations, but may have a higher latency.
@@ -8881,7 +8503,7 @@ pub struct RealtimeSession {
 	pub voice: Option<VoiceIdsShared>,
 }
 /// Realtime session object configuration.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionCreateRequest {
 	/// The format of input audio. Options are `pcm16`, `g711_ulaw`, or `g711_alaw`.
 	/// For `pcm16`, input audio must be 16-bit PCM at a 24kHz sample rate, 
@@ -8910,7 +8532,7 @@ pub struct RealtimeSessionCreateRequest {
 	/// The set of modalities the model can respond with. To disable audio,
 	/// set this to ["text"].
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub modalities: Option<Vec<RealtimeSessionCreateRequestModalities>>,
+	pub modalities: Option<Vec<RealtimeSessionCreateRequestItem>>,
 	/// The Realtime model used for this session.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub model: Option<RealtimeSessionCreateRequestModel>,
@@ -8927,7 +8549,7 @@ pub struct RealtimeSessionCreateRequest {
 	pub tool_choice: Option<String>,
 	/// Tools (functions) available to the model.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub tools: Option<Vec<RealtimeSessionCreateRequestTools>>,
+	pub tools: Option<Vec<RealtimeSessionCreateRequestToolsItem>>,
 	/// Configuration for turn detection, ether Server VAD or Semantic VAD. This can be set to `null` to turn off, in which case the client must manually trigger model response.
 	/// Server VAD means that the model will detect the start and end of speech based on audio volume and respond at the end of user speech.
 	/// Semantic VAD is more advanced and uses a turn detection model (in conjuction with VAD) to semantically estimate whether the user has finished speaking, then dynamically sets a timeout based on this probability. For example, if user audio trails off with "uhhm", the model will score a low probability of turn end and wait longer for the user to continue speaking. This can be useful for more natural conversations, but may have a higher latency.
@@ -8945,7 +8567,6 @@ pub struct RealtimeSessionCreateRequest {
 /// single channel (mono), and little-endian byte order.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeSessionCreateRequestInputAudioFormat {
 	Pcm16,
 	#[serde(rename = "g711_ulaw")]
@@ -8956,7 +8577,7 @@ pub enum RealtimeSessionCreateRequestInputAudioFormat {
 /// Configuration for input audio noise reduction. This can be set to `null` to turn off.
 /// Noise reduction filters audio added to the input audio buffer before it is sent to VAD and the model.
 /// Filtering the audio can improve VAD and turn detection accuracy (reducing false positives) and model performance by improving perception of the input audio.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionCreateRequestInputAudioNoiseReduction {
 	/// Type of noise reduction. `near_field` is for close-talking microphones such as headphones, `far_field` is for far-field microphones such as laptop or conference room microphones.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -8965,7 +8586,6 @@ pub struct RealtimeSessionCreateRequestInputAudioNoiseReduction {
 /// Type of noise reduction. `near_field` is for close-talking microphones such as headphones, `far_field` is for far-field microphones such as laptop or conference room microphones.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeSessionCreateRequestInputAudioNoiseReductionType {
 	#[serde(rename = "near_field")]
 	NearField,
@@ -8973,7 +8593,7 @@ pub enum RealtimeSessionCreateRequestInputAudioNoiseReductionType {
 	FarField,
 }
 /// Configuration for input audio transcription, defaults to off and can be  set to `null` to turn off once on. Input audio transcription is not native to the model, since the model consumes audio directly. Transcription runs  asynchronously through [the /audio/transcriptions endpoint](https://platform.openai.com/docs/api-reference/audio/createTranscription) and should be treated as guidance of input audio content rather than precisely what the model heard. The client can optionally set the language and prompt for transcription, these offer additional guidance to the transcription service.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionCreateRequestInputAudioTranscription {
 	/// The language of the input audio. Supplying the input language in
 	/// [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) (e.g. `en`) format
@@ -8990,6 +8610,12 @@ pub struct RealtimeSessionCreateRequestInputAudioTranscription {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub prompt: Option<String>,
 }
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum RealtimeSessionCreateRequestItem {
+	Text,
+	Audio,
+}
 /// Maximum number of output tokens for a single assistant response,
 /// inclusive of tool calls. Provide an integer between 1 and 4096 to
 /// limit output tokens, or `inf` for the maximum available tokens for a
@@ -9000,15 +8626,9 @@ pub struct RealtimeSessionCreateRequestInputAudioTranscription {
 pub enum RealtimeSessionCreateRequestMaxResponseOutputTokens {
 	Integer(i64),
 }
-/// The set of modalities the model can respond with. To disable audio,
-/// set this to ["text"].
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct RealtimeSessionCreateRequestModalities {
-}
 /// The Realtime model used for this session.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeSessionCreateRequestModel {
 	#[serde(rename = "gpt-4o-realtime-preview")]
 	Gpt4ORealtimePreview,
@@ -9025,7 +8645,6 @@ pub enum RealtimeSessionCreateRequestModel {
 /// For `pcm16`, output audio is sampled at a rate of 24kHz.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeSessionCreateRequestOutputAudioFormat {
 	Pcm16,
 	#[serde(rename = "g711_ulaw")]
@@ -9033,8 +8652,8 @@ pub enum RealtimeSessionCreateRequestOutputAudioFormat {
 	#[serde(rename = "g711_alaw")]
 	G711Alaw,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct RealtimeSessionCreateRequestTools {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct RealtimeSessionCreateRequestToolsItem {
 	/// The description of the function, including guidance on when and how 
 	/// to call it, and guidance about what to tell the user when calling 
 	/// (if anything).
@@ -9045,26 +8664,21 @@ pub struct RealtimeSessionCreateRequestTools {
 	pub name: Option<String>,
 	/// Parameters of the function in JSON Schema.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub parameters: Option<RealtimeSessionCreateRequestToolsParameters>,
+	pub parameters: Option<serde_json::Value>,
 	/// The type of the tool, i.e. `function`.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub r#type: Option<RealtimeSessionCreateRequestToolsType>,
-}
-/// Parameters of the function in JSON Schema.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct RealtimeSessionCreateRequestToolsParameters {
+	pub r#type: Option<RealtimeSessionCreateRequestToolsItemType>,
 }
 /// The type of the tool, i.e. `function`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum RealtimeSessionCreateRequestToolsType {
+pub enum RealtimeSessionCreateRequestToolsItemType {
 	Function,
 }
 /// Configuration for turn detection, ether Server VAD or Semantic VAD. This can be set to `null` to turn off, in which case the client must manually trigger model response.
 /// Server VAD means that the model will detect the start and end of speech based on audio volume and respond at the end of user speech.
 /// Semantic VAD is more advanced and uses a turn detection model (in conjuction with VAD) to semantically estimate whether the user has finished speaking, then dynamically sets a timeout based on this probability. For example, if user audio trails off with "uhhm", the model will score a low probability of turn end and wait longer for the user to continue speaking. This can be useful for more natural conversations, but may have a higher latency.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionCreateRequestTurnDetection {
 	/// Whether or not to automatically generate a response when a VAD stop event occurs.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -9097,7 +8711,6 @@ pub struct RealtimeSessionCreateRequestTurnDetection {
 /// Used only for `semantic_vad` mode. The eagerness of the model to respond. `low` will wait longer for the user to continue speaking, `high` will respond more quickly. `auto` is the default and is equivalent to `medium`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeSessionCreateRequestTurnDetectionEagerness {
 	Low,
 	Medium,
@@ -9107,7 +8720,6 @@ pub enum RealtimeSessionCreateRequestTurnDetectionEagerness {
 /// Type of turn detection.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeSessionCreateRequestTurnDetectionType {
 	#[serde(rename = "server_vad")]
 	ServerVad,
@@ -9153,7 +8765,7 @@ pub struct RealtimeSessionCreateResponse {
 	/// The set of modalities the model can respond with. To disable audio,
 	/// set this to ["text"].
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub modalities: Option<Vec<RealtimeSessionCreateResponseModalities>>,
+	pub modalities: Option<Vec<RealtimeSessionCreateResponseItem>>,
 	/// The format of output audio. Options are `pcm16`, `g711_ulaw`, or `g711_alaw`.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub output_audio_format: Option<String>,
@@ -9166,7 +8778,7 @@ pub struct RealtimeSessionCreateResponse {
 	pub tool_choice: Option<String>,
 	/// Tools (functions) available to the model.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub tools: Option<Vec<RealtimeSessionCreateResponseTools>>,
+	pub tools: Option<Vec<RealtimeSessionCreateResponseToolsItem>>,
 	/// Configuration for turn detection. Can be set to `null` to turn off. Server 
 	/// VAD means that the model will detect the start and end of speech based on 
 	/// audio volume and respond at the end of user speech.
@@ -9195,12 +8807,18 @@ pub struct RealtimeSessionCreateResponseClientSecret {
 /// to the model, since the model consumes audio directly. Transcription runs 
 /// asynchronously through Whisper and should be treated as rough guidance 
 /// rather than the representation understood by the model.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionCreateResponseInputAudioTranscription {
 	/// The model to use for transcription, `whisper-1` is the only currently 
 	/// supported model.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub model: Option<String>,
+}
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum RealtimeSessionCreateResponseItem {
+	Text,
+	Audio,
 }
 /// Maximum number of output tokens for a single assistant response,
 /// inclusive of tool calls. Provide an integer between 1 and 4096 to
@@ -9212,13 +8830,8 @@ pub struct RealtimeSessionCreateResponseInputAudioTranscription {
 pub enum RealtimeSessionCreateResponseMaxResponseOutputTokens {
 	Integer(i64),
 }
-/// The set of modalities the model can respond with. To disable audio,
-/// set this to ["text"].
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct RealtimeSessionCreateResponseModalities {
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct RealtimeSessionCreateResponseTools {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct RealtimeSessionCreateResponseToolsItem {
 	/// The description of the function, including guidance on when and how 
 	/// to call it, and guidance about what to tell the user when calling 
 	/// (if anything).
@@ -9229,26 +8842,21 @@ pub struct RealtimeSessionCreateResponseTools {
 	pub name: Option<String>,
 	/// Parameters of the function in JSON Schema.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub parameters: Option<RealtimeSessionCreateResponseToolsParameters>,
+	pub parameters: Option<serde_json::Value>,
 	/// The type of the tool, i.e. `function`.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub r#type: Option<RealtimeSessionCreateResponseToolsType>,
-}
-/// Parameters of the function in JSON Schema.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct RealtimeSessionCreateResponseToolsParameters {
+	pub r#type: Option<RealtimeSessionCreateResponseToolsItemType>,
 }
 /// The type of the tool, i.e. `function`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum RealtimeSessionCreateResponseToolsType {
+pub enum RealtimeSessionCreateResponseToolsItemType {
 	Function,
 }
 /// Configuration for turn detection. Can be set to `null` to turn off. Server 
 /// VAD means that the model will detect the start and end of speech based on 
 /// audio volume and respond at the end of user speech.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionCreateResponseTurnDetection {
 	/// Amount of audio to include before the VAD detected speech (in 
 	/// milliseconds). Defaults to 300ms.
@@ -9273,7 +8881,6 @@ pub struct RealtimeSessionCreateResponseTurnDetection {
 /// single channel (mono), and little-endian byte order.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeSessionInputAudioFormat {
 	Pcm16,
 	#[serde(rename = "g711_ulaw")]
@@ -9284,7 +8891,7 @@ pub enum RealtimeSessionInputAudioFormat {
 /// Configuration for input audio noise reduction. This can be set to `null` to turn off.
 /// Noise reduction filters audio added to the input audio buffer before it is sent to VAD and the model.
 /// Filtering the audio can improve VAD and turn detection accuracy (reducing false positives) and model performance by improving perception of the input audio.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionInputAudioNoiseReduction {
 	/// Type of noise reduction. `near_field` is for close-talking microphones such as headphones, `far_field` is for far-field microphones such as laptop or conference room microphones.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -9293,7 +8900,6 @@ pub struct RealtimeSessionInputAudioNoiseReduction {
 /// Type of noise reduction. `near_field` is for close-talking microphones such as headphones, `far_field` is for far-field microphones such as laptop or conference room microphones.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeSessionInputAudioNoiseReductionType {
 	#[serde(rename = "near_field")]
 	NearField,
@@ -9301,7 +8907,7 @@ pub enum RealtimeSessionInputAudioNoiseReductionType {
 	FarField,
 }
 /// Configuration for input audio transcription, defaults to off and can be  set to `null` to turn off once on. Input audio transcription is not native to the model, since the model consumes audio directly. Transcription runs  asynchronously through [the /audio/transcriptions endpoint](https://platform.openai.com/docs/api-reference/audio/createTranscription) and should be treated as guidance of input audio content rather than precisely what the model heard. The client can optionally set the language and prompt for transcription, these offer additional guidance to the transcription service.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionInputAudioTranscription {
 	/// The language of the input audio. Supplying the input language in
 	/// [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) (e.g. `en`) format
@@ -9318,6 +8924,12 @@ pub struct RealtimeSessionInputAudioTranscription {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub prompt: Option<String>,
 }
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum RealtimeSessionItem {
+	Text,
+	Audio,
+}
 /// Maximum number of output tokens for a single assistant response,
 /// inclusive of tool calls. Provide an integer between 1 and 4096 to
 /// limit output tokens, or `inf` for the maximum available tokens for a
@@ -9328,15 +8940,9 @@ pub struct RealtimeSessionInputAudioTranscription {
 pub enum RealtimeSessionMaxResponseOutputTokens {
 	Integer(i64),
 }
-/// The set of modalities the model can respond with. To disable audio,
-/// set this to ["text"].
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct RealtimeSessionModalities {
-}
 /// The Realtime model used for this session.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeSessionModel {
 	#[serde(rename = "gpt-4o-realtime-preview")]
 	Gpt4ORealtimePreview,
@@ -9353,7 +8959,6 @@ pub enum RealtimeSessionModel {
 /// For `pcm16`, output audio is sampled at a rate of 24kHz.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeSessionOutputAudioFormat {
 	Pcm16,
 	#[serde(rename = "g711_ulaw")]
@@ -9361,8 +8966,8 @@ pub enum RealtimeSessionOutputAudioFormat {
 	#[serde(rename = "g711_alaw")]
 	G711Alaw,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct RealtimeSessionTools {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct RealtimeSessionToolsItem {
 	/// The description of the function, including guidance on when and how 
 	/// to call it, and guidance about what to tell the user when calling 
 	/// (if anything).
@@ -9373,26 +8978,21 @@ pub struct RealtimeSessionTools {
 	pub name: Option<String>,
 	/// Parameters of the function in JSON Schema.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub parameters: Option<RealtimeSessionToolsParameters>,
+	pub parameters: Option<serde_json::Value>,
 	/// The type of the tool, i.e. `function`.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub r#type: Option<RealtimeSessionToolsType>,
-}
-/// Parameters of the function in JSON Schema.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct RealtimeSessionToolsParameters {
+	pub r#type: Option<RealtimeSessionToolsItemType>,
 }
 /// The type of the tool, i.e. `function`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum RealtimeSessionToolsType {
+pub enum RealtimeSessionToolsItemType {
 	Function,
 }
 /// Configuration for turn detection, ether Server VAD or Semantic VAD. This can be set to `null` to turn off, in which case the client must manually trigger model response.
 /// Server VAD means that the model will detect the start and end of speech based on audio volume and respond at the end of user speech.
 /// Semantic VAD is more advanced and uses a turn detection model (in conjuction with VAD) to semantically estimate whether the user has finished speaking, then dynamically sets a timeout based on this probability. For example, if user audio trails off with "uhhm", the model will score a low probability of turn end and wait longer for the user to continue speaking. This can be useful for more natural conversations, but may have a higher latency.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeSessionTurnDetection {
 	/// Whether or not to automatically generate a response when a VAD stop event occurs.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -9425,7 +9025,6 @@ pub struct RealtimeSessionTurnDetection {
 /// Used only for `semantic_vad` mode. The eagerness of the model to respond. `low` will wait longer for the user to continue speaking, `high` will respond more quickly. `auto` is the default and is equivalent to `medium`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeSessionTurnDetectionEagerness {
 	Low,
 	Medium,
@@ -9435,7 +9034,6 @@ pub enum RealtimeSessionTurnDetectionEagerness {
 /// Type of turn detection.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeSessionTurnDetectionType {
 	#[serde(rename = "server_vad")]
 	ServerVad,
@@ -9443,7 +9041,7 @@ pub enum RealtimeSessionTurnDetectionType {
 	SemanticVad,
 }
 /// Realtime transcription session object configuration.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeTranscriptionSessionCreateRequest {
 	/// The set of items to include in the transcription. Current available items are:
 	/// - `item.input_audio_transcription.logprobs`
@@ -9465,7 +9063,7 @@ pub struct RealtimeTranscriptionSessionCreateRequest {
 	/// The set of modalities the model can respond with. To disable audio,
 	/// set this to ["text"].
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub modalities: Option<Vec<RealtimeTranscriptionSessionCreateRequestModalities>>,
+	pub modalities: Option<Vec<RealtimeTranscriptionSessionCreateRequestItem>>,
 	/// Configuration for turn detection, ether Server VAD or Semantic VAD. This can be set to `null` to turn off, in which case the client must manually trigger model response.
 	/// Server VAD means that the model will detect the start and end of speech based on audio volume and respond at the end of user speech.
 	/// Semantic VAD is more advanced and uses a turn detection model (in conjuction with VAD) to semantically estimate whether the user has finished speaking, then dynamically sets a timeout based on this probability. For example, if user audio trails off with "uhhm", the model will score a low probability of turn end and wait longer for the user to continue speaking. This can be useful for more natural conversations, but may have a higher latency.
@@ -9477,7 +9075,6 @@ pub struct RealtimeTranscriptionSessionCreateRequest {
 /// single channel (mono), and little-endian byte order.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeTranscriptionSessionCreateRequestInputAudioFormat {
 	Pcm16,
 	#[serde(rename = "g711_ulaw")]
@@ -9488,7 +9085,7 @@ pub enum RealtimeTranscriptionSessionCreateRequestInputAudioFormat {
 /// Configuration for input audio noise reduction. This can be set to `null` to turn off.
 /// Noise reduction filters audio added to the input audio buffer before it is sent to VAD and the model.
 /// Filtering the audio can improve VAD and turn detection accuracy (reducing false positives) and model performance by improving perception of the input audio.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeTranscriptionSessionCreateRequestInputAudioNoiseReduction {
 	/// Type of noise reduction. `near_field` is for close-talking microphones such as headphones, `far_field` is for far-field microphones such as laptop or conference room microphones.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -9497,7 +9094,6 @@ pub struct RealtimeTranscriptionSessionCreateRequestInputAudioNoiseReduction {
 /// Type of noise reduction. `near_field` is for close-talking microphones such as headphones, `far_field` is for far-field microphones such as laptop or conference room microphones.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeTranscriptionSessionCreateRequestInputAudioNoiseReductionType {
 	#[serde(rename = "near_field")]
 	NearField,
@@ -9505,7 +9101,7 @@ pub enum RealtimeTranscriptionSessionCreateRequestInputAudioNoiseReductionType {
 	FarField,
 }
 /// Configuration for input audio transcription. The client can optionally set the language and prompt for transcription, these offer additional guidance to the transcription service.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeTranscriptionSessionCreateRequestInputAudioTranscription {
 	/// The language of the input audio. Supplying the input language in
 	/// [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) (e.g. `en`) format
@@ -9525,7 +9121,6 @@ pub struct RealtimeTranscriptionSessionCreateRequestInputAudioTranscription {
 /// The model to use for transcription, current options are `gpt-4o-transcribe`, `gpt-4o-mini-transcribe`, and `whisper-1`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeTranscriptionSessionCreateRequestInputAudioTranscriptionModel {
 	#[serde(rename = "gpt-4o-transcribe")]
 	Gpt4OTranscribe,
@@ -9534,15 +9129,16 @@ pub enum RealtimeTranscriptionSessionCreateRequestInputAudioTranscriptionModel {
 	#[serde(rename = "whisper-1")]
 	Whisper1,
 }
-/// The set of modalities the model can respond with. To disable audio,
-/// set this to ["text"].
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct RealtimeTranscriptionSessionCreateRequestModalities {
+#[serde(rename_all = "lowercase")]
+pub enum RealtimeTranscriptionSessionCreateRequestItem {
+	Text,
+	Audio,
 }
 /// Configuration for turn detection, ether Server VAD or Semantic VAD. This can be set to `null` to turn off, in which case the client must manually trigger model response.
 /// Server VAD means that the model will detect the start and end of speech based on audio volume and respond at the end of user speech.
 /// Semantic VAD is more advanced and uses a turn detection model (in conjuction with VAD) to semantically estimate whether the user has finished speaking, then dynamically sets a timeout based on this probability. For example, if user audio trails off with "uhhm", the model will score a low probability of turn end and wait longer for the user to continue speaking. This can be useful for more natural conversations, but may have a higher latency.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeTranscriptionSessionCreateRequestTurnDetection {
 	/// Whether or not to automatically generate a response when a VAD stop event occurs. Not available for transcription sessions.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -9575,7 +9171,6 @@ pub struct RealtimeTranscriptionSessionCreateRequestTurnDetection {
 /// Used only for `semantic_vad` mode. The eagerness of the model to respond. `low` will wait longer for the user to continue speaking, `high` will respond more quickly. `auto` is the default and is equivalent to `medium`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeTranscriptionSessionCreateRequestTurnDetectionEagerness {
 	Low,
 	Medium,
@@ -9585,7 +9180,6 @@ pub enum RealtimeTranscriptionSessionCreateRequestTurnDetectionEagerness {
 /// Type of turn detection.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeTranscriptionSessionCreateRequestTurnDetectionType {
 	#[serde(rename = "server_vad")]
 	ServerVad,
@@ -9611,7 +9205,7 @@ pub struct RealtimeTranscriptionSessionCreateResponse {
 	/// The set of modalities the model can respond with. To disable audio,
 	/// set this to ["text"].
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub modalities: Option<Vec<RealtimeTranscriptionSessionCreateResponseModalities>>,
+	pub modalities: Option<Vec<RealtimeTranscriptionSessionCreateResponseItem>>,
 	/// Configuration for turn detection. Can be set to `null` to turn off. Server 
 	/// VAD means that the model will detect the start and end of speech based on 
 	/// audio volume and respond at the end of user speech.
@@ -9631,7 +9225,7 @@ pub struct RealtimeTranscriptionSessionCreateResponseClientSecret {
 	pub value: String,
 }
 /// Configuration of the transcription model.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeTranscriptionSessionCreateResponseInputAudioTranscription {
 	/// The language of the input audio. Supplying the input language in
 	/// [ISO-639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) (e.g. `en`) format
@@ -9650,7 +9244,6 @@ pub struct RealtimeTranscriptionSessionCreateResponseInputAudioTranscription {
 /// The model to use for transcription. Can be `gpt-4o-transcribe`, `gpt-4o-mini-transcribe`, or `whisper-1`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RealtimeTranscriptionSessionCreateResponseInputAudioTranscriptionModel {
 	#[serde(rename = "gpt-4o-transcribe")]
 	Gpt4OTranscribe,
@@ -9659,15 +9252,16 @@ pub enum RealtimeTranscriptionSessionCreateResponseInputAudioTranscriptionModel 
 	#[serde(rename = "whisper-1")]
 	Whisper1,
 }
-/// The set of modalities the model can respond with. To disable audio,
-/// set this to ["text"].
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct RealtimeTranscriptionSessionCreateResponseModalities {
+#[serde(rename_all = "lowercase")]
+pub enum RealtimeTranscriptionSessionCreateResponseItem {
+	Text,
+	Audio,
 }
 /// Configuration for turn detection. Can be set to `null` to turn off. Server 
 /// VAD means that the model will detect the start and end of speech based on 
 /// audio volume and respond at the end of user speech.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RealtimeTranscriptionSessionCreateResponseTurnDetection {
 	/// Amount of audio to include before the VAD detected speech (in 
 	/// milliseconds). Defaults to 300ms.
@@ -9691,7 +9285,7 @@ pub struct RealtimeTranscriptionSessionCreateResponseTurnDetection {
 /// 
 /// Configuration options for 
 /// [reasoning models](https://platform.openai.com/docs/guides/reasoning).
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct Reasoning {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub effort: Option<ReasoningEffort>,
@@ -9712,7 +9306,6 @@ pub struct Reasoning {
 /// on reasoning in a response.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ReasoningEffort {
 	Low,
 	Medium,
@@ -9725,7 +9318,6 @@ pub enum ReasoningEffort {
 /// One of `concise` or `detailed`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ReasoningGenerateSummary {
 	Concise,
 	Detailed,
@@ -9741,7 +9333,7 @@ pub struct ReasoningItem {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub status: Option<ReasoningItemStatus>,
 	/// Reasoning text contents.
-	pub summary: Vec<ReasoningItemSummary>,
+	pub summary: Vec<ReasoningItemSummaryItem>,
 	/// The type of the object. Always `reasoning`.
 	pub r#type: ReasoningItemType,
 }
@@ -9749,7 +9341,6 @@ pub struct ReasoningItem {
 /// `incomplete`. Populated when items are returned via API.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ReasoningItemStatus {
 	#[serde(rename = "in_progress")]
 	InProgress,
@@ -9757,25 +9348,23 @@ pub enum ReasoningItemStatus {
 	Incomplete,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct ReasoningItemSummary {
+pub struct ReasoningItemSummaryItem {
 	/// A short summary of the reasoning used by the model when generating
 	/// the response.
 	pub text: String,
 	/// The type of the object. Always `summary_text`.
-	pub r#type: ReasoningItemSummaryType,
+	pub r#type: ReasoningItemSummaryItemType,
 }
 /// The type of the object. Always `summary_text`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum ReasoningItemSummaryType {
+pub enum ReasoningItemSummaryItemType {
 	#[serde(rename = "summary_text")]
 	SummaryText,
 }
 /// The type of the object. Always `reasoning`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ReasoningItemType {
 	Reasoning,
 }
@@ -9790,11 +9379,10 @@ pub struct Refusal {
 /// The type of the refusal. Always `refusal`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RefusalType {
 	Refusal,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct Response {
 	/// Unix timestamp (in seconds) of when this Response was created.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -9920,7 +9508,6 @@ pub struct ResponseAudioDeltaEvent {
 /// The type of the event. Always `response.audio.delta`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseAudioDeltaEventType {
 	#[serde(rename = "response.audio.delta")]
 	ResponseAudioDelta,
@@ -9934,7 +9521,6 @@ pub struct ResponseAudioDoneEvent {
 /// The type of the event. Always `response.audio.done`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseAudioDoneEventType {
 	#[serde(rename = "response.audio.done")]
 	ResponseAudioDone,
@@ -9950,7 +9536,6 @@ pub struct ResponseAudioTranscriptDeltaEvent {
 /// The type of the event. Always `response.audio.transcript.delta`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseAudioTranscriptDeltaEventType {
 	#[serde(rename = "response.audio.transcript.delta")]
 	ResponseAudioTranscriptDelta,
@@ -9964,7 +9549,6 @@ pub struct ResponseAudioTranscriptDoneEvent {
 /// The type of the event. Always `response.audio.transcript.done`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseAudioTranscriptDoneEventType {
 	#[serde(rename = "response.audio.transcript.done")]
 	ResponseAudioTranscriptDone,
@@ -9982,7 +9566,6 @@ pub struct ResponseCodeInterpreterCallCodeDeltaEvent {
 /// The type of the event. Always `response.code_interpreter_call.code.delta`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseCodeInterpreterCallCodeDeltaEventType {
 	#[serde(rename = "response.code_interpreter_call.code.delta")]
 	ResponseCodeInterpreterCallCodeDelta,
@@ -10000,7 +9583,6 @@ pub struct ResponseCodeInterpreterCallCodeDoneEvent {
 /// The type of the event. Always `response.code_interpreter_call.code.done`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseCodeInterpreterCallCodeDoneEventType {
 	#[serde(rename = "response.code_interpreter_call.code.done")]
 	ResponseCodeInterpreterCallCodeDone,
@@ -10017,7 +9599,6 @@ pub struct ResponseCodeInterpreterCallCompletedEvent {
 /// The type of the event. Always `response.code_interpreter_call.completed`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseCodeInterpreterCallCompletedEventType {
 	#[serde(rename = "response.code_interpreter_call.completed")]
 	ResponseCodeInterpreterCallCompleted,
@@ -10034,7 +9615,6 @@ pub struct ResponseCodeInterpreterCallInProgressEvent {
 /// The type of the event. Always `response.code_interpreter_call.in_progress`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseCodeInterpreterCallInProgressEventType {
 	#[serde(rename = "response.code_interpreter_call.in_progress")]
 	ResponseCodeInterpreterCallInProgress,
@@ -10051,7 +9631,6 @@ pub struct ResponseCodeInterpreterCallInterpretingEvent {
 /// The type of the event. Always `response.code_interpreter_call.interpreting`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseCodeInterpreterCallInterpretingEventType {
 	#[serde(rename = "response.code_interpreter_call.interpreting")]
 	ResponseCodeInterpreterCallInterpreting,
@@ -10067,7 +9646,6 @@ pub struct ResponseCompletedEvent {
 /// The type of the event. Always `response.completed`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseCompletedEventType {
 	#[serde(rename = "response.completed")]
 	ResponseCompleted,
@@ -10089,7 +9667,6 @@ pub struct ResponseContentPartAddedEvent {
 /// The type of the event. Always `response.content_part.added`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseContentPartAddedEventType {
 	#[serde(rename = "response.content_part.added")]
 	ResponseContentPartAdded,
@@ -10111,7 +9688,6 @@ pub struct ResponseContentPartDoneEvent {
 /// The type of the event. Always `response.content_part.done`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseContentPartDoneEventType {
 	#[serde(rename = "response.content_part.done")]
 	ResponseContentPartDone,
@@ -10127,7 +9703,6 @@ pub struct ResponseCreatedEvent {
 /// The type of the event. Always `response.created`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseCreatedEventType {
 	#[serde(rename = "response.created")]
 	ResponseCreated,
@@ -10142,7 +9717,6 @@ pub struct ResponseError {
 /// The error code for the response.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseErrorCode {
 	#[serde(rename = "server_error")]
 	ServerError,
@@ -10196,7 +9770,6 @@ pub struct ResponseErrorEvent {
 /// The type of the event. Always `error`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseErrorEventType {
 	Error,
 }
@@ -10211,7 +9784,6 @@ pub struct ResponseFailedEvent {
 /// The type of the event. Always `response.failed`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseFailedEventType {
 	#[serde(rename = "response.failed")]
 	ResponseFailed,
@@ -10229,7 +9801,6 @@ pub struct ResponseFileSearchCallCompletedEvent {
 /// The type of the event. Always `response.file_search_call.completed`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseFileSearchCallCompletedEventType {
 	#[serde(rename = "response.file_search_call.completed")]
 	ResponseFileSearchCallCompleted,
@@ -10247,7 +9818,6 @@ pub struct ResponseFileSearchCallInProgressEvent {
 /// The type of the event. Always `response.file_search_call.in_progress`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseFileSearchCallInProgressEventType {
 	#[serde(rename = "response.file_search_call.in_progress")]
 	ResponseFileSearchCallInProgress,
@@ -10265,7 +9835,6 @@ pub struct ResponseFileSearchCallSearchingEvent {
 /// The type of the event. Always `response.file_search_call.searching`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseFileSearchCallSearchingEventType {
 	#[serde(rename = "response.file_search_call.searching")]
 	ResponseFileSearchCallSearching,
@@ -10282,7 +9851,6 @@ pub struct ResponseFormatJsonObject {
 /// The type of response format being defined. Always `json_object`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseFormatJsonObjectType {
 	#[serde(rename = "json_object")]
 	JsonObject,
@@ -10319,7 +9887,6 @@ pub struct ResponseFormatJsonSchemaJsonSchema {
 /// The type of response format being defined. Always `json_schema`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseFormatJsonSchemaType {
 	#[serde(rename = "json_schema")]
 	JsonSchema,
@@ -10333,7 +9900,6 @@ pub struct ResponseFormatText {
 /// The type of response format being defined. Always `text`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseFormatTextType {
 	Text,
 }
@@ -10352,7 +9918,6 @@ pub struct ResponseFunctionCallArgumentsDeltaEvent {
 /// The type of the event. Always `response.function_call_arguments.delta`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseFunctionCallArgumentsDeltaEventType {
 	#[serde(rename = "response.function_call_arguments.delta")]
 	ResponseFunctionCallArgumentsDelta,
@@ -10370,7 +9935,6 @@ pub struct ResponseFunctionCallArgumentsDoneEvent {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseFunctionCallArgumentsDoneEventType {
 	#[serde(rename = "response.function_call_arguments.done")]
 	ResponseFunctionCallArgumentsDone,
@@ -10386,13 +9950,12 @@ pub struct ResponseInProgressEvent {
 /// The type of the event. Always `response.in_progress`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseInProgressEventType {
 	#[serde(rename = "response.in_progress")]
 	ResponseInProgress,
 }
 /// Details about why the response is incomplete.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ResponseIncompleteDetails {
 	/// The reason why the response is incomplete.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -10401,7 +9964,6 @@ pub struct ResponseIncompleteDetails {
 /// The reason why the response is incomplete.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseIncompleteDetailsReason {
 	#[serde(rename = "max_output_tokens")]
 	MaxOutputTokens,
@@ -10419,7 +9981,6 @@ pub struct ResponseIncompleteEvent {
 /// The type of the event. Always `response.incomplete`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseIncompleteEventType {
 	#[serde(rename = "response.incomplete")]
 	ResponseIncomplete,
@@ -10441,27 +10002,23 @@ pub struct ResponseItemList {
 /// The type of object returned, must be `list`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseItemListObject {
 	List,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum ResponseModalitiesResponseModalities {
+pub enum ResponseModalitiesItem {
 	Text,
 	Audio,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum ResponseModalitiesTextOnlyResponseModalitiesTextOnly {
+pub enum ResponseModalitiesTextOnlyItem {
 	Text,
 }
 /// The object type of this resource - always set to `response`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseObject {
 	Response,
 }
@@ -10478,7 +10035,6 @@ pub struct ResponseOutputItemAddedEvent {
 /// The type of the event. Always `response.output_item.added`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseOutputItemAddedEventType {
 	#[serde(rename = "response.output_item.added")]
 	ResponseOutputItemAdded,
@@ -10496,12 +10052,11 @@ pub struct ResponseOutputItemDoneEvent {
 /// The type of the event. Always `response.output_item.done`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseOutputItemDoneEventType {
 	#[serde(rename = "response.output_item.done")]
 	ResponseOutputItemDone,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ResponseProperties {
 	/// Inserts a system (or developer) message as the first item in the model's context.
 	/// 
@@ -10565,7 +10120,7 @@ pub struct ResponseProperties {
 /// text or structured JSON data. Learn more:
 /// - [Text inputs and outputs](https://platform.openai.com/docs/guides/text)
 /// - [Structured Outputs](https://platform.openai.com/docs/guides/structured-outputs)
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ResponsePropertiesText {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub format: Option<TextResponseFormatConfiguration>,
@@ -10590,7 +10145,6 @@ pub enum ResponsePropertiesToolChoice {
 ///   size for a model, the request will fail with a 400 error.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponsePropertiesTruncation {
 	Auto,
 	Disabled,
@@ -10612,7 +10166,6 @@ pub struct ResponseRefusalDeltaEvent {
 /// The type of the event. Always `response.refusal.delta`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseRefusalDeltaEventType {
 	#[serde(rename = "response.refusal.delta")]
 	ResponseRefusalDelta,
@@ -10634,7 +10187,6 @@ pub struct ResponseRefusalDoneEvent {
 /// The type of the event. Always `response.refusal.done`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseRefusalDoneEventType {
 	#[serde(rename = "response.refusal.done")]
 	ResponseRefusalDone,
@@ -10643,7 +10195,6 @@ pub enum ResponseRefusalDoneEventType {
 /// `in_progress`, or `incomplete`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseStatus {
 	Completed,
 	Failed,
@@ -10655,70 +10206,38 @@ pub enum ResponseStatus {
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
 pub enum ResponseStreamEvent {
-	#[serde(rename = "ResponseAudioDeltaEvent(ResponseAudioDeltaEvent)")]
-	ResponseAudioDeltaEvent(responseAudioDeltaEvent),
-	#[serde(rename = "ResponseAudioDoneEvent(ResponseAudioDoneEvent)")]
-	ResponseAudioDoneEvent(responseAudioDoneEvent),
-	#[serde(rename = "ResponseAudioTranscriptDeltaEvent(ResponseAudioTranscriptDeltaEvent)")]
-	ResponseAudioTranscriptDeltaEvent(responseAudioTranscriptDeltaEvent),
-	#[serde(rename = "ResponseAudioTranscriptDoneEvent(ResponseAudioTranscriptDoneEvent)")]
-	ResponseAudioTranscriptDoneEvent(responseAudioTranscriptDoneEvent),
-	#[serde(rename = "ResponseCodeInterpreterCallCodeDeltaEvent(ResponseCodeInterpreterCallCodeDeltaEvent)")]
-	ResponseCodeInterpreterCallCodeDeltaEvent(responseCodeInterpreterCallCodeDeltaEvent),
-	#[serde(rename = "ResponseCodeInterpreterCallCodeDoneEvent(ResponseCodeInterpreterCallCodeDoneEvent)")]
-	ResponseCodeInterpreterCallCodeDoneEvent(responseCodeInterpreterCallCodeDoneEvent),
-	#[serde(rename = "ResponseCodeInterpreterCallCompletedEvent(ResponseCodeInterpreterCallCompletedEvent)")]
-	ResponseCodeInterpreterCallCompletedEvent(responseCodeInterpreterCallCompletedEvent),
-	#[serde(rename = "ResponseCodeInterpreterCallInProgressEvent(ResponseCodeInterpreterCallInProgressEvent)")]
-	ResponseCodeInterpreterCallInProgressEvent(responseCodeInterpreterCallInProgressEvent),
-	#[serde(rename = "ResponseCodeInterpreterCallInterpretingEvent(ResponseCodeInterpreterCallInterpretingEvent)")]
-	ResponseCodeInterpreterCallInterpretingEvent(responseCodeInterpreterCallInterpretingEvent),
-	#[serde(rename = "ResponseCompletedEvent(ResponseCompletedEvent)")]
-	ResponseCompletedEvent(responseCompletedEvent),
-	#[serde(rename = "ResponseContentPartAddedEvent(ResponseContentPartAddedEvent)")]
-	ResponseContentPartAddedEvent(responseContentPartAddedEvent),
-	#[serde(rename = "ResponseContentPartDoneEvent(ResponseContentPartDoneEvent)")]
-	ResponseContentPartDoneEvent(responseContentPartDoneEvent),
-	#[serde(rename = "ResponseCreatedEvent(ResponseCreatedEvent)")]
-	ResponseCreatedEvent(responseCreatedEvent),
-	#[serde(rename = "ResponseErrorEvent(ResponseErrorEvent)")]
-	ResponseErrorEvent(responseErrorEvent),
-	#[serde(rename = "ResponseFileSearchCallCompletedEvent(ResponseFileSearchCallCompletedEvent)")]
-	ResponseFileSearchCallCompletedEvent(responseFileSearchCallCompletedEvent),
-	#[serde(rename = "ResponseFileSearchCallInProgressEvent(ResponseFileSearchCallInProgressEvent)")]
-	ResponseFileSearchCallInProgressEvent(responseFileSearchCallInProgressEvent),
-	#[serde(rename = "ResponseFileSearchCallSearchingEvent(ResponseFileSearchCallSearchingEvent)")]
-	ResponseFileSearchCallSearchingEvent(responseFileSearchCallSearchingEvent),
-	#[serde(rename = "ResponseFunctionCallArgumentsDeltaEvent(ResponseFunctionCallArgumentsDeltaEvent)")]
-	ResponseFunctionCallArgumentsDeltaEvent(responseFunctionCallArgumentsDeltaEvent),
-	#[serde(rename = "ResponseFunctionCallArgumentsDoneEvent(ResponseFunctionCallArgumentsDoneEvent)")]
-	ResponseFunctionCallArgumentsDoneEvent(responseFunctionCallArgumentsDoneEvent),
-	#[serde(rename = "ResponseInProgressEvent(ResponseInProgressEvent)")]
-	ResponseInProgressEvent(responseInProgressEvent),
-	#[serde(rename = "ResponseFailedEvent(ResponseFailedEvent)")]
-	ResponseFailedEvent(responseFailedEvent),
-	#[serde(rename = "ResponseIncompleteEvent(ResponseIncompleteEvent)")]
-	ResponseIncompleteEvent(responseIncompleteEvent),
-	#[serde(rename = "ResponseOutputItemAddedEvent(ResponseOutputItemAddedEvent)")]
-	ResponseOutputItemAddedEvent(responseOutputItemAddedEvent),
-	#[serde(rename = "ResponseOutputItemDoneEvent(ResponseOutputItemDoneEvent)")]
-	ResponseOutputItemDoneEvent(responseOutputItemDoneEvent),
-	#[serde(rename = "ResponseRefusalDeltaEvent(ResponseRefusalDeltaEvent)")]
-	ResponseRefusalDeltaEvent(responseRefusalDeltaEvent),
-	#[serde(rename = "ResponseRefusalDoneEvent(ResponseRefusalDoneEvent)")]
-	ResponseRefusalDoneEvent(responseRefusalDoneEvent),
-	#[serde(rename = "ResponseTextAnnotationDeltaEvent(ResponseTextAnnotationDeltaEvent)")]
-	ResponseTextAnnotationDeltaEvent(responseTextAnnotationDeltaEvent),
-	#[serde(rename = "ResponseTextDeltaEvent(ResponseTextDeltaEvent)")]
-	ResponseTextDeltaEvent(responseTextDeltaEvent),
-	#[serde(rename = "ResponseTextDoneEvent(ResponseTextDoneEvent)")]
-	ResponseTextDoneEvent(responseTextDoneEvent),
-	#[serde(rename = "ResponseWebSearchCallCompletedEvent(ResponseWebSearchCallCompletedEvent)")]
-	ResponseWebSearchCallCompletedEvent(responseWebSearchCallCompletedEvent),
-	#[serde(rename = "ResponseWebSearchCallInProgressEvent(ResponseWebSearchCallInProgressEvent)")]
-	ResponseWebSearchCallInProgressEvent(responseWebSearchCallInProgressEvent),
-	#[serde(rename = "ResponseWebSearchCallSearchingEvent(ResponseWebSearchCallSearchingEvent)")]
-	ResponseWebSearchCallSearchingEvent(responseWebSearchCallSearchingEvent),
+	ResponseAudioDeltaEvent(ResponseAudioDeltaEvent),
+	ResponseAudioDoneEvent(ResponseAudioDoneEvent),
+	ResponseAudioTranscriptDeltaEvent(ResponseAudioTranscriptDeltaEvent),
+	ResponseAudioTranscriptDoneEvent(ResponseAudioTranscriptDoneEvent),
+	ResponseCodeInterpreterCallCodeDeltaEvent(ResponseCodeInterpreterCallCodeDeltaEvent),
+	ResponseCodeInterpreterCallCodeDoneEvent(ResponseCodeInterpreterCallCodeDoneEvent),
+	ResponseCodeInterpreterCallCompletedEvent(ResponseCodeInterpreterCallCompletedEvent),
+	ResponseCodeInterpreterCallInProgressEvent(ResponseCodeInterpreterCallInProgressEvent),
+	ResponseCodeInterpreterCallInterpretingEvent(ResponseCodeInterpreterCallInterpretingEvent),
+	ResponseCompletedEvent(ResponseCompletedEvent),
+	ResponseContentPartAddedEvent(ResponseContentPartAddedEvent),
+	ResponseContentPartDoneEvent(ResponseContentPartDoneEvent),
+	ResponseCreatedEvent(ResponseCreatedEvent),
+	ResponseErrorEvent(ResponseErrorEvent),
+	ResponseFileSearchCallCompletedEvent(ResponseFileSearchCallCompletedEvent),
+	ResponseFileSearchCallInProgressEvent(ResponseFileSearchCallInProgressEvent),
+	ResponseFileSearchCallSearchingEvent(ResponseFileSearchCallSearchingEvent),
+	ResponseFunctionCallArgumentsDeltaEvent(ResponseFunctionCallArgumentsDeltaEvent),
+	ResponseFunctionCallArgumentsDoneEvent(ResponseFunctionCallArgumentsDoneEvent),
+	ResponseInProgressEvent(ResponseInProgressEvent),
+	ResponseFailedEvent(ResponseFailedEvent),
+	ResponseIncompleteEvent(ResponseIncompleteEvent),
+	ResponseOutputItemAddedEvent(ResponseOutputItemAddedEvent),
+	ResponseOutputItemDoneEvent(ResponseOutputItemDoneEvent),
+	ResponseRefusalDeltaEvent(ResponseRefusalDeltaEvent),
+	ResponseRefusalDoneEvent(ResponseRefusalDoneEvent),
+	ResponseTextAnnotationDeltaEvent(ResponseTextAnnotationDeltaEvent),
+	ResponseTextDeltaEvent(ResponseTextDeltaEvent),
+	ResponseTextDoneEvent(ResponseTextDoneEvent),
+	ResponseWebSearchCallCompletedEvent(ResponseWebSearchCallCompletedEvent),
+	ResponseWebSearchCallInProgressEvent(ResponseWebSearchCallInProgressEvent),
+	ResponseWebSearchCallSearchingEvent(ResponseWebSearchCallSearchingEvent),
 }
 /// Emitted when a text annotation is added.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -10738,7 +10257,6 @@ pub struct ResponseTextAnnotationDeltaEvent {
 /// The type of the event. Always `response.output_text.annotation.added`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseTextAnnotationDeltaEventType {
 	#[serde(rename = "response.output_text.annotation.added")]
 	ResponseOutputTextAnnotationAdded,
@@ -10760,7 +10278,6 @@ pub struct ResponseTextDeltaEvent {
 /// The type of the event. Always `response.output_text.delta`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseTextDeltaEventType {
 	#[serde(rename = "response.output_text.delta")]
 	ResponseOutputTextDelta,
@@ -10782,7 +10299,6 @@ pub struct ResponseTextDoneEvent {
 /// The type of the event. Always `response.output_text.done`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseTextDoneEventType {
 	#[serde(rename = "response.output_text.done")]
 	ResponseOutputTextDone,
@@ -10828,7 +10344,6 @@ pub struct ResponseWebSearchCallCompletedEvent {
 /// The type of the event. Always `response.web_search_call.completed`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseWebSearchCallCompletedEventType {
 	#[serde(rename = "response.web_search_call.completed")]
 	ResponseWebSearchCallCompleted,
@@ -10846,7 +10361,6 @@ pub struct ResponseWebSearchCallInProgressEvent {
 /// The type of the event. Always `response.web_search_call.in_progress`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseWebSearchCallInProgressEventType {
 	#[serde(rename = "response.web_search_call.in_progress")]
 	ResponseWebSearchCallInProgress,
@@ -10864,7 +10378,6 @@ pub struct ResponseWebSearchCallSearchingEvent {
 /// The type of the event. Always `response.web_search_call.searching`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ResponseWebSearchCallSearchingEventType {
 	#[serde(rename = "response.web_search_call.searching")]
 	ResponseWebSearchCallSearching,
@@ -10926,7 +10439,7 @@ pub struct RunObject {
 	pub thread_id: String,
 	pub tool_choice: RunObjectToolChoice,
 	/// The list of tools that the [assistant](https://platform.openai.com/docs/api-reference/assistants) used for this run.
-	pub tools: Vec<RunObjectTools>,
+	pub tools: Vec<RunObjectItems>,
 	/// The nucleus sampling value used for this run. If not set, defaults to 1.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub top_p: Option<f64>,
@@ -10934,7 +10447,7 @@ pub struct RunObject {
 	pub usage: RunCompletionUsage,
 }
 /// Details on why the run is incomplete. Will be `null` if the run is not incomplete.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RunObjectIncompleteDetails {
 	/// The reason why the run is incomplete. This will point to which specific token limit was reached over the course of the run.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -10943,12 +10456,19 @@ pub struct RunObjectIncompleteDetails {
 /// The reason why the run is incomplete. This will point to which specific token limit was reached over the course of the run.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunObjectIncompleteDetailsReason {
 	#[serde(rename = "max_completion_tokens")]
 	MaxCompletionTokens,
 	#[serde(rename = "max_prompt_tokens")]
 	MaxPromptTokens,
+}
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+#[serde(untagged)]
+pub enum RunObjectItems {
+	AssistantToolsCode(AssistantToolsCode),
+	AssistantToolsFileSearch(AssistantToolsFileSearch),
+	AssistantToolsFunction(AssistantToolsFunction),
 }
 /// The last error associated with this run. Will be `null` if there are no errors.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -10961,7 +10481,6 @@ pub struct RunObjectLastError {
 /// One of `server_error`, `rate_limit_exceeded`, or `invalid_prompt`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunObjectLastErrorCode {
 	#[serde(rename = "server_error")]
 	ServerError,
@@ -10973,7 +10492,6 @@ pub enum RunObjectLastErrorCode {
 /// The object type, which is always `thread.run`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunObjectObject {
 	#[serde(rename = "thread.run")]
 	ThreadRun,
@@ -10995,7 +10513,6 @@ pub struct RunObjectRequiredActionSubmitToolOutputs {
 /// For now, this is always `submit_tool_outputs`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunObjectRequiredActionType {
 	#[serde(rename = "submit_tool_outputs")]
 	SubmitToolOutputs,
@@ -11003,7 +10520,6 @@ pub enum RunObjectRequiredActionType {
 /// The status of the run, which can be either `queued`, `in_progress`, `requires_action`, `cancelling`, `cancelled`, `failed`, `completed`, `incomplete`, or `expired`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunObjectStatus {
 	Queued,
 	#[serde(rename = "in_progress")]
@@ -11016,14 +10532,6 @@ pub enum RunObjectStatus {
 	Completed,
 	Incomplete,
 	Expired,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum RunObjectTools {
-	AssistantToolsCode(AssistantToolsCode),
-	AssistantToolsFileSearch(AssistantToolsFileSearch),
-	AssistantToolsFunction(AssistantToolsFunction),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct RunObjectTruncationStrategy {
@@ -11054,7 +10562,7 @@ pub struct RunStepDeltaObject {
 	pub object: RunStepDeltaObjectObject,
 }
 /// The delta containing the fields that have changed on the run step.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RunStepDeltaObjectDelta {
 	/// The details of the run step.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -11062,22 +10570,15 @@ pub struct RunStepDeltaObjectDelta {
 }
 /// The details of the run step.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct RunStepDeltaObjectDeltaStepDetails {
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub RunStepDeltaObjectDeltaStepDetails: Option<RunStepDeltaObjectDeltaStepDetailsRunStepDeltaObjectDeltaStepDetails>,
-}
-/// The details of the run step.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum RunStepDeltaObjectDeltaStepDetailsRunStepDeltaObjectDeltaStepDetails {
+pub enum RunStepDeltaObjectDeltaStepDetails {
 	RunStepDeltaStepDetailsMessageCreationObject(RunStepDeltaStepDetailsMessageCreationObject),
 	RunStepDeltaStepDetailsToolCallsObject(RunStepDeltaStepDetailsToolCallsObject),
 }
 /// The object type, which is always `thread.run.step.delta`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunStepDeltaObjectObject {
 	#[serde(rename = "thread.run.step.delta")]
 	ThreadRunStepDelta,
@@ -11090,7 +10591,7 @@ pub struct RunStepDeltaStepDetailsMessageCreationObject {
 	/// Always `message_creation`.
 	pub r#type: RunStepDeltaStepDetailsMessageCreationObjectType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RunStepDeltaStepDetailsMessageCreationObjectMessageCreation {
 	/// The ID of the message that was created by this run step.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -11099,7 +10600,6 @@ pub struct RunStepDeltaStepDetailsMessageCreationObjectMessageCreation {
 /// Always `message_creation`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunStepDeltaStepDetailsMessageCreationObjectType {
 	#[serde(rename = "message_creation")]
 	MessageCreation,
@@ -11119,26 +10619,25 @@ pub struct RunStepDeltaStepDetailsToolCallsCodeObject {
 	pub r#type: RunStepDeltaStepDetailsToolCallsCodeObjectType,
 }
 /// The Code Interpreter tool call definition.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RunStepDeltaStepDetailsToolCallsCodeObjectCodeInterpreter {
 	/// The input to the Code Interpreter tool call.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub input: Option<String>,
 	/// The outputs from the Code Interpreter tool call. Code Interpreter can output one or more items, including text (`logs`) or images (`image`). Each of these are represented by a different object type.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub outputs: Option<Vec<RunStepDeltaStepDetailsToolCallsCodeObjectCodeInterpreterOutputs>>,
+	pub outputs: Option<Vec<RunStepDeltaStepDetailsToolCallsCodeObjectCodeInterpreterItems>>,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum RunStepDeltaStepDetailsToolCallsCodeObjectCodeInterpreterOutputs {
+pub enum RunStepDeltaStepDetailsToolCallsCodeObjectCodeInterpreterItems {
 	RunStepDeltaStepDetailsToolCallsCodeOutputLogsObject(RunStepDeltaStepDetailsToolCallsCodeOutputLogsObject),
 	RunStepDeltaStepDetailsToolCallsCodeOutputImageObject(RunStepDeltaStepDetailsToolCallsCodeOutputImageObject),
 }
 /// The type of tool call. This is always going to be `code_interpreter` for this type of tool call.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunStepDeltaStepDetailsToolCallsCodeObjectType {
 	#[serde(rename = "code_interpreter")]
 	CodeInterpreter,
@@ -11152,7 +10651,7 @@ pub struct RunStepDeltaStepDetailsToolCallsCodeOutputImageObject {
 	/// Always `image`.
 	pub r#type: RunStepDeltaStepDetailsToolCallsCodeOutputImageObjectType,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RunStepDeltaStepDetailsToolCallsCodeOutputImageObjectImage {
 	/// The [file](https://platform.openai.com/docs/api-reference/files) ID of the image.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -11161,7 +10660,6 @@ pub struct RunStepDeltaStepDetailsToolCallsCodeOutputImageObjectImage {
 /// Always `image`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunStepDeltaStepDetailsToolCallsCodeOutputImageObjectType {
 	Image,
 }
@@ -11179,7 +10677,6 @@ pub struct RunStepDeltaStepDetailsToolCallsCodeOutputLogsObject {
 /// Always `logs`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunStepDeltaStepDetailsToolCallsCodeOutputLogsObjectType {
 	Logs,
 }
@@ -11198,7 +10695,6 @@ pub struct RunStepDeltaStepDetailsToolCallsFileSearchObject {
 /// The type of tool call. This is always going to be `file_search` for this type of tool call.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunStepDeltaStepDetailsToolCallsFileSearchObjectType {
 	#[serde(rename = "file_search")]
 	FileSearch,
@@ -11217,7 +10713,7 @@ pub struct RunStepDeltaStepDetailsToolCallsFunctionObject {
 	pub r#type: RunStepDeltaStepDetailsToolCallsFunctionObjectType,
 }
 /// The definition of the function that was called.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct RunStepDeltaStepDetailsToolCallsFunctionObjectFunction {
 	/// The arguments passed to the function.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -11232,7 +10728,6 @@ pub struct RunStepDeltaStepDetailsToolCallsFunctionObjectFunction {
 /// The type of tool call. This is always going to be `function` for this type of tool call.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunStepDeltaStepDetailsToolCallsFunctionObjectType {
 	Function,
 }
@@ -11241,14 +10736,14 @@ pub enum RunStepDeltaStepDetailsToolCallsFunctionObjectType {
 pub struct RunStepDeltaStepDetailsToolCallsObject {
 	/// An array of tool calls the run step was involved in. These can be associated with one of three types of tools: `code_interpreter`, `file_search`, or `function`.
 	#[serde(skip_serializing_if = "Option::is_none")]
-	pub tool_calls: Option<Vec<RunStepDeltaStepDetailsToolCallsObjectToolCalls>>,
+	pub tool_calls: Option<Vec<RunStepDeltaStepDetailsToolCallsObjectItems>>,
 	/// Always `tool_calls`.
 	pub r#type: RunStepDeltaStepDetailsToolCallsObjectType,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum RunStepDeltaStepDetailsToolCallsObjectToolCalls {
+pub enum RunStepDeltaStepDetailsToolCallsObjectItems {
 	RunStepDeltaStepDetailsToolCallsCodeObject(RunStepDeltaStepDetailsToolCallsCodeObject),
 	RunStepDeltaStepDetailsToolCallsFileSearchObject(RunStepDeltaStepDetailsToolCallsFileSearchObject),
 	RunStepDeltaStepDetailsToolCallsFunctionObject(RunStepDeltaStepDetailsToolCallsFunctionObject),
@@ -11256,7 +10751,6 @@ pub enum RunStepDeltaStepDetailsToolCallsObjectToolCalls {
 /// Always `tool_calls`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunStepDeltaStepDetailsToolCallsObjectType {
 	#[serde(rename = "tool_calls")]
 	ToolCalls,
@@ -11276,7 +10770,6 @@ pub struct RunStepDetailsMessageCreationObjectMessageCreation {
 /// Always `message_creation`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunStepDetailsMessageCreationObjectType {
 	#[serde(rename = "message_creation")]
 	MessageCreation,
@@ -11297,19 +10790,18 @@ pub struct RunStepDetailsToolCallsCodeObjectCodeInterpreter {
 	/// The input to the Code Interpreter tool call.
 	pub input: String,
 	/// The outputs from the Code Interpreter tool call. Code Interpreter can output one or more items, including text (`logs`) or images (`image`). Each of these are represented by a different object type.
-	pub outputs: Vec<RunStepDetailsToolCallsCodeObjectCodeInterpreterOutputs>,
+	pub outputs: Vec<RunStepDetailsToolCallsCodeObjectCodeInterpreterItems>,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum RunStepDetailsToolCallsCodeObjectCodeInterpreterOutputs {
+pub enum RunStepDetailsToolCallsCodeObjectCodeInterpreterItems {
 	RunStepDetailsToolCallsCodeOutputLogsObject(RunStepDetailsToolCallsCodeOutputLogsObject),
 	RunStepDetailsToolCallsCodeOutputImageObject(RunStepDetailsToolCallsCodeOutputImageObject),
 }
 /// The type of tool call. This is always going to be `code_interpreter` for this type of tool call.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunStepDetailsToolCallsCodeObjectType {
 	#[serde(rename = "code_interpreter")]
 	CodeInterpreter,
@@ -11328,7 +10820,6 @@ pub struct RunStepDetailsToolCallsCodeOutputImageObjectImage {
 /// Always `image`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunStepDetailsToolCallsCodeOutputImageObjectType {
 	Image,
 }
@@ -11343,7 +10834,6 @@ pub struct RunStepDetailsToolCallsCodeOutputLogsObject {
 /// Always `logs`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunStepDetailsToolCallsCodeOutputLogsObjectType {
 	Logs,
 }
@@ -11359,7 +10849,6 @@ pub struct RunStepDetailsToolCallsFileSearchObject {
 /// The type of tool call. This is always going to be `file_search` for this type of tool call.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunStepDetailsToolCallsFileSearchObjectType {
 	#[serde(rename = "file_search")]
 	FileSearch,
@@ -11370,6 +10859,34 @@ pub struct RunStepDetailsToolCallsFileSearchRankingOptionsObject {
 	pub ranker: FileSearchRanker,
 	/// The score threshold for the file search. All values must be a floating point number between 0 and 1.
 	pub score_threshold: f64,
+}
+/// A result instance of the file search.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct RunStepDetailsToolCallsFileSearchResultObject {
+	/// The content of the result that was found. The content is only included if requested via the include query parameter.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub content: Option<Vec<RunStepDetailsToolCallsFileSearchResultObjectContentItem>>,
+	/// The ID of the file that result was found in.
+	pub file_id: String,
+	/// The name of the file that result was found in.
+	pub file_name: String,
+	/// The score of the result. All values must be a floating point number between 0 and 1.
+	pub score: f64,
+}
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct RunStepDetailsToolCallsFileSearchResultObjectContentItem {
+	/// The text content of the file.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub text: Option<String>,
+	/// The type of the content.
+	#[serde(skip_serializing_if = "Option::is_none")]
+	pub r#type: Option<RunStepDetailsToolCallsFileSearchResultObjectContentItemType>,
+}
+/// The type of the content.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum RunStepDetailsToolCallsFileSearchResultObjectContentItemType {
+	Text,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct RunStepDetailsToolCallsFunctionObject {
@@ -11393,7 +10910,6 @@ pub struct RunStepDetailsToolCallsFunctionObjectFunction {
 /// The type of tool call. This is always going to be `function` for this type of tool call.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunStepDetailsToolCallsFunctionObjectType {
 	Function,
 }
@@ -11401,14 +10917,14 @@ pub enum RunStepDetailsToolCallsFunctionObjectType {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct RunStepDetailsToolCallsObject {
 	/// An array of tool calls the run step was involved in. These can be associated with one of three types of tools: `code_interpreter`, `file_search`, or `function`.
-	pub tool_calls: Vec<RunStepDetailsToolCallsObjectToolCalls>,
+	pub tool_calls: Vec<RunStepDetailsToolCallsObjectItems>,
 	/// Always `tool_calls`.
 	pub r#type: RunStepDetailsToolCallsObjectType,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum RunStepDetailsToolCallsObjectToolCalls {
+pub enum RunStepDetailsToolCallsObjectItems {
 	RunStepDetailsToolCallsCodeObject(RunStepDetailsToolCallsCodeObject),
 	RunStepDetailsToolCallsFileSearchObject(RunStepDetailsToolCallsFileSearchObject),
 	RunStepDetailsToolCallsFunctionObject(RunStepDetailsToolCallsFunctionObject),
@@ -11416,7 +10932,6 @@ pub enum RunStepDetailsToolCallsObjectToolCalls {
 /// Always `tool_calls`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunStepDetailsToolCallsObjectType {
 	#[serde(rename = "tool_calls")]
 	ToolCalls,
@@ -11466,7 +10981,6 @@ pub struct RunStepObjectLastError {
 /// One of `server_error` or `rate_limit_exceeded`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunStepObjectLastErrorCode {
 	#[serde(rename = "server_error")]
 	ServerError,
@@ -11476,7 +10990,6 @@ pub enum RunStepObjectLastErrorCode {
 /// The object type, which is always `thread.run.step`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunStepObjectObject {
 	#[serde(rename = "thread.run.step")]
 	ThreadRunStep,
@@ -11484,7 +10997,6 @@ pub enum RunStepObjectObject {
 /// The status of the run step, which can be either `in_progress`, `cancelled`, `failed`, `completed`, or `expired`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunStepObjectStatus {
 	#[serde(rename = "in_progress")]
 	InProgress,
@@ -11495,22 +11007,15 @@ pub enum RunStepObjectStatus {
 }
 /// The details of the run step.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct RunStepObjectStepDetails {
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub RunStepObjectStepDetails: Option<RunStepObjectStepDetailsRunStepObjectStepDetails>,
-}
-/// The details of the run step.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum RunStepObjectStepDetailsRunStepObjectStepDetails {
+pub enum RunStepObjectStepDetails {
 	RunStepDetailsMessageCreationObject(RunStepDetailsMessageCreationObject),
 	RunStepDetailsToolCallsObject(RunStepDetailsToolCallsObject),
 }
 /// The type of run step, which can be either `message_creation` or `tool_calls`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunStepObjectType {
 	#[serde(rename = "message_creation")]
 	MessageCreation,
@@ -11522,26 +11027,11 @@ pub enum RunStepObjectType {
 #[serde(untagged)]
 pub enum RunStepStreamEvent {
 	Object(serde_json::Value),
-	Object(serde_json::Value),
-	Object(serde_json::Value),
-	Object(serde_json::Value),
-	Object(serde_json::Value),
-	Object(serde_json::Value),
-	Object(serde_json::Value),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
 pub enum RunStreamEvent {
-	Object(serde_json::Value),
-	Object(serde_json::Value),
-	Object(serde_json::Value),
-	Object(serde_json::Value),
-	Object(serde_json::Value),
-	Object(serde_json::Value),
-	Object(serde_json::Value),
-	Object(serde_json::Value),
-	Object(serde_json::Value),
 	Object(serde_json::Value),
 }
 /// Tool call objects
@@ -11565,7 +11055,6 @@ pub struct RunToolCallObjectFunction {
 /// The type of tool call the output is required for. For now, this is always `function`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum RunToolCallObjectType {
 	Function,
 }
@@ -11580,7 +11069,6 @@ pub struct Screenshot {
 /// always set to `screenshot`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ScreenshotType {
 	Screenshot,
 }
@@ -11603,7 +11091,6 @@ pub struct Scroll {
 /// always set to `scroll`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ScrollType {
 	Scroll,
 }
@@ -11626,7 +11113,6 @@ pub struct StaticChunkingStrategyRequestParam {
 /// Always `static`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum StaticChunkingStrategyRequestParamType {
 	Static,
 }
@@ -11639,7 +11125,6 @@ pub struct StaticChunkingStrategyResponseParam {
 /// Always `static`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum StaticChunkingStrategyResponseParamType {
 	Static,
 }
@@ -11650,7 +11135,7 @@ pub enum StaticChunkingStrategyResponseParamType {
 #[serde(untagged)]
 pub enum StopConfiguration {
 	String(String),
-	Array(StopConfigurationArray),
+	StopConfigurationStringArray(StopConfigurationStringArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct SubmitToolOutputsRunRequest {
@@ -11658,10 +11143,10 @@ pub struct SubmitToolOutputsRunRequest {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub stream: Option<bool>,
 	/// A list of tools for which the outputs are being submitted.
-	pub tool_outputs: Vec<SubmitToolOutputsRunRequestToolOutputs>,
+	pub tool_outputs: Vec<SubmitToolOutputsRunRequestToolOutputsItem>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct SubmitToolOutputsRunRequestToolOutputs {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct SubmitToolOutputsRunRequestToolOutputsItem {
 	/// The output of the tool call to be submitted to continue the run.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub output: Option<String>,
@@ -11716,7 +11201,6 @@ pub struct TextResponseFormatJsonSchema {
 /// The type of response format being defined. Always `json_schema`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum TextResponseFormatJsonSchemaType {
 	#[serde(rename = "json_schema")]
 	JsonSchema,
@@ -11737,25 +11221,24 @@ pub struct ThreadObject {
 /// The object type, which is always `thread`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ThreadObjectObject {
 	Thread,
 }
 /// A set of resources that are made available to the assistant's tools in this thread. The resources are specific to the type of tool. For example, the `code_interpreter` tool requires a list of file IDs, while the `file_search` tool requires a list of vector store IDs.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ThreadObjectToolResources {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub code_interpreter: Option<ThreadObjectToolResourcesCodeInterpreter>,
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_search: Option<ThreadObjectToolResourcesFileSearch>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ThreadObjectToolResourcesCodeInterpreter {
 	/// A list of [file](https://platform.openai.com/docs/api-reference/files) IDs made available to the `code_interpreter` tool. There can be a maximum of 20 files associated with the tool.
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub file_ids: Option<Vec<String>>,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct ThreadObjectToolResourcesFileSearch {
 	/// The [vector store](https://platform.openai.com/docs/api-reference/vector-stores/object) attached to this thread. There can be a maximum of 1 vector store attached to the thread.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -11787,7 +11270,6 @@ pub struct ToolChoiceFunction {
 /// For function calling, the type is always `function`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ToolChoiceFunctionType {
 	Function,
 }
@@ -11801,7 +11283,6 @@ pub enum ToolChoiceFunctionType {
 /// `required` means the model must call one or more tools.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ToolChoiceOptions {
 	None,
 	Auto,
@@ -11829,7 +11310,6 @@ pub struct ToolChoiceTypes {
 /// - `computer_use_preview`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum ToolChoiceTypesType {
 	#[serde(rename = "file_search")]
 	FileSearch,
@@ -11854,7 +11334,6 @@ pub struct TranscriptTextDeltaEvent {
 /// The type of the event. Always `transcript.text.delta`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum TranscriptTextDeltaEventType {
 	#[serde(rename = "transcript.text.delta")]
 	TranscriptTextDelta,
@@ -11873,14 +11352,12 @@ pub struct TranscriptTextDoneEvent {
 /// The type of the event. Always `transcript.text.done`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum TranscriptTextDoneEventType {
 	#[serde(rename = "transcript.text.done")]
 	TranscriptTextDone,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum TranscriptionInclude {
 	Logprobs,
 }
@@ -11928,7 +11405,6 @@ pub struct TruncationObject {
 /// The truncation strategy to use for the thread. The default is `auto`. If set to `last_messages`, the thread will be truncated to the n most recent messages in the thread. When set to `auto`, messages in the middle of the thread will be dropped to fit the context length of the model, `max_prompt_tokens`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum TruncationObjectType {
 	Auto,
 	#[serde(rename = "last_messages")]
@@ -11947,7 +11423,6 @@ pub struct Type {
 /// always set to `type`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum TypeType {
 	Type,
 }
@@ -11955,7 +11430,7 @@ pub enum TypeType {
 pub struct UpdateVectorStoreFileAttributesRequest {
 	pub attributes: VectorStoreFileAttributes,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct UpdateVectorStoreRequest {
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub expires_after: Option<UpdateVectorStoreRequestExpiresAfter>,
@@ -12021,7 +11496,6 @@ pub struct UploadFile {
 /// The object type, which is always "upload".
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum UploadObject {
 	Upload,
 }
@@ -12040,7 +11514,6 @@ pub struct UploadPart {
 /// The object type, which is always `upload.part`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum UploadPartObject {
 	#[serde(rename = "upload.part")]
 	UploadPart,
@@ -12048,7 +11521,6 @@ pub enum UploadPartObject {
 /// The status of the Upload.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum UploadStatus {
 	Pending,
 	Completed,
@@ -12072,7 +11544,6 @@ pub struct UrlCitation {
 /// The type of the URL citation. Always `url_citation`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum UrlCitationType {
 	#[serde(rename = "url_citation")]
 	UrlCitation,
@@ -12100,7 +11571,6 @@ pub struct UsageAudioSpeechesResult {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum UsageAudioSpeechesResultObject {
 	#[serde(rename = "organization.usage.audio_speeches.result")]
 	OrganizationUsageAudioSpeechesResult,
@@ -12128,7 +11598,6 @@ pub struct UsageAudioTranscriptionsResult {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum UsageAudioTranscriptionsResultObject {
 	#[serde(rename = "organization.usage.audio_transcriptions.result")]
 	OrganizationUsageAudioTranscriptionsResult,
@@ -12146,7 +11615,6 @@ pub struct UsageCodeInterpreterSessionsResult {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum UsageCodeInterpreterSessionsResultObject {
 	#[serde(rename = "organization.usage.code_interpreter_sessions.result")]
 	OrganizationUsageCodeInterpreterSessionsResult,
@@ -12188,7 +11656,6 @@ pub struct UsageCompletionsResult {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum UsageCompletionsResultObject {
 	#[serde(rename = "organization.usage.completions.result")]
 	OrganizationUsageCompletionsResult,
@@ -12216,7 +11683,6 @@ pub struct UsageEmbeddingsResult {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum UsageEmbeddingsResultObject {
 	#[serde(rename = "organization.usage.embeddings.result")]
 	OrganizationUsageEmbeddingsResult,
@@ -12250,7 +11716,6 @@ pub struct UsageImagesResult {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum UsageImagesResultObject {
 	#[serde(rename = "organization.usage.images.result")]
 	OrganizationUsageImagesResult,
@@ -12278,7 +11743,6 @@ pub struct UsageModerationsResult {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum UsageModerationsResultObject {
 	#[serde(rename = "organization.usage.moderations.result")]
 	OrganizationUsageModerationsResult,
@@ -12292,7 +11756,6 @@ pub struct UsageResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum UsageResponseObject {
 	Page,
 }
@@ -12300,19 +11763,13 @@ pub enum UsageResponseObject {
 pub struct UsageTimeBucket {
 	pub end_time: i64,
 	pub object: UsageTimeBucketObject,
-	pub result: Vec<UsageTimeBucketResult>,
+	pub result: Vec<UsageTimeBucketItems>,
 	pub start_time: i64,
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum UsageTimeBucketObject {
-	Bucket,
-}
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-#[serde(rename_all = "lowercase")]
-#[serde(untagged)]
-pub enum UsageTimeBucketResult {
+pub enum UsageTimeBucketItems {
 	UsageCompletionsResult(UsageCompletionsResult),
 	UsageEmbeddingsResult(UsageEmbeddingsResult),
 	UsageModerationsResult(UsageModerationsResult),
@@ -12322,6 +11779,11 @@ pub enum UsageTimeBucketResult {
 	UsageVectorStoresResult(UsageVectorStoresResult),
 	UsageCodeInterpreterSessionsResult(UsageCodeInterpreterSessionsResult),
 	CostsResult(CostsResult),
+}
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum UsageTimeBucketObject {
+	Bucket,
 }
 /// The aggregated vector stores usage details of the specific time bucket.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -12335,7 +11797,6 @@ pub struct UsageVectorStoresResult {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum UsageVectorStoresResultObject {
 	#[serde(rename = "organization.usage.vector_stores.result")]
 	OrganizationUsageVectorStoresResult,
@@ -12364,7 +11825,6 @@ pub struct UserDeleteResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum UserDeleteResponseObject {
 	#[serde(rename = "organization.user.deleted")]
 	OrganizationUserDeleted,
@@ -12379,14 +11839,12 @@ pub struct UserListResponse {
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum UserListResponseObject {
 	List,
 }
 /// The object type, which is always `organization.user`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum UserObject {
 	#[serde(rename = "organization.user")]
 	OrganizationUser,
@@ -12394,7 +11852,6 @@ pub enum UserObject {
 /// `owner` or `reader`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum UserRole {
 	Owner,
 	Reader,
@@ -12407,7 +11864,6 @@ pub struct UserRoleUpdateRequest {
 /// `owner` or `reader`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum UserRoleUpdateRequestRole {
 	Owner,
 	Reader,
@@ -12423,7 +11879,6 @@ pub struct VectorStoreExpirationAfter {
 /// Anchor timestamp after which the expiration policy applies. Supported anchors: `last_active_at`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum VectorStoreExpirationAfterAnchor {
 	#[serde(rename = "last_active_at")]
 	LastActiveAt,
@@ -12459,7 +11914,6 @@ pub struct VectorStoreFileBatchObjectFileCounts {
 /// The object type, which is always `vector_store.file_batch`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum VectorStoreFileBatchObjectObject {
 	#[serde(rename = "vector_store.files_batch")]
 	VectorStoreFilesBatch,
@@ -12467,7 +11921,6 @@ pub enum VectorStoreFileBatchObjectObject {
 /// The status of the vector store files batch, which can be either `in_progress`, `completed`, `cancelled` or `failed`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum VectorStoreFileBatchObjectStatus {
 	#[serde(rename = "in_progress")]
 	InProgress,
@@ -12479,7 +11932,7 @@ pub enum VectorStoreFileBatchObjectStatus {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct VectorStoreFileContentResponse {
 	/// Parsed content of the file.
-	pub data: Vec<VectorStoreFileContentResponseData>,
+	pub data: Vec<VectorStoreFileContentResponseDataItem>,
 	/// Indicates if there are more content pages to fetch.
 	pub has_more: bool,
 	/// The token for the next page, if any.
@@ -12487,8 +11940,8 @@ pub struct VectorStoreFileContentResponse {
 	/// The object type, which is always `vector_store.file_content.page`
 	pub object: VectorStoreFileContentResponseObject,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct VectorStoreFileContentResponseData {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
+pub struct VectorStoreFileContentResponseDataItem {
 	/// The text content
 	#[serde(skip_serializing_if = "Option::is_none")]
 	pub text: Option<String>,
@@ -12499,7 +11952,6 @@ pub struct VectorStoreFileContentResponseData {
 /// The object type, which is always `vector_store.file_content.page`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum VectorStoreFileContentResponseObject {
 	#[serde(rename = "vector_store.file_content.page")]
 	VectorStoreFileContentPage,
@@ -12529,15 +11981,9 @@ pub struct VectorStoreFileObject {
 }
 /// The strategy used to chunk the file.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
-pub struct VectorStoreFileObjectChunkingStrategy {
-	#[serde(skip_serializing_if = "Option::is_none")]
-	pub VectorStoreFileObjectChunkingStrategy: Option<VectorStoreFileObjectChunkingStrategyVectorStoreFileObjectChunkingStrategy>,
-}
-/// The strategy used to chunk the file.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 #[serde(untagged)]
-pub enum VectorStoreFileObjectChunkingStrategyVectorStoreFileObjectChunkingStrategy {
+pub enum VectorStoreFileObjectChunkingStrategy {
 	StaticChunkingStrategyResponseParam(StaticChunkingStrategyResponseParam),
 	OtherChunkingStrategyResponseParam(OtherChunkingStrategyResponseParam),
 }
@@ -12552,7 +11998,6 @@ pub struct VectorStoreFileObjectLastError {
 /// One of `server_error` or `rate_limit_exceeded`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum VectorStoreFileObjectLastErrorCode {
 	#[serde(rename = "server_error")]
 	ServerError,
@@ -12564,7 +12009,6 @@ pub enum VectorStoreFileObjectLastErrorCode {
 /// The object type, which is always `vector_store.file`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum VectorStoreFileObjectObject {
 	#[serde(rename = "vector_store.file")]
 	VectorStoreFile,
@@ -12572,7 +12016,6 @@ pub enum VectorStoreFileObjectObject {
 /// The status of the vector store file, which can be either `in_progress`, `completed`, `cancelled`, or `failed`. The status `completed` indicates that the vector store file is ready for use.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum VectorStoreFileObjectStatus {
 	#[serde(rename = "in_progress")]
 	InProgress,
@@ -12621,7 +12064,6 @@ pub struct VectorStoreObjectFileCounts {
 /// The object type, which is always `vector_store`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum VectorStoreObjectObject {
 	#[serde(rename = "vector_store")]
 	VectorStore,
@@ -12629,7 +12071,6 @@ pub enum VectorStoreObjectObject {
 /// The status of the vector store, which can be either `expired`, `in_progress`, or `completed`. A status of `completed` indicates that the vector store is ready for use.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum VectorStoreObjectStatus {
 	Expired,
 	#[serde(rename = "in_progress")]
@@ -12667,7 +12108,7 @@ pub enum VectorStoreSearchRequestFilters {
 #[serde(untagged)]
 pub enum VectorStoreSearchRequestQuery {
 	String(String),
-	Array(VectorStoreSearchRequestQueryArray),
+	VectorStoreSearchRequestQueryStringArray(VectorStoreSearchRequestQueryStringArray),
 }
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct VectorStoreSearchResultContentObject {
@@ -12679,7 +12120,6 @@ pub struct VectorStoreSearchResultContentObject {
 /// The type of content.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum VectorStoreSearchResultContentObjectType {
 	Text,
 }
@@ -12710,7 +12150,6 @@ pub struct VectorStoreSearchResultsPage {
 /// The object type, which is always `vector_store.search_results.page`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum VectorStoreSearchResultsPageObject {
 	#[serde(rename = "vector_store.search_results.page")]
 	VectorStoreSearchResultsPage,
@@ -12726,7 +12165,6 @@ pub struct Wait {
 /// always set to `wait`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum WaitType {
 	Wait,
 }
@@ -12734,14 +12172,13 @@ pub enum WaitType {
 /// search. One of `low`, `medium`, or `high`. `medium` is the default.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum WebSearchContextSize {
 	Low,
 	Medium,
 	High,
 }
 /// Approximate location parameters for the search.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct WebSearchLocation {
 	/// Free text input for the city of the user, e.g. `San Francisco`.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -12786,7 +12223,6 @@ pub struct WebSearchToolCall {
 /// The status of the web search tool call.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum WebSearchToolCallStatus {
 	#[serde(rename = "in_progress")]
 	InProgress,
@@ -12797,7 +12233,6 @@ pub enum WebSearchToolCallStatus {
 /// The type of the web search tool call. Always `web_search_call`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum WebSearchToolCallType {
 	#[serde(rename = "web_search_call")]
 	WebSearchCall,
@@ -12807,14 +12242,13 @@ pub enum WebSearchToolCallType {
 /// - `web_search_preview_2025_03_11`
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum WebSearchToolType {
 	#[serde(rename = "web_search_preview")]
 	WebSearchPreview,
 	#[serde(rename = "web_search_preview_2025_03_11")]
 	WebSearchPreview20250311,
 }
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Default)]
 pub struct WebSearchToolUserLocation {
 	/// Free text input for the city of the user, e.g. `San Francisco`.
 	#[serde(skip_serializing_if = "Option::is_none")]
@@ -12838,64 +12272,541 @@ pub struct WebSearchToolUserLocation {
 /// The type of location approximation. Always `approximate`.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
-#[serde(untagged)]
 pub enum WebSearchToolUserLocationType {
 	Approximate,
 }
+
+
+/// The tool calls generated by the model, such as function calls.
 pub type ChatCompletionMessageToolCalls = Vec<ChatCompletionMessageToolCall>;
-pub type ChatCompletionModalities = Vec<ChatCompletionModalitiesChatCompletionModalities>;
-pub type ChatCompletionRequestAssistantMessageContentArray = Vec<ChatCompletionRequestAssistantMessageContentPart>;
-pub type ChatCompletionRequestDeveloperMessageContentArray = Vec<ChatCompletionRequestMessageContentPartText>;
-pub type ChatCompletionRequestSystemMessageContentArray = Vec<ChatCompletionRequestSystemMessageContentPart>;
-pub type ChatCompletionRequestToolMessageContentArray = Vec<ChatCompletionRequestToolMessageContentPart>;
-pub type ChatCompletionRequestUserMessageContentArray = Vec<ChatCompletionRequestUserMessageContentPart>;
+
+/// Output types that you would like the model to generate for this request.
+/// Most models are capable of generating text, which is the default:
+/// 
+/// `["text"]`
+/// 
+/// The `gpt-4o-audio-preview` model can also be used to [generate audio](/docs/guides/audio). To
+/// request that this model generate both text and audio responses, you can
+/// use:
+/// 
+/// `["text", "audio"]`
+pub type ChatCompletionModalities = Vec<ChatCompletionModalitiesItem>;
+
+/// An array of content parts with a defined type. Can be one or more of type `text`, or exactly one of type `refusal`.
+pub type ChatCompletionRequestAssistantMessageContentChatCompletionRequestAssistantMessageContentPartArray = Vec<ChatCompletionRequestAssistantMessageContentPart>;
+
+/// An array of content parts with a defined type. For developer messages, only type `text` is supported.
+pub type ChatCompletionRequestDeveloperMessageContentChatCompletionRequestMessageContentPartTextArray = Vec<ChatCompletionRequestMessageContentPartText>;
+
+/// An array of content parts with a defined type. For system messages, only type `text` is supported.
+pub type ChatCompletionRequestSystemMessageContentChatCompletionRequestSystemMessageContentPartArray = Vec<ChatCompletionRequestSystemMessageContentPart>;
+
+/// An array of content parts with a defined type. For tool messages, only type `text` is supported.
+pub type ChatCompletionRequestToolMessageContentChatCompletionRequestToolMessageContentPartArray = Vec<ChatCompletionRequestToolMessageContentPart>;
+
+/// An array of content parts with a defined type. Supported options differ based on the [model](/docs/models) being used to generate the response. Can contain text, image, or audio inputs.
+pub type ChatCompletionRequestUserMessageContentChatCompletionRequestUserMessageContentPartArray = Vec<ChatCompletionRequestUserMessageContentPart>;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	AssistantSupportedModels,
+/// }
+/// ---------------
 pub type CreateAssistantRequestModel = serde_json::Value;
+
+/// Represents a streamed chunk of a chat completion response returned by model, based on the provided input. [Learn more](/docs/guides/streaming-responses).
 pub type CreateChatCompletionImageResponse = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"gpt-3.5-turbo-instruct",
+/// 				"davinci-002",
+/// 				"babbage-002",
+/// 	],
+/// }
+/// ---------------
 pub type CreateCompletionRequestModel = serde_json::Value;
-pub type CreateCompletionRequestPromptArray = Vec<Vec<Vec<i64>>>;
-pub type CreateCompletionResponseChoicesLogprobsTopLogprobs = serde_json::Value;
-pub type CreateEmbeddingRequestInputArray = Vec<Vec<Vec<i64>>>;
+
+pub type CreateCompletionRequestPromptArrayArray = Vec<Vec<Vec<i64>>>;
+
+pub type CreateCompletionRequestPromptIntegerArray = Vec<i64>;
+
+pub type CreateCompletionRequestPromptStringArray = Vec<String>;
+
+/// JSON Schema
+pub type CreateCompletionResponseChoicesItemLogprobsTopLogprobs = HashMap<String, f64>;
+
+/// The array of arrays containing integers that will be turned into an embedding.
+pub type CreateEmbeddingRequestInputArrayArray = Vec<Vec<Vec<i64>>>;
+
+/// The array of integers that will be turned into an embedding.
+pub type CreateEmbeddingRequestInputIntegerArray = Vec<i64>;
+
+/// The array of strings that will be turned into an embedding.
+pub type CreateEmbeddingRequestInputStringArray = Vec<String>;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"text-embedding-ada-002",
+/// 				"text-embedding-3-small",
+/// 				"text-embedding-3-large",
+/// 	],
+/// }
+/// ---------------
 pub type CreateEmbeddingRequestModel = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"babbage-002",
+/// 				"davinci-002",
+/// 				"gpt-3.5-turbo",
+/// 				"gpt-4o-mini",
+/// 	],
+/// }
+/// ---------------
 pub type CreateFineTuningJobRequestModel = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"dall-e-2",
+/// 	],
+/// 	x-stainless-const:
+/// 	true,
+/// }
+/// ---------------
 pub type CreateImageEditRequestModel = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"dall-e-2",
+/// 				"dall-e-3",
+/// 	],
+/// }
+/// ---------------
 pub type CreateImageRequestModel = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"dall-e-2",
+/// 	],
+/// 	x-stainless-const:
+/// 	true,
+/// }
+/// ---------------
 pub type CreateImageVariationRequestModel = serde_json::Value;
-pub type CreateMessageRequestContentArray = Vec<CreateMessageRequestContentCreateMessageRequestContent>;
-pub type CreateModerationRequestInputArray = Vec<CreateModerationRequestInputCreateModerationRequestInput>;
+
+/// An array of content parts with a defined type, each can be of type `text` or images can be passed with `image_url` or `image_file`. Image types are only supported on [Vision-compatible models](/docs/models).
+pub type CreateMessageRequestContentVariedArray = Vec<CreateMessageRequestContentItems>;
+
+/// An array of strings to classify for moderation.
+pub type CreateModerationRequestInputStringArray = Vec<String>;
+
+/// An array of multi-modal inputs to the moderation model.
+pub type CreateModerationRequestInputVariedArray = Vec<CreateModerationRequestInputItems>;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"omni-moderation-latest",
+/// 				"omni-moderation-2024-09-26",
+/// 				"text-moderation-latest",
+/// 				"text-moderation-stable",
+/// 	],
+/// }
+/// ---------------
 pub type CreateModerationRequestModel = serde_json::Value;
-pub type CreateResponseInputArray = Vec<InputItem>;
+
+/// A list of one or many input items to the model, containing 
+/// different content types.
+pub type CreateResponseInputInputItemArray = Vec<InputItem>;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	AssistantSupportedModels,
+/// }
+/// ---------------
 pub type CreateRunRequestModel = serde_json::Value;
+
 pub type CreateRunRequestToolChoice = AssistantsApiToolChoiceOption;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"tts-1",
+/// 				"tts-1-hd",
+/// 				"gpt-4o-mini-tts",
+/// 	],
+/// }
+/// ---------------
 pub type CreateSpeechRequestModel = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"gpt-4o",
+/// 				"gpt-4o-2024-11-20",
+/// 				"gpt-4o-2024-08-06",
+/// 				"gpt-4o-2024-05-13",
+/// 				"gpt-4o-mini",
+/// 				"gpt-4o-mini-2024-07-18",
+/// 				"gpt-4.5-preview",
+/// 				"gpt-4.5-preview-2025-02-27",
+/// 				"gpt-4-turbo",
+/// 				"gpt-4-turbo-2024-04-09",
+/// 				"gpt-4-0125-preview",
+/// 				"gpt-4-turbo-preview",
+/// 				"gpt-4-1106-preview",
+/// 				"gpt-4-vision-preview",
+/// 				"gpt-4",
+/// 				"gpt-4-0314",
+/// 				"gpt-4-0613",
+/// 				"gpt-4-32k",
+/// 				"gpt-4-32k-0314",
+/// 				"gpt-4-32k-0613",
+/// 				"gpt-3.5-turbo",
+/// 				"gpt-3.5-turbo-16k",
+/// 				"gpt-3.5-turbo-0613",
+/// 				"gpt-3.5-turbo-1106",
+/// 				"gpt-3.5-turbo-0125",
+/// 				"gpt-3.5-turbo-16k-0613",
+/// 	],
+/// }
+/// ---------------
 pub type CreateThreadAndRunRequestModel = serde_json::Value;
+
 pub type CreateThreadAndRunRequestToolChoice = AssistantsApiToolChoiceOption;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"whisper-1",
+/// 				"gpt-4o-transcribe",
+/// 				"gpt-4o-mini-transcribe",
+/// 	],
+/// 	x-stainless-const:
+/// 	true,
+/// }
+/// ---------------
 pub type CreateTranscriptionRequestModel = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"whisper-1",
+/// 	],
+/// 	x-stainless-const:
+/// 	true,
+/// }
+/// ---------------
 pub type CreateTranslationRequestModel = serde_json::Value;
-pub type FineTuningJobEventData = serde_json::Value;
+
+/// The parameters the functions accepts, described as a JSON Schema object. See the [guide](/docs/guides/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema/) for documentation about the format. 
+/// 
+/// Omitting `parameters` defines a function with an empty parameter list.
 pub type FunctionParameters = serde_json::Value;
+
+/// A list of one or many input items to the model, containing different content 
+/// types.
 pub type InputMessageContentList = Vec<InputContent>;
+
+/// Set of 16 key-value pairs that can be attached to an object. This can be
+/// useful for storing additional information about the object in a structured
+/// format, and querying for objects via API or the dashboard. 
+/// 
+/// Keys are strings with a maximum length of 64 characters. Values are strings
+/// with a maximum length of 512 characters.
 pub type Metadata = HashMap<String, String>;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	ModelIdsShared,
+/// }
+/// ---------------
+/// {
+/// 	ModelIdsResponses,
+/// }
+/// ---------------
 pub type ModelIds = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	ModelIdsShared,
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"o1-pro",
+/// 				"o1-pro-2025-03-19",
+/// 				"computer-use-preview",
+/// 				"computer-use-preview-2025-03-11",
+/// 	],
+/// }
+/// ---------------
 pub type ModelIdsResponses = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"o3-mini",
+/// 				"o3-mini-2025-01-31",
+/// 				"o1",
+/// 				"o1-2024-12-17",
+/// 				"o1-preview",
+/// 				"o1-preview-2024-09-12",
+/// 				"o1-mini",
+/// 				"o1-mini-2024-09-12",
+/// 				"gpt-4o",
+/// 				"gpt-4o-2024-11-20",
+/// 				"gpt-4o-2024-08-06",
+/// 				"gpt-4o-2024-05-13",
+/// 				"gpt-4o-audio-preview",
+/// 				"gpt-4o-audio-preview-2024-10-01",
+/// 				"gpt-4o-audio-preview-2024-12-17",
+/// 				"gpt-4o-mini-audio-preview",
+/// 				"gpt-4o-mini-audio-preview-2024-12-17",
+/// 				"gpt-4o-search-preview",
+/// 				"gpt-4o-mini-search-preview",
+/// 				"gpt-4o-search-preview-2025-03-11",
+/// 				"gpt-4o-mini-search-preview-2025-03-11",
+/// 				"chatgpt-4o-latest",
+/// 				"gpt-4o-mini",
+/// 				"gpt-4o-mini-2024-07-18",
+/// 				"gpt-4-turbo",
+/// 				"gpt-4-turbo-2024-04-09",
+/// 				"gpt-4-0125-preview",
+/// 				"gpt-4-turbo-preview",
+/// 				"gpt-4-1106-preview",
+/// 				"gpt-4-vision-preview",
+/// 				"gpt-4",
+/// 				"gpt-4-0314",
+/// 				"gpt-4-0613",
+/// 				"gpt-4-32k",
+/// 				"gpt-4-32k-0314",
+/// 				"gpt-4-32k-0613",
+/// 				"gpt-3.5-turbo",
+/// 				"gpt-3.5-turbo-16k",
+/// 				"gpt-3.5-turbo-0301",
+/// 				"gpt-3.5-turbo-0613",
+/// 				"gpt-3.5-turbo-1106",
+/// 				"gpt-3.5-turbo-0125",
+/// 				"gpt-3.5-turbo-16k-0613",
+/// 	],
+/// }
+/// ---------------
 pub type ModelIdsShared = serde_json::Value;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	AssistantSupportedModels,
+/// }
+/// ---------------
 pub type ModifyAssistantRequestModel = serde_json::Value;
+
+/// Whether to enable [parallel function calling](/docs/guides/function-calling#configuring-parallel-function-calling) during tool use.
 pub type ParallelToolCalls = bool;
-pub type PredictionContentContentArray = Vec<ChatCompletionRequestMessageContentPartText>;
-pub type RealtimeResponseCreateParamsToolsParameters = serde_json::Value;
-pub type RealtimeSessionCreateRequestModalities = serde_json::Value;
-pub type RealtimeSessionCreateRequestToolsParameters = serde_json::Value;
-pub type RealtimeSessionCreateResponseModalities = serde_json::Value;
-pub type RealtimeSessionCreateResponseToolsParameters = serde_json::Value;
-pub type RealtimeSessionModalities = serde_json::Value;
-pub type RealtimeSessionToolsParameters = serde_json::Value;
-pub type RealtimeTranscriptionSessionCreateRequestModalities = serde_json::Value;
-pub type RealtimeTranscriptionSessionCreateResponseModalities = serde_json::Value;
+
+/// An array of content parts with a defined type. Supported options differ based on the [model](/docs/models) being used to generate the response. Can contain text inputs.
+pub type PredictionContentContentChatCompletionRequestMessageContentPartTextArray = Vec<ChatCompletionRequestMessageContentPartText>;
+
+/// The schema for the response format, described as a JSON Schema object.
+/// Learn how to build JSON schemas [here](https://json-schema.org/).
 pub type ResponseFormatJsonSchemaSchema = serde_json::Value;
-pub type ResponseModalities = Vec<ResponseModalitiesResponseModalities>;
-pub type ResponseModalitiesTextOnly = Vec<ResponseModalitiesTextOnlyResponseModalitiesTextOnly>;
+
+/// Output types that you would like the model to generate.
+/// Most models are capable of generating text, which is the default:
+/// 
+/// `["text"]`
+/// 
+/// The `gpt-4o-audio-preview` model can also be used to 
+/// [generate audio](/docs/guides/audio). To request that this model generate 
+/// both text and audio responses, you can use:
+/// 
+/// `["text", "audio"]`
+pub type ResponseModalities = Vec<ResponseModalitiesItem>;
+
+/// Output types that you would like the model to generate.
+/// Most models are capable of generating text, which is the default:
+/// 
+/// `["text"]`
+/// 
+/// This API will soon support other output modalities, including audio and images.
+pub type ResponseModalitiesTextOnly = Vec<ResponseModalitiesTextOnlyItem>;
+
 pub type RunObjectToolChoice = AssistantsApiToolChoiceOption;
-pub type RunStepDetailsToolCallsFileSearchResultObject = serde_json::Value;
-pub type StopConfigurationArray = Vec<String>;
+
+pub type StopConfigurationStringArray = Vec<String>;
+
+/// Set of 16 key-value pairs that can be attached to an object. This can be 
+/// useful for storing additional information about the object in a structured 
+/// format, and querying for objects via API or the dashboard. Keys are strings 
+/// with a maximum length of 64 characters. Values are strings with a maximum 
+/// length of 512 characters, booleans, or numbers.
 pub type VectorStoreFileAttributes = serde_json::Value;
-pub type VectorStoreSearchRequestQueryArray = Vec<String>;
+
+pub type VectorStoreSearchRequestQueryStringArray = Vec<String>;
+
+/// Any of:
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// }
+/// ---------------
+/// {
+/// 	type:
+/// 	"string",
+/// 	enum:
+/// 	[
+/// 				"alloy",
+/// 				"ash",
+/// 				"ballad",
+/// 				"coral",
+/// 				"echo",
+/// 				"fable",
+/// 				"onyx",
+/// 				"nova",
+/// 				"sage",
+/// 				"shimmer",
+/// 				"verse",
+/// 	],
+/// }
+/// ---------------
 pub type VoiceIdsShared = serde_json::Value;
+

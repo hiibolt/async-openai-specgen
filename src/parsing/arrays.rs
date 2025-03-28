@@ -4,7 +4,7 @@ use super::{
     enums::parse_enum,
     objects::parse_object,
 
-    super::types::objects::FieldValue
+    super::data::objects::FieldValue
 };
 
 use std::collections::BTreeMap;
@@ -18,6 +18,7 @@ pub(super) fn parse_array (
 
     schemas: &mut BTreeMap<String, Data>,
     aliases: &mut BTreeMap<String, Alias>,
+    wanted_by: String,
 
     key: &str,
     property_key: &str,
@@ -37,6 +38,7 @@ pub(super) fn parse_array (
             global_yaml,
             schemas,
             aliases,
+            wanted_by,
             field_type_key.as_str(),
             &property_value["items"]
         )
@@ -57,6 +59,7 @@ pub(super) fn parse_array (
             global_yaml,
             schemas,
             aliases,
+            wanted_by,
             field_type_key.as_str(),
             &property_value["items"]
         )
@@ -80,6 +83,7 @@ pub(super) fn parse_array (
             global_yaml,
             schemas,
             aliases,
+            wanted_by.clone(),
             parsed_referred_type,
             &referred_type_yaml,
         )
@@ -116,6 +120,7 @@ pub(super) fn parse_array (
             global_yaml,
             schemas,
             aliases,
+            wanted_by,
             field_type_key.as_str(),
             &property_value["items"]
         )
@@ -134,6 +139,7 @@ pub(super) fn parse_array (
             global_yaml,
             schemas,
             aliases,
+            wanted_by,
             field_type_key.as_str(),
             &property_value["items"]
         )
@@ -156,6 +162,7 @@ pub(super) fn parse_array (
                 global_yaml,
                 schemas,
                 aliases,
+                wanted_by,
                 field_type_key.as_str(),
                 &property_value["items"]
             )
@@ -182,6 +189,7 @@ pub(super) fn parse_array (
                 global_yaml,
                 schemas,
                 aliases,
+                wanted_by,
                 key,
                 property_key,
                 &property_value["items"]

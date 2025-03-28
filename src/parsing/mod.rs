@@ -2,8 +2,8 @@ mod enums;
 mod objects;
 mod arrays;
 
-use super::types::enums::Enum;
-use super::types::objects::Object;
+use super::data::enums::Enum;
+use super::data::objects::Object;
 use enums::parse_enum;
 use objects::parse_object;
 use arrays::parse_array;
@@ -50,70 +50,30 @@ pub fn parse (
 
     schemas: &mut BTreeMap<String, Data>,
     aliases: &mut BTreeMap<String, Alias>,
+    wanted_by: String,
 
     key: &str,
     value: &Yaml
 ) -> Result<()> {
-    /*
-    let allowed = vec!(
-        "Tool",
-        "ResponseProperties",
-        "ModelIdsResponses",
-        "ModelIdsShared",
-        "Reasoning",
-        "ReasoningEffort",
-        "ToolChoiceOptions",
-        "ToolChoiceTypes",
-        "ToolChoiceFunction",
-        "TextResponseFormatConfiguration",
-        "ResponseFormatText",
-        "TextResponseFormatJsonSchema",
-        "ResponseFormatJsonSchemaSchema",
-        "ResponseFormatJsonObject",
-        "FileSearchTool",
-        "ComparisonFilter",
-        "CompoundFilter",
-        "FunctionTool",
-        "ComputerTool",
-        "WebSearchTool",
-        "WebSearchLocation",
-        "WebSearchContextSize",
-        "Metadata",
-        "ChatCompletionMessageToolCalls",
-        "ChatCompletionMessageToolCall",
-        "CreateRunRequest",
-        "AssistantsApiToolChoiceOption",
-        "AssistantsNamedToolChoice",
-        "AssistantSupportedModels",
-        "ReasoningEffort",
-        "CreateMessageRequest",
-        "MessageContentImageFileObject",
-        "MessageContentImageUrlObject",
-        "MessageRequestContentTextObject",
-        "AssistantToolsCode",
-        "AssistantToolsFileSearchTypeOnly",
-        "Metadata",
-        "AssistantToolsFileSearch",
-        "FileSearchRankingOptions",
-        "FileSearchRanker",
-        "AssistantToolsFunction",
-        "FunctionObject",
-        "FunctionParameters",
-        "TruncationObject",
-        "ParallelToolCalls",
-        "AssistantsApiResponseFormatOption",
-        "ResponseFormatText",
-        "ResponseFormatJsonObject",
-        "ResponseFormatJsonSchema",
-        "ResponseFormatJsonSchemaSchema"
-    );
-    if !allowed.contains(&key) {
-        println!("Skipping {key}");
-        return Ok(());
-    } */
-
     println!("Key: {}", key);
     println!("Value: {:#?}", value);
+
+    // Check if the key already exists in the schemas or aliases
+    if let Some(data) = schemas.get_mut(key) {
+        println!("Data already exists for key `{key}`: {data:#?}");
+
+        // Add the wanted_by field to the schema or enum
+        match data {
+            Data::Object(object) => {
+                object.wanted_by.insert(wanted_by);
+            },
+            Data::Enum(r#enum) => {
+                r#enum.wanted_by.insert(wanted_by);
+            }
+        }
+
+        return Ok(())
+    }
 
     // Check if the schema is an enum with `anyOf`, `oneOf`
     if value["anyOf"].as_vec().is_some() || value["oneOf"].as_vec().is_some() {
@@ -121,6 +81,7 @@ pub fn parse (
             global_yaml,
             schemas,
             aliases,
+            wanted_by,
             key,
             value
         )
@@ -135,6 +96,7 @@ pub fn parse (
             &global_yaml,
             schemas,
             aliases,
+            wanted_by,
             key,
             value
         )
@@ -207,6 +169,7 @@ pub fn parse (
                 &global_yaml,
                 schemas,
                 aliases,
+                wanted_by,
                 key,
                 value
             )
@@ -219,6 +182,7 @@ pub fn parse (
                     &global_yaml,
                     schemas,
                     aliases,
+                    wanted_by,
                     key,
                     value
                 )
@@ -234,6 +198,7 @@ pub fn parse (
                 &global_yaml,
                 schemas,
                 aliases,
+                wanted_by,
                 key,
                 key,
                 value
@@ -285,6 +250,7 @@ pub fn parse (
                     &global_yaml,
                     schemas,
                     aliases,
+                    wanted_by,
                     key,
                     value
                 )
@@ -302,6 +268,7 @@ pub fn parse (
                     &global_yaml,
                     schemas,
                     aliases,
+                    wanted_by,
                     key,
                     key,
                     value

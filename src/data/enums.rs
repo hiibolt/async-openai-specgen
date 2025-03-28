@@ -1,3 +1,5 @@
+use std::collections::BTreeSet;
+
 use convert_case::{Case, Casing};
 use regex::{Captures, Regex};
 
@@ -17,6 +19,10 @@ pub struct Enum {
     pub values: Vec<String>,
     /// The type of the enum
     pub enum_type: EnumType,
+    /// Which paths want this enum
+    pub wanted_by: BTreeSet<String>,
+    /// Which types this enum relies on
+    pub relies_on: BTreeSet<String>,
 }
 impl std::fmt::Display for Enum {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {

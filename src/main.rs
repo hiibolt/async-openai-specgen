@@ -1,14 +1,15 @@
-mod schemas;
+mod _schemas;
+//mod schemas;
 
 mod parsing;
-mod types;
+mod data;
 
-use schemas::{CreateResponse, CreateResponseInput, Response, OutputItem, OutputContent};
+use _schemas::{CreateResponse, CreateResponseInput, Response, OutputItem, OutputContent};
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use saphyr::Yaml;
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use parsing::{Data, Alias, parse};
 fn main() -> Result<()>{
     let openapi_yaml_raw = include_str!("../assets/openapi.yaml");
@@ -22,6 +23,51 @@ fn main() -> Result<()>{
     let mut schemas: BTreeMap<String, Data> = BTreeMap::new();
     let mut aliases: BTreeMap<String, Alias> = BTreeMap::new();
 
+    let paths = docs[0]["paths"]
+        .as_hash()
+        .context("Failed to get paths")?;
+
+    for (path, yaml) in paths {
+        if let Some(path_string) = path.as_str() {
+            let root_path = path_string.split('/')
+                .skip(1)
+                .next()
+                .context("Failed to get root path")?;
+
+            println!("Path: {}", root_path);
+
+            for (_sub_field_name, sub_field_yaml) in yaml.as_hash()
+                .context("Path YAML for route was not a hashmap!")?
+            {
+                if let Some(schema_ref) = sub_field_yaml["requestBody"]["content"]["application/json"]["schema"]["$ref"].as_str() {
+                    let schema_ref = schema_ref.split("/")
+                        .skip(3)
+                        .next()
+                        .context("Failed to get schema reference")?;
+
+                    println!("Schema ref: {}", schema_ref);
+
+                    // Find the schema reference in the schemas
+                    if let Some(schema_yaml) = schemas_yaml.get(&Yaml::String(schema_ref.to_string())) {
+                        // Parse the schema
+                        parse(
+                            &docs[0],
+                            &mut schemas,
+                            &mut aliases,
+                            root_path.to_string(),
+                            schema_ref,
+                            schema_yaml
+                        )
+                        .context("Failed to parse the schema")?;
+                    } else {
+                        bail!("Schema reference {} not found in schemas", schema_ref);
+                    }
+                }
+            }
+        }
+    }
+
+    /*
     for (key, value) in schemas_yaml.iter() {
         let key = key.as_str().context("Failed to get key")?;
 
@@ -36,36 +82,122 @@ fn main() -> Result<()>{
         )
             .context("Failed to parse the schema")?;
     } 
+    */
 
     // Print the schema and alias Rust types
-    let mut rust_schema_body = String::new();
-    for ( _key, value ) in schemas.iter() {
+    let mut rust_schema_bodies: BTreeMap<String, (String, BTreeSet<String>)> = BTreeMap::new();
+    for ( key, value ) in schemas.iter() {
+        let relies_on;
+        let wanted_by;
         let stringified = match value {
             Data::Object(object) => {
+                wanted_by = object.wanted_by.clone();
+                relies_on = object.relies_on.clone();
                 format!("{}", object)
             },
             Data::Enum(r#enum) => {
+                wanted_by = r#enum.wanted_by.clone();
+                relies_on = r#enum.relies_on.clone();
                 format!("{}", r#enum)
             }
         };
-        //println!("{key}:\n{stringified}\n\n");
-        rust_schema_body += &stringified
+        let file_title = if wanted_by.is_empty() {
+            "uncategorized".to_string()
+        } else if wanted_by.len() == 1 {
+            format!("{}", wanted_by.iter().next().context("Unreachable wanted_by")?)
+        } else {
+            format!("{}", wanted_by.iter().map(|st| st.to_owned()).collect::<Vec<String>>().join("_"))
+        };
+
+        let rust_schema_body = rust_schema_bodies
+            .entry(file_title.clone())
+            .or_insert_with(|| (String::new(), BTreeSet::new()));
+
+        // Copy the relies_on to the file as `use` statements
+        for typename in relies_on.iter() {
+            // Find the file title of the type schema
+            let typename_schema = match schemas.get(typename) {
+                Some(Data::Object(object)) => {
+                    object.wanted_by.clone()
+                },
+                Some(Data::Enum(r#enum)) => {
+                    r#enum.wanted_by.clone()
+                },
+                _ => {
+                    // Check if it's an alias
+                    if let Some(_) = aliases.get(typename) {
+                        BTreeSet::from(["aliases".to_string()])
+                    } else {
+                        bail!("Type {} (needed for {key}) not found in schemas or aliases", typename);
+                    }
+                }
+            };
+
+            let inner_file_title = if typename_schema.is_empty() {
+                "uncategorized".to_string()
+            } else if typename_schema.len() == 1 {
+                format!("{}", typename_schema.iter().next().context("Unreachable wanted_by")?)
+            } else {
+                format!("{}", typename_schema.iter().map(|st| st.to_owned()).collect::<Vec<String>>().join("_"))
+            };
+
+            // Add the `use` statement to the file if it's not in the same file
+            if file_title.as_str() == inner_file_title.as_str() {
+                continue;
+            }
+            (*rust_schema_body).1.insert(format!("use super::{}::{};", inner_file_title, typename));
+        }
+        (*rust_schema_body).0 += &stringified
             .replace("(/docs", "(https://platform.openai.com/docs");
-        rust_schema_body += "\n";
+        (*rust_schema_body).0 += "\n";
     }
 
-    rust_schema_body += "\n\n";
+    // First, delete and create the schemas directory
+    std::fs::remove_dir_all("src/schemas")
+        .context("Failed to remove schemas directory")?;
+    std::fs::create_dir_all("src/schemas")
+        .context("Failed to create schemas directory")?;
+
+    // Create the `mod.rs` file
+    let mod_content = rust_schema_bodies.keys()
+        .map(|file_name| format!("pub mod {};\n", file_name.replace(".rs", "")))
+        .collect::<String>()
+        +
+        "\n\n"
+        +
+        &rust_schema_bodies
+            .keys()
+            .map(|file_name| format!("pub use {}::*;\n", file_name.replace(".rs", "")))
+            .collect::<String>();
+    std::fs::write("src/schemas/mod.rs", &mod_content)
+        .context("Failed to write schemas mod.rs file")?;
+
+    // Write the useful snippets to files
+    for (file_name, body) in rust_schema_bodies.iter() {
+        let body = format!(
+            "{}\nuse std::collections::HashMap;\nuse serde::{{Serialize, Deserialize}};\n\n{}",
+            body.1.iter().map(|st| format!("{st}\n")).collect::<String>(),
+            body.0
+        );
+
+        std::fs::write(format!("src/schemas/{}.rs", file_name), body)
+            .context("Failed to write OpenAPI Rust schemas to file")?;
+    }
 
     let mut aliases = aliases.into_iter().collect::<Vec<_>>();
+    let mut alias_body = String::new();
     aliases.sort();
     aliases.dedup();
     for ( _key, value ) in aliases.iter() {
-        let stringfied = format!("{value}\n");
-        //println!("{stringfied}");
-        rust_schema_body += &stringfied;
+        let alias = format!("{}", value);
+        alias_body += &alias;
+        alias_body += "\n";
     }
+    std::fs::write("src/schemas/aliases.rs", &alias_body)
+        .context("Failed to write OpenAPI Rust aliases to file")?;
 
     // Write the useful snippets to files
+    /*
     std::fs::write("assets/openapi.txt", format!("{:#?}", docs))
         .context("Failed to write OpenAPI YAML to file")?;
     std::fs::write("assets/openapi-schemas.txt", format!("{:#?}", schemas))
@@ -76,8 +208,9 @@ fn main() -> Result<()>{
     ))
         .context("Failed to write OpenAPI Rust schemas to file")?;
     println!("Successfully parsed OpenAI OpenAPI spec:\n - {} schemas\n - {} aliases\n\n", schemas.len(), aliases.len());
+     */
 
-
+    /*
     let create_response = CreateResponse {
         model: Some(serde_json::Value::String("gpt-3.5-turbo".to_string())),
         input: Some(CreateResponseInput::String("Hello world".to_string())),
@@ -130,6 +263,7 @@ fn main() -> Result<()>{
     println!("Outputs:\n{outputs_string}");
     std::fs::write("assets/openai_response_outputs.txt", &outputs_string)
         .context("Failed to write OpenAI response outputs text to file")?;
+    */
 
     Ok(())
 }

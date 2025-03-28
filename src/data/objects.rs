@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Debug, Clone)]
 pub enum FieldValue {
@@ -36,6 +36,10 @@ pub struct Object {
     pub description: Option<String>,
     /// The properties of the object
     pub properties: BTreeMap<String, Field>,
+    /// Which paths wants this object
+    pub wanted_by: BTreeSet<String>,
+    /// Which types this object relies on
+    pub relies_on: BTreeSet<String>,
 }
 impl std::fmt::Display for Object {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {

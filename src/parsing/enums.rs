@@ -1,11 +1,11 @@
 use super::{
     Data, Alias, parse,
 
-    super::types::enums::{Enum, EnumType},
+    super::data::enums::{Enum, EnumType},
     arrays::parse_array
 };
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use convert_case::{Case, Casing};
 use saphyr::Yaml;
@@ -76,6 +76,7 @@ pub(super) fn parse_enum (
 
     schemas: &mut BTreeMap<String, Data>,
     aliases: &mut BTreeMap<String, Alias>,
+    wanted_by: String,
 
     key: &str,
     value: &Yaml
@@ -83,6 +84,7 @@ pub(super) fn parse_enum (
     println!("Parsing as enum: {value:#?}");
 
     let description = value["description"].as_str();
+    let mut relies_on = BTreeSet::new();
     
     // First, check that this is/isn't an `anyOf`-type enum
     if let Some(enum_options) = value["anyOf"].as_vec() {
@@ -100,10 +102,12 @@ pub(super) fn parse_enum (
 
                 // Add the requested struct recursively
                 println!("Need to recurse for `anyOf` enum: {parsed_referred_struct}");
+                relies_on.insert(parsed_referred_struct.to_string());
                 parse(
                     global_yaml,
                     schemas,
                     aliases,
+                    wanted_by.clone(),
                     parsed_referred_struct,
                     &global_yaml["components"]["schemas"][parsed_referred_struct]
                 )
@@ -196,6 +200,8 @@ pub(super) fn parse_enum (
                 description: description.map(|s| s.to_string()),
                 values: enum_values,
                 enum_type: EnumType::AnyOf,
+                wanted_by: BTreeSet::from([ wanted_by.clone() ]),
+                relies_on,
             })
         );
 
@@ -215,10 +221,12 @@ pub(super) fn parse_enum (
 
                 // Add the requested struct recursively
                 println!("Need to recurse for `oneOf` enum: {parsed_referred_struct}");
+                relies_on.insert(parsed_referred_struct.to_string());
                 parse(
                     global_yaml,
                     schemas,
                     aliases,
+                    wanted_by.clone(),
                     parsed_referred_struct,
                     &global_yaml["components"]["schemas"][parsed_referred_struct]
                 )
@@ -276,10 +284,12 @@ pub(super) fn parse_enum (
 
                         // Add the requested struct recursively
                         println!("Need to recurse for `array` enum: {referred_type}");
+                        relies_on.insert(referred_type.to_string());
                         parse(
                             global_yaml,
                             schemas,
                             aliases,
+                            wanted_by.clone(),
                             referred_type,
                             &global_yaml["components"]["schemas"][referred_type]
                         )
@@ -301,6 +311,7 @@ pub(super) fn parse_enum (
                         global_yaml,
                         schemas,
                         aliases,
+                        wanted_by.clone(),
                         key,
                         key,
                         enum_option
@@ -358,6 +369,8 @@ pub(super) fn parse_enum (
                 description: description.map(|s| s.to_string()),
                 values: enum_values,
                 enum_type: EnumType::OneOf,
+                wanted_by: BTreeSet::from([ wanted_by ]),
+                relies_on,
             })
         );
     
@@ -381,6 +394,8 @@ pub(super) fn parse_enum (
             description: description.map(|s| s.to_string()),
             values: enum_values,
             enum_type: EnumType::Standard,
+            wanted_by: BTreeSet::from([ wanted_by.clone() ]),
+            relies_on,
         })
     );
     println!("Added enum: {}", key);
