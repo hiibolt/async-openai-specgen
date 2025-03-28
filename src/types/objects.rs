@@ -63,13 +63,26 @@ impl std::fmt::Display for Object {
             }
 
             // Fix the `type` key
+            let key = if key.contains("/") || key.contains("-") {
+                body.push_str("\t#[serde(rename = \"");
+                body.push_str(key);
+                body.push_str("\")]\n");
+                key.replace("/", "_")
+                    .replace("-", "_")
+            } else {
+                key.to_string()
+            };
+
             let key = if key == "type" {
                 "r#type"
             } else if key == "static" {
                 "r#static"
             } else {
-                key
+                &key
             }.replace("[]", "");
+
+            // Check if it needs to be renamed
+            
 
             if !value.required {
                 body.push_str("\t#[serde(skip_serializing_if = \"Option::is_none\")]\n");

@@ -36,6 +36,26 @@ pub(super) fn parse_object (
             return Ok(())
         }
     }
+    // Also check if it's not that silly goober JSON typing notation
+    if let Some(expected_json_type) = value["additionalProperties"]["type"].as_str() {
+        let expected_json_type = match expected_json_type {
+            "string" => "String",
+            "integer" => "i64",
+            "number" => "f64",
+            "boolean" => "bool",
+            _ => {
+                println!("Unknown type `{expected_json_type}`!\nErroneous Value: {:#?}", value);
+                bail!("No type found");
+            }
+        };
+
+        aliases.insert(key.to_string(), Alias {
+            name: key.to_string(),
+            r#type: format!("HashMap<String, {expected_json_type}>")
+        });
+
+        return Ok(())
+    }
 
     // Get the required fields
     let mut required = BTreeSet::new();
@@ -153,35 +173,6 @@ fn process_properties (
         }
     }
 
-    // Check if it's a `oneOf` object
-    if let Some(_) = value["oneOf"].as_vec() {
-        let field_type_key = format!(
-            "{}{}", 
-            key,
-            key.to_case(Case::UpperCamel)
-        );
-
-        // Parse the enum
-        println!("Property is a `oneOf` object: {field_type_key}, parsing as enum");
-        parse_enum(
-            global_yaml,
-            schemas,
-            aliases,
-            field_type_key.as_str(),
-            value
-        )
-            .with_context(|| format!("Couldn't parse the enum {field_type_key}"))?;
-        println!("Finished recursively adding `oneOf` enum {field_type_key}, continuing object {key}");
-
-        object.properties.insert(key.to_string(), Field {
-            description: None,
-            value: FieldValue::ExternalType(field_type_key),
-            required: required.contains(&key)
-        });
-
-        return Ok(())
-    }
-
     let properties = if let Some(properties) = value["properties"].as_hash() {
         properties
     } else {
@@ -207,15 +198,6 @@ fn process_properties (
             panic!("Invalid property key: {:#?}", property_key);
         })
         .collect::<BTreeMap<&Yaml, &Yaml>>();
-    let bad_properties = properties.iter()
-        .filter(|(property_key, _)| {
-            if let Some(property_key) = property_key.as_str() {
-                return property_key.contains('.');
-            }
-
-            panic!("Invalid property key: {:#?}", property_key);
-        })
-        .collect::<BTreeMap<&Yaml, &Yaml>>();
     for (bad_property_key, bad_property_value) in properties.iter()
         .filter(|(property_key, _)| {
             if let Some(property_key) = property_key.as_str() {
@@ -232,7 +214,7 @@ fn process_properties (
         let fixed_property_key = split_bad_property_key[0];
         let fixed_property_key_yaml = Yaml::String(fixed_property_key.to_string());
 
-        let fixed_property_value = if let Some(existing_fixed_property_value) = fixed_bad_properties.get_mut(&fixed_property_key_yaml) {
+        let fixed_bad_property_ref = if let Some(existing_fixed_property_value) = fixed_bad_properties.get_mut(&fixed_property_key_yaml) {
             existing_fixed_property_value
         } else {
             // Create the object
@@ -245,22 +227,21 @@ fn process_properties (
                 Yaml::String("properties".to_string()),
                 Yaml::Hash(LinkedHashMap::new())
             );
-
             fixed_bad_properties.insert(fixed_property_key_yaml.clone(), Yaml::Hash(fixed_property_value));
 
-            fixed_bad_properties.get_mut(&fixed_property_key_yaml).unwrap()
+            fixed_bad_properties.get_mut(&fixed_property_key_yaml).expect("Unreachable")
         };
         
-        let property_name = split_bad_property_key[1];
-        fixed_property_value["properties"].as_mut_hash().unwrap().insert(
-            Yaml::String(property_name.to_string()),
+        let subproperty_name = split_bad_property_key[1];
+        fixed_bad_property_ref["properties"].as_mut_hash().unwrap().insert(
+            Yaml::String(subproperty_name.to_string()),
             bad_property_value.clone()
         );
     }
 
     // Zip the bad properties into the good properties
     let properties = good_properties.into_iter()
-        .chain(bad_properties.into_iter())
+        .chain(fixed_bad_properties.iter())
         .collect::<BTreeMap<&Yaml, &Yaml>>();
 
     for (property_key, property_value) in properties.iter() {
@@ -271,8 +252,27 @@ fn process_properties (
         let description = property_value["description"].as_str();
         let field_value = match property_value["type"].as_str() {
             Some("object") => {
-                // Make sure it's not secretly a JSON value or a HashMap
-                if let Some(additional_properties) = property_value["additionalProperties"].as_bool() {
+                // Check if it's a `oneOf` object
+                if let Some(_) = property_value["oneOf"].as_vec() {
+                    let field_type_key = format!(
+                        "{}{}", 
+                        key,
+                        property_key.to_case(Case::UpperCamel)
+                    );
+
+                    // Parse the enum
+                    parse_enum(
+                        global_yaml,
+                        schemas,
+                        aliases,
+                        field_type_key.as_str(),
+                        property_value
+                    )
+                        .with_context(|| format!("Couldn't parse the enum {field_type_key}"))?;
+                    println!("Finished recursively adding `oneOf` enum {field_type_key}, continuing object {key}");
+
+                    FieldValue::ExternalType(field_type_key)
+                } else if let Some(additional_properties) = property_value["additionalProperties"].as_bool() {
                     if additional_properties {
                         FieldValue::ExternalType("serde_json::Value".to_string())
                     } else {
@@ -293,30 +293,37 @@ fn process_properties (
                 } else if property_value["x-oaiMeta"].as_hash().is_some() && property_value["properties"].as_hash().is_none() {
                     FieldValue::ExternalType("serde_json::Value".to_string())
                 } else {
-                    // Recursively add the object as `keyPropertyKey`
-                    let field_type_key = format!(
-                        "{}{}", 
-                        key,
-                        property_key.to_case(Case::UpperCamel)
-                    );
+                    // Check if it has `properties` at all. If not, it's a `serde_json::Value`
+                    if property_value["properties"].as_hash().is_none() {
+                        FieldValue::ExternalType("serde_json::Value".to_string())
+                    } else {
+                        println!("Assuming property is an object: {key}{property_key}");
+                        // Recursively add the object as `keyPropertyKey`
+                        let field_type_key = format!(
+                            "{}{}", 
+                            key,
+                            property_key.to_case(Case::UpperCamel)
+                        );
 
-                    parse_object(
-                        global_yaml,
-                        schemas,
-                        aliases,
-                        field_type_key.as_str(),
-                        property_value
-                    )
-                        .with_context(|| format!("Couldn't parse the object {field_type_key}"))?;
-                    println!("Finished recursively adding object field {field_type_key}, continuing object {key}");
+                        parse_object(
+                            global_yaml,
+                            schemas,
+                            aliases,
+                            field_type_key.as_str(),
+                            property_value
+                        )
+                            .with_context(|| format!("Couldn't parse the object {field_type_key}"))?;
+                        println!("Finished recursively adding object field {field_type_key}, continuing object {key}");
 
-                    FieldValue::ExternalType(field_type_key)
+                        FieldValue::ExternalType(field_type_key)
+                    }
                 }
             },
             Some("enum") => {
                 FieldValue::ExternalType(property_value["type"].as_str().unwrap().to_string())
             },
             Some("array") => {
+                println!("Recursive to handle property {property_key} as array");
                 parse_array(
                     global_yaml,
                     schemas,
@@ -441,26 +448,24 @@ fn process_properties (
                 } else {
                     // If it has an `items` key, it's an array
                     if let Some(_) = property_value["items"].as_hash() {
-                        println!("Assuming property is an array of objects: {key}{property_key}");
-
                         let field_type_key = format!(
                             "{}{}", 
                             key,
                             property_key.to_case(Case::UpperCamel)
                         );
 
-                        // Recursively add the object as `keyPropertyKey`
-                        parse_object(
+                        println!("Assuming property is an array of objects: {field_type_key}");
+
+                        // Parse the array
+                        parse_array(
                             global_yaml,
                             schemas,
                             aliases,
-                            field_type_key.as_str(),
+                            key,
+                            property_key,
                             property_value
                         )
-                            .with_context(|| format!("Couldn't parse the object {field_type_key}"))?;
-                        println!("Finished recursively adding object field {field_type_key}, continuing object {key}");
-
-                        FieldValue::Array(field_type_key)
+                            .with_context(|| format!("Couldn't parse the array {key}"))?
                     } else {
                         println!("Unknown type `{:#?}`!\nErroneous Value: {:#?}", property_value["type"], property_value);
                         bail!("No type found");

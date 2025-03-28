@@ -23,15 +23,16 @@ pub(super) fn parse_array (
     property_key: &str,
     property_value: &Yaml
 ) -> Result<FieldValue> {
+    println!("Parsing key {key} (property key {property_key}) as an array: {property_value:#?}");
+
     // First, check if it's a `oneOf` or `allOf` array
     if property_value["items"]["oneOf"].as_vec().is_some() {
         let field_type_key = format!(
-            "{}{}",
-            key,
-            property_key.to_case(Case::UpperCamel)
+            "{}Items",
+            key
         );
 
-        // Parse the enum
+        // Parse the object
         parse_enum(
             global_yaml,
             schemas,
@@ -39,8 +40,8 @@ pub(super) fn parse_array (
             field_type_key.as_str(),
             &property_value["items"]
         )
-            .with_context(|| format!("Couldn't parse the enum {field_type_key}"))?;
-        println!("Finished recursively adding `oneOf` enum {field_type_key}, continuing object {key}");
+            .with_context(|| format!("Couldn't parse the object {field_type_key}"))?;
+        println!("Finished recursively adding `oneOf` object {field_type_key}, continuing object {key}");
 
         return Ok(FieldValue::Array(field_type_key));
     }
@@ -105,7 +106,7 @@ pub(super) fn parse_array (
     // Lastly, check if it's an array of objects or enums
     if property_value["items"]["properties"].as_hash().is_some() {
         let field_type_key = format!(
-            "{}{}", 
+            "{}{}Item", 
             key,
             property_key.to_case(Case::UpperCamel)
         );
@@ -126,7 +127,7 @@ pub(super) fn parse_array (
         let field_type_key = format!(
             "{}{}",
             key,
-            property_key.to_case(Case::UpperCamel)
+            property_key.replace("/", "_").to_case(Case::UpperCamel)
         );
 
         // Parse the enum

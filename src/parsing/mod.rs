@@ -18,7 +18,7 @@ pub enum Data {
     Object(Object),
     Enum(Enum)
 }
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Alias {
     /// The name of the alias
     pub name: String,

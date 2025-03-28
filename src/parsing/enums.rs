@@ -72,7 +72,7 @@ pub(super) fn parse_enum (
                     },
                     Some(Data::Object(_)) => {
                         // Add the referred struct as a variant
-                        enum_values.push(format!("{}({})", parsed_referred_struct, parsed_referred_struct));
+                        enum_values.push(format!("{}({})", parsed_referred_struct, parsed_referred_struct.to_case(Case::UpperCamel)));
                     }
                     _ => {
                         bail!("Referred struct is not an enum in an enum type");
@@ -117,7 +117,7 @@ pub(super) fn parse_enum (
                 name: key.to_string(),
                 description: description.map(|s| s.to_string()),
                 values: enum_values,
-                enum_type: EnumType::Standard,
+                enum_type: EnumType::AnyOf,
             })
         );
 
@@ -150,10 +150,10 @@ pub(super) fn parse_enum (
                 // Add the referred struct to the enum
                 match schemas.get(parsed_referred_struct) {
                     Some(Data::Object(_)) => {
-                        enum_values.push(format!("{}({})", parsed_referred_struct, parsed_referred_struct));
+                        enum_values.push(format!("{}({})", parsed_referred_struct, parsed_referred_struct.to_case(Case::UpperCamel)));
                     },
                     Some(Data::Enum(_)) => {
-                        enum_values.push(format!("{}({})", parsed_referred_struct, parsed_referred_struct));
+                        enum_values.push(format!("{}({})", parsed_referred_struct, parsed_referred_struct.to_case(Case::UpperCamel)));
                     },
                     None => {
                         // Check if it's an alias
@@ -190,27 +190,53 @@ pub(super) fn parse_enum (
             if let Some(enum_type) = enum_option["type"].as_str() {
                 let cased_enum_type = enum_type.to_case(Case::UpperCamel);
                 if enum_type == "array" {
-                    // Add the array as an alias
+                    let array_type = if let Some(referred_type) = enum_option["items"]["$ref"].as_str() {
+                        let referred_type = referred_type.split("/")
+                            .skip(3)
+                            .next()
+                            .context("Failed to parse the referred type")?;
+
+                        // Add the requested struct recursively
+                        println!("Need to recurse for `array` enum: {referred_type}");
+                        parse(
+                            global_yaml,
+                            schemas,
+                            aliases,
+                            referred_type,
+                            &global_yaml["components"]["schemas"][referred_type]
+                        )
+                            .with_context(|| format!("Couldn't parse the object {referred_type}"))?;
+                        println!("Finished parsing {referred_type}, continuing with enum {key}");
+
+                        referred_type.to_case(Case::UpperCamel)
+                    } else if enum_option["items"]["oneOf"].as_vec().is_some() {
+                        String::from("Varied")
+                    } else {
+                        enum_option["items"]["type"].as_str()
+                            .context("Failed to get the array type")?
+                            .to_case(Case::UpperCamel)
+                    };
+
+                    let added_vector_alias_name = format!("{}Array{}", key, array_type);
+                    
                     let array_field_value = parse_array(
                         global_yaml,
                         schemas,
                         aliases,
                         key,
                         key,
-                        &enum_option
+                        enum_option
                     )
                         .with_context(|| format!("Couldn't parse the array {key}"))?;
 
-                    let vector_alias_name = format!("{}Array", key);
-
-                    aliases.insert(vector_alias_name.clone(), Alias {
-                        name: vector_alias_name.clone(),
+                    aliases.insert(added_vector_alias_name.clone(), Alias {
+                        name: added_vector_alias_name.clone(),
                         r#type: format!("{}", array_field_value)
                     });
 
                     enum_values.push(format!("{}({})",
-                        cased_enum_type,
-                        vector_alias_name
+                        added_vector_alias_name.clone(),
+                        added_vector_alias_name
                     ));
 
                     continue;

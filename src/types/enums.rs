@@ -5,6 +5,7 @@ use regex::{Captures, Regex};
 pub enum EnumType {
     Standard,
     OneOf,
+    AnyOf,
 }
 #[derive(Debug)]
 pub struct Enum {
@@ -32,15 +33,27 @@ impl std::fmt::Display for Enum {
         //  to `lowercase`
         body.push_str("#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]\n");
         body.push_str("#[serde(rename_all = \"lowercase\")]\n");
-        body.push_str("#[serde(untagged)]\n");
+
+        // If it's a `oneOf` or `anyOf` enum, use `untagged`
+        if self.enum_type == EnumType::OneOf || self.enum_type == EnumType::AnyOf {
+            body.push_str("#[serde(untagged)]\n");
+        }
 
         // Write the enum name
         body.push_str(&format!("pub enum {} {{\n", self.name.replace("[]", "")));
 
         // Write the enum values
+        let mut printed_object = false; // Only print `Object(serde_json::Value)` once
         for value in self.values.iter() {
-            // If it's a `oneOf` enum, don't adjust the value
-            if self.enum_type == EnumType::OneOf {
+            // If it's a `oneOf` or `anyOf` enum, don't adjust the value
+            if self.enum_type == EnumType::OneOf || self.enum_type == EnumType::AnyOf {
+                if value == "Object(serde_json::Value)" {
+                    if printed_object {
+                        continue;
+                    }
+                    printed_object = true;
+                }
+
                 body.push_str(&format!("\t{},\n", value));
                 continue;
             }
@@ -52,8 +65,10 @@ impl std::fmt::Display for Enum {
 
             // Convert the value to `UpperCamel` case
             let converted = fixed_value
-                .to_case(Case::UpperCamel)
-                .replace(".", "_");
+                .replace(".", "_")
+                .replace("[", "")
+                .replace("]", "")
+                .to_case(Case::UpperCamel);
 
             
             let primitives = vec!(
